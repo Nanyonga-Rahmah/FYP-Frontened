@@ -10,7 +10,7 @@ function ForgotPasswordPage() {
     navigate("/login");
   };
   return (
-    <div className=" ">
+    <div className="flex justify-center items-center min-h-screen ">
       <div className="border rounded-xl w-[432px] flex flex-col justify-center items-center p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
         <Logo />
 
