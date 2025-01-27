@@ -43,6 +43,7 @@ export function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     console.log(data);
+    navigate("/dashboard");
   };
 
   return (
