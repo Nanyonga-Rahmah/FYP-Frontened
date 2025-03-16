@@ -17,7 +17,7 @@ function Header() {
         <Link to="/" className="text-[#C0C9DD]">
           Home
         </Link>
-        <Link to="/" className="text-[#C0C9DD]">
+        <Link to="/view-harvests" className="text-[#C0C9DD]">
           Harvests
         </Link>
         <Link to="/" className="text-[#C0C9DD]">
