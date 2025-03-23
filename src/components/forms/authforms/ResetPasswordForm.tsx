@@ -62,7 +62,7 @@ export function ResetPasswordForm() {
           name="new_password"
           render={({ field }) => (
             <FormItem className="my-2 text-left">
-              <FormLabel className="font-medium text-sm  ">Password</FormLabel>
+              <FormLabel className="font-medium text-sm text-[#222222]  ">Password</FormLabel>
               <FormControl>
                 <div className="flex border border-input justify-between items-center pr-4 rounded-md h-10 overflow-hidden">
                   <Input
@@ -90,7 +90,7 @@ export function ResetPasswordForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem className="my-2 text-left">
-              <FormLabel className="font-medium text-sm ">
+              <FormLabel className="font-medium text-sm text-[#222222]">
                 Confirm Password
               </FormLabel>
               <FormControl>
@@ -98,7 +98,7 @@ export function ResetPasswordForm() {
                   <Input
                     type={confirmPasswordVisible ? "text" : "password"}
                     placeholder="Enter your password"
-                    className="h-12 border-none ring-offset-0 focus-visible:ring-0  focus-visible:ring-offset-0  "
+                    className="h-12 border-none ring-offset-0 focus-visible:ring-0   focus-visible:ring-offset-0  "
                     {...field}
                   />
                   <p onClick={toggleConfirmPassword}>

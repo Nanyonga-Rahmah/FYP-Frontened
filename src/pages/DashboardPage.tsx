@@ -1,8 +1,8 @@
+import { AddFarm } from "@/components/Farmers/AddFarm";
+import { SubmitBatch } from "@/components/Farmers/SubmitHarvest";
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { LocateFixed } from "lucide-react";
 
 const actions = [
   {
@@ -11,7 +11,7 @@ const actions = [
     imageUrl: "/images/record-harvest.png",
   },
   {
-    name: "Submit Coffee Batch",
+    name: <SubmitBatch />,
     description: "Share your batch for compliance review.",
     imageUrl: "/images/coffeebatch.png",
   },
@@ -40,7 +40,7 @@ const actions = [
 function DashboardPage() {
   return (
     <section
-      className="h-screen"
+      className="min-h-screen"
       style={{
         background: "linear-gradient(to bottom, #112D3E 50%, #F6F9FF 50%)",
       }}
@@ -66,10 +66,7 @@ function DashboardPage() {
           </div>
 
           <div>
-            <Button className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2">
-              <LocateFixed />
-              <span>Add Farm location</span>
-            </Button>
+            <AddFarm />
           </div>
         </div>
 
@@ -85,7 +82,7 @@ function DashboardPage() {
                 className="bg-white flex flex-col items-center rounded-[10px] justify-center py-3 shadow-sm"
               >
                 <div className="object-cover h-16 w-16 ">
-                  <img src={action.imageUrl} alt={action.name} />
+                  <img src={action.imageUrl} alt={action.description} />
                 </div>
                 <span className="font-semibold tetx-xl">{action.name}</span>
                 <span className="font-normal tetx-sm text-[#5C6474]">
@@ -96,7 +93,9 @@ function DashboardPage() {
           </div>
         </section>
       </section>
-      <Footer />
+     <section className="fixed bottom-0 w-full">
+     <Footer />
+     </section>
     </section>
   );
 }

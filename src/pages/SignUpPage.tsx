@@ -14,7 +14,7 @@ function SignUpPage() {
       <div className="border  rounded-xl flex flex-col justify-center items-center p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
         <Logo />
 
-        <span className="text-2xl font-bold">Signup to get started</span>
+        <span className="text-2xl font-bold #222222">Signup to get started</span>
         <SignUpForm />
 
         <span className="text-sm font-normal text-[#202020]">
