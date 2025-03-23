@@ -47,11 +47,11 @@ export function ForgotPasswordForm() {
           name="email"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel> Email</FormLabel>
+              <FormLabel className="text-[#222222]"> Email</FormLabel>
               <FormControl>
                 <Input
                   placeholder="johndoe@gmail"
-                  className=" border-[#DCE1EC] py-2.5"
+                  className=" border-[#DCE1EC] py-2.5 "
                   {...field}
                 />
               </FormControl>

@@ -1,10 +1,19 @@
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 function Header() {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/");
+  };
   return (
     <header className="flex items-center justify-between border-b py-2.5 px-8 border-[#485165]">
-      <div className="flex items-center gap-2">
+      <div
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={handleClick}
+      >
         <div className="h-5 w-5 object-cover">
           <img src="/logos/header-logo.png" alt="Coffee" />
         </div>
@@ -17,10 +26,10 @@ function Header() {
         <Link to="/" className="text-[#C0C9DD]">
           Home
         </Link>
-        <Link to="/" className="text-[#C0C9DD]">
+        <Link to="/view-harvests" className="text-[#C0C9DD]">
           Harvests
         </Link>
-        <Link to="/" className="text-[#C0C9DD]">
+        <Link to="/view-batch" className="text-[#C0C9DD]">
           Coffee Batch
         </Link>
         <Link to="/" className="text-[#C0C9DD]">

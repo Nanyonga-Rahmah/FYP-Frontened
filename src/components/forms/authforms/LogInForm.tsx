@@ -57,11 +57,11 @@ export function LoginForm() {
           name="user_email"
           render={({ field }) => (
             <FormItem className="col-span-2  text-left">
-              <FormLabel> Email</FormLabel>
+              <FormLabel className="text-[#222222]"> Email</FormLabel>
               <FormControl>
                 <Input
                   placeholder="johndoe@gmail"
-                  className=" border-[#DCE1EC] h-10"
+                  className=" border-[#DCE1EC] h-10  "
                   {...field}
                 />
               </FormControl>
@@ -76,13 +76,13 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem className="  space-y-1 col-span-2 text-left">
-              <FormLabel className="font-medium text-sm ">Password</FormLabel>
+              <FormLabel className="font-medium text-sm text-[#222222]">Password</FormLabel>
               <FormControl>
                 <div className="flex border border-input h-10 justify-between items-center pr-4 rounded-md overflow-hidden">
                   <Input
                     type={passwordVisible ? "text" : "password"}
                     placeholder="Enter your password"
-                    className="h-12 border-none focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none  "
+                    className="h-12 border-none focus-visible:ring-0  focus-visible:ring-offset-0 shadow-none  "
                     {...field}
                   />
                   <p onClick={togglePassword}>
