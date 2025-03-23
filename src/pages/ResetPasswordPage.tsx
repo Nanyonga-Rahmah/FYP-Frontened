@@ -13,7 +13,7 @@ function ResetPasswordPage() {
       <div className="border rounded-xl w-[432px] flex flex-col justify-center items-center p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
         <Logo />
 
-        <span className="text-2xl font-bold">Set new password</span>
+        <span className="text-2xl font-bold text-[#222222]">Set new password</span>
         <ResetPasswordForm />
 
         <span className="text-sm font-normal text-[#202020]">
