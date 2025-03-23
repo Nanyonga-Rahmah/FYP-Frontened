@@ -7,23 +7,23 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { LocateFixed, Plus } from "lucide-react";
-import { AddHarvestForm } from "./forms/AddHarvestForm";
+import { AddFarmForm } from "../forms/farmerforms/AddFarmForm";
+import { LocateFixed } from "lucide-react";
 
-export function AddHarvest() {
+export function AddFarm() {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2">
-          <Plus />
-          <span>Add Record</span>
+          <LocateFixed />
+          <span>Add Farm location</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="">
         <DialogHeader>
-          <DialogTitle>Record Harvest</DialogTitle>
+          <DialogTitle>Add Farm</DialogTitle>
         </DialogHeader>
-        <AddHarvestForm />
+        <AddFarmForm />
       </DialogContent>
     </Dialog>
   );

@@ -4,13 +4,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { MoreHorizontal } from "lucide-react";
-import { RemoveFarm } from "./RemoveFarm";
-import { EditFarm } from "./EditFarm";
-import { ViewFarm } from "./ViewFarm";
+import { RemoveFarm } from "../Farmers/RemoveFarm";
+import { EditFarm } from "../Farmers/EditFarm";
+import { ViewFarm } from "../Farmers/ViewFarm";
 import { useLocation } from "react-router-dom";
-import { ViewHarvest } from "./ViewHarvest";
-import { EditHarvest } from "./EditHarvest";
-import { RemoveHarvest } from "./RemoveHarvest";
+import { ViewHarvest } from "../Farmers/ViewHarvest";
+import { EditHarvest } from "../Farmers/EditHarvest";
+import { RemoveHarvest } from "../Farmers/RemoveHarvest";
 
 interface ActionProps {
   status?: string;

@@ -89,6 +89,7 @@ export function AddFarmForm() {
   }
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
+    console.log(selectedFiles)
   }
 
   return (

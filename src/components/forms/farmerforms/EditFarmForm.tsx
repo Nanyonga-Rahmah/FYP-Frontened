@@ -22,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { useState } from "react";
-import { Weight } from "lucide-react";
 
 const FormSchema = z.object({
   farmName: z.string().min(2, {
@@ -35,9 +34,6 @@ const FormSchema = z.object({
   longitude: z.string(),
   cultivationMethod: z.string(),
   certification: z.string(),
-  variety: z.string(),
-  weight: z.string(),
-  harvestDate: z.string(),
 
   documents: z.array(
     z
@@ -57,7 +53,7 @@ const FormSchema = z.object({
   }),
 });
 
-export function EditHarvestForm() {
+export function EditFarmForm() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const [cultivationMethods] = useState([
@@ -83,9 +79,6 @@ export function EditHarvestForm() {
       certification: "",
       cultivationMethod: "",
       latitude: "",
-      variety: "",
-      weight: "",
-      harvestDate: "",
     },
   });
   function handleFileChange(files: FileList | null) {
@@ -96,6 +89,7 @@ export function EditHarvestForm() {
   }
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
+    console.log(selectedFiles)
   }
 
   return (
@@ -106,32 +100,28 @@ export function EditHarvestForm() {
       >
         <FormField
           control={form.control}
-          name="variety"
+          name="farmName"
           render={({ field }) => (
-            <FormItem className="col-span-1 ">
-              <FormLabel>Coffee Variety</FormLabel>
+            <FormItem className="col-span-1 text-left">
+              <FormLabel>Farm name</FormLabel>
               <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  {" "}
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select variety" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {cultivationMethods.map((method, index) => {
-                      return (
-                        <SelectItem key={index} value={method}>
-                          {method}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                <Input placeholder="John" {...field} className="py-2.5" />
               </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="farmLocation"
+          render={({ field }) => (
+            <FormItem className="col-span-1 text-left">
+              <FormLabel>Farm location</FormLabel>
+              <FormControl>
+                <Input placeholder="Doe" {...field} className="py-2.5" />
+              </FormControl>
+
               <FormMessage />
             </FormItem>
           )}
@@ -139,15 +129,18 @@ export function EditHarvestForm() {
 
         <FormField
           control={form.control}
-          name="weight"
+          name="latitude"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Weight</FormLabel>
+              <FormLabel>
+                Latitude
+                <span>(Optional)</span>
+              </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter weight in kg"
+                  placeholder="abc@example.com"
                   {...field}
-                  className="h-9"
+                  className="py-2.5"
                 />
               </FormControl>
 
@@ -158,45 +151,19 @@ export function EditHarvestForm() {
 
         <FormField
           control={form.control}
-          name="harvestDate"
-          render={({ field }) => (
-            <FormItem className="col-span-2 text-left">
-              <FormLabel>Harvest Date</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} className="h-9" />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="farmName"
+          name="longitude"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Farm name</FormLabel>
+              <FormLabel>
+                Longitude
+                <span>(Optional)</span>
+              </FormLabel>
               <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  {" "}
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select farm" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {cultivationMethods.map((method, index) => {
-                      return (
-                        <SelectItem key={index} value={method}>
-                          {method}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                <Input
+                  placeholder="abc@example.com"
+                  {...field}
+                  className="py-2.5"
+                />
               </FormControl>
 
               <FormMessage />
@@ -208,13 +175,13 @@ export function EditHarvestForm() {
           control={form.control}
           name="farmSize"
           render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
+            <FormItem className="col-span-2 text-left">
               <FormLabel>Farm size</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter farm size in hectares"
+                  placeholder=""
                   {...field}
-                  className="h-9"
+                  className="py-2.5"
                 />
               </FormControl>
 
@@ -238,7 +205,7 @@ export function EditHarvestForm() {
                 >
                   {" "}
                   <SelectTrigger>
-                    <SelectValue placeholder="Select method" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px] overflow-y-auto">
                     {cultivationMethods.map((method, index) => {
@@ -271,7 +238,7 @@ export function EditHarvestForm() {
                 >
                   {" "}
                   <SelectTrigger>
-                    <SelectValue placeholder="Select certifications" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px] overflow-y-auto">
                     {certifications.map((certificate, index) => {
@@ -296,7 +263,7 @@ export function EditHarvestForm() {
             <FormItem className="col-span-2">
               <FormLabel>
                 Documents
-                <span> (Upload relevant images of harvest)</span>
+                <span> (Upload relevant certification or farm documents)</span>
               </FormLabel>
               <FormControl>
                 <div className=" rounded-[6px] border border-dashed h-10 flex justify-center items-center">
@@ -321,7 +288,7 @@ export function EditHarvestForm() {
         />
 
         <Button type="submit" className="col-span-2 py-2 mt-2">
-          Update Harvest
+          Update farm
         </Button>
       </form>
     </Form>

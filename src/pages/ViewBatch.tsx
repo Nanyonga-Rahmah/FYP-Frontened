@@ -1,49 +1,50 @@
-import { PopoverDemo } from "@/components/globals/ActionPopover";
 
-import { AddHarvest } from "@/components/Farmers/AddHarvest";
+import { SubmitBatch } from "@/components/Farmers/SubmitHarvest";
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
-import { Calendar1, MapPin, Sprout } from "lucide-react";
+import { Calendar1,   Sprout } from "lucide-react";
+
 
 const harvests = [
   {
-    name: "HRV-001",
+    name: "BH-001",
     location: "Mbale , Uganda",
     size: "25 Hecters",
-    status: "Not submitted",
+    status: "under review",
     date: "Nov 20,2026",
     type: "Arabica",
   },
   {
-    name: "HRV-001",
+    name: "BH-001",
     location: "Mbale , Uganda",
     size: "25 Hecters",
-    status: "submitted",
+    status: "approved",
     date: "Nov 20,2026",
     type: "Arabica",
   },
   {
-    name: "HRV-001",
+    name: "BH-001",
     location: "Mbale , Uganda",
     size: "25 Hecters",
-    status: "Not submitted",
+    status: "rejected",
     date: "Nov 20,2026",
     type: "Arabica",
   },
 ];
 
 export const checkBadgeStatus = (status: string) => {
-  if (status === "submitted") {
+  if (status === "approved") {
     return "bg-[#43B75D] , text-white";
-  } else if (status === "pending") {
-    return "bg-red-700";
+  } else if (status === "rejected") {
+    return "bg-red-700 , text-white";
   } else {
     return "bg-[#D9D9D9] , text-[#656565]";
   }
 };
-function ViewHarvestsPage() {
+function ViewBatchPage() {
   return (
     <section
       className="h-screen"
@@ -75,28 +76,27 @@ function ViewHarvestsPage() {
         <section className="mt-16">
           <div className="flex items-center justify-between">
             <span className="font-semibold text-xl text-white ">
-              Harvest records
+             Batch History
             </span>
 
-            <div>
-              <AddHarvest />
+            <div className="">
+             
+             <SubmitBatch/>
             </div>
           </div>
           <div className="grid lg:grid-cols-3 gap-5 mt-5 mb-10">
             {harvests.map((action, index) => (
               <div
                 key={index}
-                className="bg-white flex flex-col gap-2  rounded-[10px] py-1  px-3 shadow-sm"
+                className="bg-white flex flex-col gap-2  rounded-[10px] py-1  px-10 shadow-sm"
               >
-                <div className="flex justify-end">
-                  <PopoverDemo status={action.status} />
-                </div>
+               
                 <div className="flex flex-col py-2.5 ">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between">
                     <span className="font-semibold tetx-xl">{action.name}</span>
 
                     <span
-                      className={`px-2 py-1 text-xs rounded-3xl ${checkBadgeStatus(action.status)} `}
+                      className={`px-2 py-1 text-xs rounded-3xl capitalize ${checkBadgeStatus(action.status)} `}
                     >
                       {action.status}
                     </span>
@@ -108,24 +108,17 @@ function ViewHarvestsPage() {
                     </span>
                     <span>{action.type} (100kg)</span>
                   </div>
-                  <span className="font-normal tetx-sm flex items-center gap-1 text-[#5C6474]">
-                    <span>
-                      <MapPin size={10} />
-                    </span>
-                    {action.location}({" "}
-                    <span className="font-normal tetx-sm text-[#5C6474]">
-                      {action.size}
-                    </span>
-                    )
-                  </span>
+                 
 
                   <div className="flex items-center gap-1">
                     <span>
                       <Calendar1 size={15} />
                     </span>
-                    <span className="text-[#838383]">Harvested:</span>
+                    <span className="text-[#838383]">Submitted:</span>
                     <span className="text-[#202020]">{action.date}</span>
                   </div>
+
+                  <Button variant={'outline'} className="my-2">View Details</Button>
                 </div>
               </div>
             ))}
@@ -139,4 +132,4 @@ function ViewHarvestsPage() {
   );
 }
 
-export default ViewHarvestsPage;
+export default ViewBatchPage;

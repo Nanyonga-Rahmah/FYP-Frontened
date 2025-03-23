@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { useState } from "react";
-import { Weight } from "lucide-react";
+
 
 const FormSchema = z.object({
   farmName: z.string().min(2, {
@@ -96,6 +96,7 @@ export function AddHarvestForm() {
   }
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
+    console.log(selectedFiles)
   }
 
   return (

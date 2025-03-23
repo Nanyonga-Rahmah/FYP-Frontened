@@ -1,16 +1,14 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { EditFarmForm } from "./forms/EditFarmForm";
 
-export function EditFarm() {
+import { EditHarvestForm } from "../forms/farmerforms/EditHarvestForm";
+
+export function EditHarvest() {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -18,9 +16,9 @@ export function EditFarm() {
       </DialogTrigger>
       <DialogContent className="">
         <DialogHeader>
-          <DialogTitle>Edit Farm</DialogTitle>
+          <DialogTitle>Edit Harvest</DialogTitle>
         </DialogHeader>
-        <EditFarmForm />
+        <EditHarvestForm />
       </DialogContent>
     </Dialog>
   );

@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Calendar, Calendar1, FileText, MapPin } from "lucide-react";
+import {  Calendar1, FileText, MapPin } from "lucide-react";
 
 export function ViewFarm() {
   const farm = {

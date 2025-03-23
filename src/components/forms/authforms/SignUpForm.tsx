@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
+
 import {
   Form,
   FormControl,
@@ -11,12 +12,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
+import { USER_ROLES } from "@/lib/constants";
 
 const FormSchema = z.object({
   firstName: z.string().min(2, {
+    message: "Field is required.",
+  }),
+
+  role: z.string().min(2, {
     message: "Field is required.",
   }),
   lastName: z.string().min(2, {
@@ -53,6 +67,7 @@ export function SignUpForm() {
       phoneNumber: "",
       password: "",
       email: "",
+      role: "",
     },
   });
 
@@ -66,14 +81,55 @@ export function SignUpForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="grid grid-cols-2 gap-3 px-3 py-1.5"
       >
+        <div className="col-span-2">
+          <p className="font-normal text-[#222222] text-sm">Role</p>
+          <div className="flex flex-row gap-4">
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger className=" my-2 shadow-none  ">
+                      <SelectValue
+                        placeholder="Select your role "
+                        className=" "
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {USER_ROLES.map((category) => (
+                          <SelectItem
+                            key={category}
+                            value={category.toLowerCase()}
+                          >
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
         <FormField
           control={form.control}
           name="firstName"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>First Name</FormLabel>
+              <FormLabel className="text-[#222222]">First Name</FormLabel>
               <FormControl>
-                <Input placeholder="John" {...field} className="py-2.5" />
+                <Input placeholder="John" {...field}  className="py-2.5 " />
               </FormControl>
 
               <FormMessage />
@@ -85,9 +141,9 @@ export function SignUpForm() {
           name="lastName"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Last Name</FormLabel>
+              <FormLabel className="text-[#222222]">Last Name</FormLabel>
               <FormControl>
-                <Input placeholder="Doe" {...field} className="py-2.5" />
+                <Input placeholder="Doe" {...field} className="py-2.5 " />
               </FormControl>
 
               <FormMessage />
@@ -100,12 +156,12 @@ export function SignUpForm() {
           name="phoneNumber"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel>Phone</FormLabel>
+              <FormLabel className="text-[#222222]">Phone</FormLabel>
               <FormControl>
                 <Input
                   placeholder="+256 707444764"
                   {...field}
-                  className="py-2.5"
+                  className="py-2.5 "
                 />
               </FormControl>
 
@@ -119,12 +175,12 @@ export function SignUpForm() {
           name="email"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-[#222222]">Email</FormLabel>
               <FormControl>
                 <Input
                   placeholder="abc@example.com"
                   {...field}
-                  className="py-2.5"
+                  className="py-2.5 "
                 />
               </FormControl>
 
@@ -138,7 +194,7 @@ export function SignUpForm() {
           name="password"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-[#222222]">Password</FormLabel>
               <FormControl>
                 <div className="flex border border-input h-10 justify-between items-center pr-4 rounded-md overflow-hidden">
                   <Input
