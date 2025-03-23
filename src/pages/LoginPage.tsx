@@ -13,7 +13,7 @@ function LoginPage() {
       <div className="border rounded-xl w-[432px] flex flex-col justify-center items-center p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
         <Logo />
 
-        <span className="text-2xl font-bold #222222">Log in to continue</span>
+        <span className="text-2xl font-bold text-[#222222]">Log in to continue</span>
         <LoginForm />
 
         <span className="text-sm font-normal text-[#202020]">
