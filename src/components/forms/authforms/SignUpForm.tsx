@@ -90,6 +90,7 @@ export function SignUpForm() {
               render={({ field }) => (
                 <FormItem className="w-full">
                   <Select
+            
                     onValueChange={(value) => {
                       field.onChange(value);
                     }}
@@ -98,7 +99,7 @@ export function SignUpForm() {
                     <SelectTrigger className=" my-2 shadow-none  ">
                       <SelectValue
                         placeholder="Select your role "
-                        className="text-black/90 "
+                        className=" "
                       />
                     </SelectTrigger>
                     <SelectContent>
