@@ -98,7 +98,7 @@ export function SignUpForm() {
                     <SelectTrigger className=" my-2 shadow-none  ">
                       <SelectValue
                         placeholder="Select your role "
-                        className=" "
+                        className="text-black/90 "
                       />
                     </SelectTrigger>
                     <SelectContent>
