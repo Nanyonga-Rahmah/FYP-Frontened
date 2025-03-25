@@ -79,7 +79,7 @@ function DashboardPage() {
             {actions.map((action, index) => (
               <div
                 key={index}
-                className="bg-white flex flex-col items-center rounded-[10px] justify-center py-3 shadow-sm"
+                className="bg-white flex flex-col items-center rounded-[10px] max-w-[370px] max-h-[237px] justify-center py-3 shadow-sm"
               >
                 <div className="object-cover h-20 w-20  flex justify-center items-center  ">
                   <img src={action.imageUrl} alt={action.description} />

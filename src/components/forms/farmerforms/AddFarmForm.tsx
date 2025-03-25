@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 import {
@@ -20,8 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area"
-
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useState } from "react";
 
@@ -60,6 +60,7 @@ const FormSchema = z.object({
 });
 
 export function AddFarmForm() {
+  const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const [cultivationMethods] = useState([
@@ -97,224 +98,235 @@ export function AddFarmForm() {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
     console.log(selectedFiles);
+    navigate("/view-farms");
   }
 
   return (
     <ScrollArea className="h-[65vh]  ">
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-2 gap-2 px-3 py-1.5"
-      >
-        <FormField
-          control={form.control}
-          name="farmName"
-          render={({ field }) => (
-            <FormItem className="col-span-2 text-left">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Farm name
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="John" {...field} className="py-2.5" />
-              </FormControl>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="grid grid-cols-2 gap-2 px-3 py-1.5"
+        >
+          <FormField
+            control={form.control}
+            name="farmName"
+            render={({ field }) => (
+              <FormItem className="col-span-2 text-left">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Farm name
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="John" {...field} className="py-2.5" />
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="farmLocation"
-          render={({ field }) => (
-            <FormItem className="col-span-2 text-left">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Farm location
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="Doe" {...field} className="py-2.5" />
-              </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="farmLocation"
+            render={({ field }) => (
+              <FormItem className="col-span-2 text-left">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Farm location
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Doe" {...field} className="py-2.5" />
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="latitude"
-          render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Latitude
-                <span>(Optional)</span>
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="" {...field} className="py-2.5" />
-              </FormControl>
+          <FormField
+            control={form.control}
+            name="latitude"
+            render={({ field }) => (
+              <FormItem className="col-span-1 text-left">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Latitude
+                  <span>(Optional)</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="" {...field} className="py-2.5" />
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="longitude"
-          render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Longitude
-                <span>(Optional)</span>
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="" {...field} className="py-2.5" />
-              </FormControl>
+          <FormField
+            control={form.control}
+            name="longitude"
+            render={({ field }) => (
+              <FormItem className="col-span-1 text-left">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Longitude
+                  <span>(Optional)</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="" {...field} className="py-2.5" />
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="farmSize"
-          render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Farm size
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="" {...field} className="py-2.5" />
-              </FormControl>
+          <FormField
+            control={form.control}
+            name="farmSize"
+            render={({ field }) => (
+              <FormItem className="col-span-1 text-left">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Farm size
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="" {...field} className="py-2.5" />
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="yearOfEstablishment"
-          render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Year of Establishment
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="" {...field} className="py-2.5" />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="cultivationMethod"
-          render={({ field }) => (
-            <FormItem className="col-span-2 space-y-1">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Cultivation methods
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  {" "}
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {cultivationMethods.map((method, index) => {
-                      return (
-                        <SelectItem key={index} value={method}>
-                          {method}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="certification"
-          render={({ field }) => (
-            <FormItem className="col-span-2 space-y-1">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Certification
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  {" "}
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {certifications.map((certificate, index) => {
-                      return (
-                        <SelectItem key={index} value={certificate}>
-                          {certificate}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="documents"
-          render={() => (
-            <FormItem className="col-span-2">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Documents
-                <span> (Upload relevant certification or farm documents)</span>
-              </FormLabel>
-              <FormControl>
-                <div className=" rounded-[6px] border border-dashed h-10 flex justify-center items-center">
-                  <label htmlFor="file-upload" className="text-sm">
-                    <span className="text-primary underline">Choose Files</span>{" "}
-                    to Upload
-                  </label>
+          <FormField
+            control={form.control}
+            name="yearOfEstablishment"
+            render={({ field }) => (
+              <FormItem className="col-span-1 text-left">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Year of Establishment
+                </FormLabel>
+                <FormControl>
                   <Input
-                    id="file-upload"
-                    type="file"
-                    accept="image/*, .zip"
-                    multiple
-                    onChange={(e) => handleFileChange(e.target.files)}
-                    className="hidden"
+                    placeholder=""
+                    {...field}
+                    className="py-2.5"
+                    type="date"
                   />
-                </div>
-              </FormControl>
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button type="submit" className="col-span-2 py-2 mt-2">
-          Save farm
-        </Button>
-      </form>
-    </Form>
+          <FormField
+            control={form.control}
+            name="cultivationMethod"
+            render={({ field }) => (
+              <FormItem className="col-span-2 space-y-1">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Cultivation methods
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    {" "}
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px] overflow-y-auto">
+                      {cultivationMethods.map((method, index) => {
+                        return (
+                          <SelectItem key={index} value={method}>
+                            {method}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="certification"
+            render={({ field }) => (
+              <FormItem className="col-span-2 space-y-1">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Certification
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    {" "}
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[200px] overflow-y-auto">
+                      {certifications.map((certificate, index) => {
+                        return (
+                          <SelectItem key={index} value={certificate}>
+                            {certificate}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="documents"
+            render={() => (
+              <FormItem className="col-span-2">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Documents
+                  <span>
+                    {" "}
+                    (Upload relevant certification or farm documents)
+                  </span>
+                </FormLabel>
+                <FormControl>
+                  <div className=" rounded-[6px] border border-dashed h-10 flex justify-center items-center">
+                    <label htmlFor="file-upload" className="text-sm">
+                      <span className="text-primary underline">
+                        Choose Files
+                      </span>{" "}
+                      to Upload
+                    </label>
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      accept="image/*, .zip"
+                      multiple
+                      onChange={(e) => handleFileChange(e.target.files)}
+                      className="hidden"
+                    />
+                  </div>
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" className="col-span-2 py-2 mt-2">
+            Save farm
+          </Button>
+        </form>
+      </Form>
     </ScrollArea>
   );
 }

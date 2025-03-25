@@ -69,7 +69,7 @@ function ViewFarmsPage() {
             {farms.map((action, index) => (
               <div
                 key={index}
-                className="bg-white flex flex-col  rounded-[10px] py-1  px-3 shadow-sm"
+                className="bg-white flex flex-col max-w-[370px] max-h-[237px]  rounded-[10px] py-1  px-3 shadow-sm"
               >
                 <div className="flex justify-end">
                   <PopoverDemo />
@@ -78,7 +78,7 @@ function ViewFarmsPage() {
                   <div className="">
                     <MapPin size={60} color="#fffafa" fill={getRandomColor()} />
                   </div>
-                  <span className="font-semibold tetx-xl">{action.name}</span>
+                  <span className="font-semibold tetx-xl text-[#222222]">{action.name}</span>
                   <span className="font-normal tetx-sm flex items-center gap-1 text-[#5C6474]">
                     <span>
                       <MapPin size={10} />

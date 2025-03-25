@@ -23,7 +23,7 @@ function Header() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Link to="/" className="text-[#C0C9DD]">
+        <Link to="/dashboard" className="text-[#C0C9DD]">
           Home
         </Link>
         <Link to="/view-harvests" className="text-[#C0C9DD]">

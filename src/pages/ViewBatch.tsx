@@ -88,7 +88,7 @@ function ViewBatchPage() {
             {harvests.map((action, index) => (
               <div
                 key={index}
-                className="bg-white flex flex-col gap-2  rounded-[10px] py-1  px-10 shadow-sm"
+                className="bg-white flex flex-col gap-2 max-w-[370px] max-h-[237px]  rounded-[10px] py-1  px-10 shadow-sm"
               >
                
                 <div className="flex flex-col py-2.5 ">

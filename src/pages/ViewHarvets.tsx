@@ -86,7 +86,7 @@ function ViewHarvestsPage() {
             {harvests.map((action, index) => (
               <div
                 key={index}
-                className="bg-white flex flex-col  rounded-[10px] py-1  px-3 shadow-sm"
+                className="bg-white flex flex-col max-w-[370px] max-h-[237px]  rounded-[10px] py-1  px-3 shadow-sm"
               >
                 <div className="flex justify-end">
                   <PopoverDemo status={action.status}  />
