@@ -22,7 +22,7 @@ function App() {
           <Route path="/view-farms" element={<ViewFarmsPage />} />
           <Route path="/view-harvests" element={<ViewHarvestsPage />} />
           <Route path="/view-batch" element={<ViewBatchPage />} />
-          <Route path="/verify-status" element={<VerificationPage />} />
+          <Route path="/verify-email" element={<VerificationPage />} />
         </Routes>
       </HashRouter>
     </>
