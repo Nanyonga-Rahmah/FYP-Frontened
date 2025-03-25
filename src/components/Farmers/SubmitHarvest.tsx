@@ -30,7 +30,7 @@ export function SubmitBatch() {
       </DialogTrigger>
       <DialogContent className="">
         <DialogHeader>
-          <DialogTitle>Submit coffee batch</DialogTitle>
+          <DialogTitle  className="text-black text-2xl font-semibold">Submit coffee batch</DialogTitle>
         </DialogHeader>
         <SubmitBatchForm />
       </DialogContent>

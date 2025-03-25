@@ -83,9 +83,7 @@ export function SubmitBatchForm() {
         className="grid grid-cols-2 gap-3 px-3 py-1.5"
       >
         <div className="col-span-2">
-          <p className="font-normal text-[#070916E5] text-sm">
-            Harvest Records
-          </p>
+          <p className="font-normal text-[#222222] text-sm">Harvest Records</p>
           <div className="flex flex-row gap-4">
             <FormField
               control={form.control}
@@ -127,7 +125,9 @@ export function SubmitBatchForm() {
           name="weight"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel>Total Batch weight (kg)</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">
+                Total Batch weight (kg)
+              </FormLabel>
               <FormControl>
                 <Input placeholder="John" {...field} className="py-2.5" />
               </FormControl>
@@ -141,7 +141,9 @@ export function SubmitBatchForm() {
           name="comments"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel>Comments (Optional)</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">
+                Comments (Optional)
+              </FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -156,7 +158,7 @@ export function SubmitBatchForm() {
           name="documents"
           render={() => (
             <FormItem className="col-span-2">
-              <FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">
                 Documents
                 <span> (Upload relevant images of harvest)</span>
               </FormLabel>
@@ -183,7 +185,7 @@ export function SubmitBatchForm() {
         />
 
         <div className="flex items-center justify-between col-span-2">
-          <Button variant={"outline"}>Save Draft</Button>
+          <Button variant={"outline"} className="text-black">Save Draft</Button>
           <Button type="submit">Submit Batch</Button>
         </div>
       </form>

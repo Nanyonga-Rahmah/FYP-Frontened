@@ -28,7 +28,7 @@ export function ViewFarm() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Mountainside Organic Coffee</DialogTitle>
+          <DialogTitle  className="text-black text-2xl font-semibold">Mountainside Organic Coffee</DialogTitle>
         </DialogHeader>
 
         <div className="flex items-center gap-1">

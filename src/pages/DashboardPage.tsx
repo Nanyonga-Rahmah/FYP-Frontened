@@ -81,10 +81,10 @@ function DashboardPage() {
                 key={index}
                 className="bg-white flex flex-col items-center rounded-[10px] justify-center py-3 shadow-sm"
               >
-                <div className="object-cover h-16 w-16 ">
+                <div className="object-cover h-20 w-20  flex justify-center items-center  ">
                   <img src={action.imageUrl} alt={action.description} />
                 </div>
-                <span className="font-semibold tetx-xl">{action.name}</span>
+                <span className="font-semibold text-xl text-[#222222]">{action.name}</span>
                 <span className="font-normal tetx-sm text-[#5C6474]">
                   {action.description}
                 </span>

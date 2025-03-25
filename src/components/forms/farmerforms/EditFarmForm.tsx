@@ -103,7 +103,7 @@ export function EditFarmForm() {
           name="farmName"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Farm name</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Farm name</FormLabel>
               <FormControl>
                 <Input placeholder="John" {...field} className="py-2.5" />
               </FormControl>
@@ -117,7 +117,7 @@ export function EditFarmForm() {
           name="farmLocation"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Farm location</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Farm location</FormLabel>
               <FormControl>
                 <Input placeholder="Doe" {...field} className="py-2.5" />
               </FormControl>
@@ -132,7 +132,7 @@ export function EditFarmForm() {
           name="latitude"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">
                 Latitude
                 <span>(Optional)</span>
               </FormLabel>
@@ -154,7 +154,7 @@ export function EditFarmForm() {
           name="longitude"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">
                 Longitude
                 <span>(Optional)</span>
               </FormLabel>
@@ -176,7 +176,7 @@ export function EditFarmForm() {
           name="farmSize"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel>Farm size</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Farm size</FormLabel>
               <FormControl>
                 <Input
                   placeholder=""
@@ -195,7 +195,7 @@ export function EditFarmForm() {
           name="cultivationMethod"
           render={({ field }) => (
             <FormItem className="col-span-2 space-y-1">
-              <FormLabel>Cultivation methods</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Cultivation methods</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -228,7 +228,7 @@ export function EditFarmForm() {
           name="certification"
           render={({ field }) => (
             <FormItem className="col-span-2 space-y-1">
-              <FormLabel>Certification</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Certification</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -261,7 +261,7 @@ export function EditFarmForm() {
           name="documents"
           render={() => (
             <FormItem className="col-span-2">
-              <FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">
                 Documents
                 <span> (Upload relevant certification or farm documents)</span>
               </FormLabel>

@@ -15,7 +15,7 @@ export function EditFarm() {
       </DialogTrigger>
       <DialogContent className="">
         <DialogHeader>
-          <DialogTitle>Edit Farm</DialogTitle>
+          <DialogTitle  className="text-black text-2xl font-semibold">Edit Farm</DialogTitle>
         </DialogHeader>
         <EditFarmForm />
       </DialogContent>
