@@ -111,7 +111,7 @@ export function EditHarvestForm() {
           name="variety"
           render={({ field }) => (
             <FormItem className="col-span-1 ">
-              <FormLabel>Coffee Variety</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Coffee Variety</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -144,7 +144,7 @@ export function EditHarvestForm() {
           name="weight"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Weight</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Weight</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Enter weight in kg"
@@ -163,7 +163,7 @@ export function EditHarvestForm() {
           name="harvestDate"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
-              <FormLabel>Harvest Date</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Harvest Date</FormLabel>
               <FormControl>
                 <Input type="date" {...field} className="h-9" />
               </FormControl>
@@ -177,7 +177,7 @@ export function EditHarvestForm() {
           name="farmName"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Farm name</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Farm name</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -211,7 +211,7 @@ export function EditHarvestForm() {
           name="farmSize"
           render={({ field }) => (
             <FormItem className="col-span-1 text-left">
-              <FormLabel>Farm size</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Farm size</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Enter farm size in hectares"
@@ -230,7 +230,7 @@ export function EditHarvestForm() {
           name="cultivationMethod"
           render={({ field }) => (
             <FormItem className="col-span-2 space-y-1">
-              <FormLabel>Cultivation methods</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Cultivation methods</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -263,7 +263,7 @@ export function EditHarvestForm() {
           name="certification"
           render={({ field }) => (
             <FormItem className="col-span-2 space-y-1">
-              <FormLabel>Certification</FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">Certification</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -296,7 +296,7 @@ export function EditHarvestForm() {
           name="documents"
           render={() => (
             <FormItem className="col-span-2">
-              <FormLabel>
+              <FormLabel className="font-normal text-[#222222] text-sm">
                 Documents
                 <span> (Upload relevant images of harvest)</span>
               </FormLabel>

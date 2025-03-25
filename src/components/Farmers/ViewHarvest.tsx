@@ -32,7 +32,7 @@ export function ViewHarvest() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-5">
+          <DialogTitle className="flex items-center gap-5  text-black text-2xl font-semibold">
             {harvest.name}
 
             <span

@@ -16,7 +16,7 @@ export function EditHarvest() {
       </DialogTrigger>
       <DialogContent className="">
         <DialogHeader>
-          <DialogTitle>Edit Harvest</DialogTitle>
+          <DialogTitle  className="text-black text-2xl font-semibold">Edit Harvest</DialogTitle>
         </DialogHeader>
         <EditHarvestForm />
       </DialogContent>

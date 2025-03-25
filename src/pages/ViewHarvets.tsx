@@ -86,14 +86,14 @@ function ViewHarvestsPage() {
             {harvests.map((action, index) => (
               <div
                 key={index}
-                className="bg-white flex flex-col gap-2  rounded-[10px] py-1  px-3 shadow-sm"
+                className="bg-white flex flex-col  rounded-[10px] py-1  px-3 shadow-sm"
               >
                 <div className="flex justify-end">
-                  <PopoverDemo status={action.status} />
+                  <PopoverDemo status={action.status}  />
                 </div>
                 <div className="flex flex-col py-2.5 ">
                   <div className="flex items-center gap-4">
-                    <span className="font-semibold tetx-xl">{action.name}</span>
+                    <span className="font-semibold tetx-xl  text-black  ">{action.name}</span>
 
                     <span
                       className={`px-2 py-1 text-xs rounded-3xl ${checkBadgeStatus(action.status)} `}
@@ -102,7 +102,7 @@ function ViewHarvestsPage() {
                     </span>
                   </div>
 
-                  <div className="flex items-center my-1 gap-1">
+                  <div className="flex items-center my-1 gap-1 text-black">
                     <span>
                       <Sprout size={16} />
                     </span>

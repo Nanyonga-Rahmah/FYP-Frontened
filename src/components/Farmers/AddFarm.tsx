@@ -16,12 +16,12 @@ export function AddFarm() {
       <DialogTrigger asChild>
         <Button className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2">
           <LocateFixed />
-          <span>Add Farm location</span>
+          <span >Add Farm location</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="">
         <DialogHeader>
-          <DialogTitle>Add Farm</DialogTitle>
+          <DialogTitle className="text-black text-2xl font-semibold">Add Farm</DialogTitle>
         </DialogHeader>
         <AddFarmForm />
       </DialogContent>

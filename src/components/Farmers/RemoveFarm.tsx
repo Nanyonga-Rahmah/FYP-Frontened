@@ -17,7 +17,7 @@ export function RemoveFarm() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Remove Farm?</DialogTitle>
+          <DialogTitle  className="text-black text-2xl font-semibold">Remove Farm?</DialogTitle>
           <DialogDescription>
             This action is permanent and cannot be undone.
           </DialogDescription>
