@@ -1,10 +1,13 @@
-import FarmCreationMap from "@/components/Farmers/FarmCreationMap";
-function Map() {
+import FarmMap from "@/components/Farmers/FarmMap";
+import React from "react";
+
+function App() {
   return (
-    <div className="flex justify-center items-center min-h-screen ">
-      <FarmCreationMap />
+    <div className="App">
+      <h1>Farm Boundary Mapper</h1>
+      <FarmMap />
     </div>
   );
 }
 
-export default Map;
+export default App;
