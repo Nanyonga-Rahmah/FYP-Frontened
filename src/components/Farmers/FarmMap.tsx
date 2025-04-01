@@ -13,6 +13,7 @@ const containerStyle = {
   height: "600px",
 };
 
+
 const FarmMap = () => {
   // State definitions
   const [method, setMethod] = useState<"walking" | "selecting" | null>(null);
