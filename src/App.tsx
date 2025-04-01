@@ -7,6 +7,8 @@ import DashboardPage from "./pages/DashboardPage";
 import ViewFarmsPage from "./pages/ViewFarms";
 import ViewHarvestsPage from "./pages/ViewHarvets";
 import ViewBatchPage from "./pages/ViewBatch";
+import Map from "./pages/Map";
+
 import VerificationPage from "./pages/VerificationPage";
 
 function App() {
@@ -23,6 +25,7 @@ function App() {
           <Route path="/view-harvests" element={<ViewHarvestsPage />} />
           <Route path="/view-batch" element={<ViewBatchPage />} />
           <Route path="/verify-email" element={<VerificationPage />} />
+          <Route path="/map" element={<Map />} />
         </Routes>
       </HashRouter>
     </>

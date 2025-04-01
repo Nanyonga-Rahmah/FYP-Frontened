@@ -24,6 +24,9 @@ import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { USER_ROLES } from "@/lib/constants";
+import { Register } from "@/lib/routes";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const FormSchema = z.object({
   firstName: z.string().min(2, {
@@ -71,9 +74,22 @@ export function SignUpForm() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-  }
+function onSubmit(data: z.infer<typeof FormSchema>) {
+  axios
+    .post(Register, data)
+    .then((response) => {
+      toast.success(
+        response.data.message ||
+          "Registration successful! Please check your email to verify your account."
+      );
+    })
+    .catch((error) => {
+      console.error("Registration error:", error);
+      toast.error(
+        error.response?.data?.message || "Registration failed. Try again."
+      );
+    });
+}
 
   return (
     <Form {...form}>
