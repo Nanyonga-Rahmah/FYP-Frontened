@@ -1,5 +1,5 @@
 import FarmMap from "@/components/Farmers/FarmMap";
-import React from "react";
+
 
 function App() {
   return (

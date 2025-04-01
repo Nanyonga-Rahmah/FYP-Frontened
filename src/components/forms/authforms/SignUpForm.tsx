@@ -77,13 +77,13 @@ export function SignUpForm() {
 function onSubmit(data: z.infer<typeof FormSchema>) {
   axios
     .post(Register, data)
-    .then((response) => {
+    .then((response:any) => {
       toast.success(
         response.data.message ||
           "Registration successful! Please check your email to verify your account."
       );
     })
-    .catch((error) => {
+    .catch((error:any) => {
       console.error("Registration error:", error);
       toast.error(
         error.response?.data?.message || "Registration failed. Try again."
