@@ -25,6 +25,9 @@ import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { USER_ROLES } from "@/lib/constants";
+import { Register } from "@/lib/routes";
+import axios from "axios";
+import toast from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const FormSchema = z.object({
@@ -85,10 +88,23 @@ export function SignUpForm({ handleNext }: SignUpProps) {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+function onSubmit(data: z.infer<typeof FormSchema>) {
+  axios
+    .post(Register, data)
+    .then((response:any) => {
+      toast.success(
+        response.data.message ||
+          "Registration successful! Please check your email to verify your account."
+      );
+    })
+    .catch((error:any) => {
+      console.error("Registration error:", error);
+      toast.error(
+        error.response?.data?.message || "Registration failed. Try again."
+      );
+    });
     handleNext();
-  }
+}
 
   return (
     <ScrollArea className="h-[500px]">

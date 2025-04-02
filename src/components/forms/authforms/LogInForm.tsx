@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Login} from "@/lib/routes";
 
 const FormSchema = z.object({
   user_email: z.string().min(2, { message: "Field is Required" }).email(),
@@ -42,8 +43,30 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    console.log(data);
-    navigate("/dashboard");
+    try {
+      const response = await fetch(Login, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.user_email,
+          password: data.password,
+        }),
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Login failed");
+      }
+
+      // Handle successful login (store user info, navigate to dashboard, etc.)
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.log(error.message);
+    }
   };
 
   return (
@@ -76,7 +99,9 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem className="  space-y-1 col-span-2 text-left">
-              <FormLabel className="font-medium text-sm text-[#222222]">Password</FormLabel>
+              <FormLabel className="font-medium text-sm text-[#222222]">
+                Password
+              </FormLabel>
               <FormControl>
                 <div className="flex border border-input h-10 justify-between items-center pr-4 rounded-md overflow-hidden">
                   <Input

@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useState } from "react";
+import { FarmCreate } from "@/lib/routes";
 
 const FormSchema = z.object({
   farmName: z.string().min(2, {
@@ -95,10 +96,45 @@ export function AddFarmForm() {
     setSelectedFiles(fileArray);
     form.setValue("documents", fileArray, { shouldValidate: true });
   }
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-    console.log(selectedFiles);
-    navigate("/view-farms");
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const formData = new FormData();
+
+      // Append text fields
+      formData.append("farmName", data.farmName);
+      formData.append("location", data.farmLocation);
+      formData.append("latitude", data.latitude);
+      formData.append("longitude", data.longitude);
+      formData.append("farmSize", data.farmSize);
+      formData.append("cultivationMethods", data.cultivationMethod);
+      formData.append("certifications", data.certification);
+      formData.append("yearEstablished", data.yearOfEstablishment);
+
+      // Append files
+      selectedFiles.forEach((file) => {
+        formData.append("documents", file);
+      });
+
+      // Send request to backend
+      const response = await fetch(FarmCreate, {
+        method: "POST",
+        body: formData,
+        credentials: "include", 
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create farm");
+      }
+
+      const result = await response.json();
+      console.log("Farm created successfully", result);
+
+      navigate("/view-farms");
+    } catch (error: any) {
+      console.error("Error:", error.message);
+    }
   }
 
   return (
