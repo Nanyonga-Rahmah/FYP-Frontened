@@ -31,37 +31,24 @@ import toast from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const FormSchema = z.object({
-  fullName: z.string().min(2, {
-    message: "Field is required.",
-  }),
+  fullName: z.string().min(2, { message: "Field is required." }),
 
-  role: z.string().min(2, {
-    message: "Field is required.",
-  }),
+  role: z.string().min(2, { message: "Field is required." }),
 
-  email: z
+  email: z.string().min(2, { message: "Field is required." }).email(),
+
+  phoneNumber: z
     .string()
-    .min(2, {
-      message: "Field is required.",
-    })
-    .email(),
+    .min(13, "Phone number must be at least 13 digits")
+    .max(13, "Phone number must be 13 digits")
+    .regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format"),
 
-  phoneNumber: z.string().min(2, {
-    message: "Field is required.",
-  }),
-
-  password: z.string().min(2, {
-    message: "Field is required.",
-  }),
+  password: z.string().min(2, { message: "Field is required." }),
   notInGroup: z.boolean().optional(),
 
-  nin: z.string().min(2, {
-    message: "Field is required.",
-  }),
+  nin: z.string().min(2, { message: "Field is required." }),
 
-  membershipNumber: z.string().min(2, {
-    message: "Field is required.",
-  }),
+  membershipNumber: z.string().min(2, { message: "Field is required." }),
 });
 
 interface SignUpProps {
@@ -88,23 +75,23 @@ export function SignUpForm({ handleNext }: SignUpProps) {
     },
   });
 
-function onSubmit(data: z.infer<typeof FormSchema>) {
-  axios
-    .post(Register, data)
-    .then((response:any) => {
-      toast.success(
-        response.data.message ||
-          "Registration successful! Please check your email to verify your account."
-      );
-    })
-    .catch((error:any) => {
-      console.error("Registration error:", error);
-      toast.error(
-        error.response?.data?.message || "Registration failed. Try again."
-      );
-    });
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    axios
+      .post(Register, data)
+      .then((response: any) => {
+        toast.success(
+          response.data.message ||
+            "Registration successful! Please check your email to verify your account."
+        );
+      })
+      .catch((error: any) => {
+        console.error("Registration error:", error);
+        toast.error(
+          error.response?.data?.message || "Registration failed. Try again."
+        );
+      });
     handleNext();
-}
+  }
 
   return (
     <ScrollArea className="h-[500px]">
@@ -215,11 +202,7 @@ function onSubmit(data: z.infer<typeof FormSchema>) {
                   National ID Number (Or use Voter ID if no NIN)
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="abc@example.com"
-                    {...field}
-                    className="py-2.5 "
-                  />
+                  <Input placeholder="" {...field} className="py-2.5 " />
                 </FormControl>
 
                 <FormMessage />
@@ -235,27 +218,16 @@ function onSubmit(data: z.infer<typeof FormSchema>) {
                   Cooperative Membership Number
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="abc@example.com"
-                    {...field}
-                    className="py-2.5 "
-                  />
+                  <Input placeholder="" {...field} className="py-2.5 " />
                 </FormControl>
 
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="items-top flex space-x-2">
-            <Checkbox id="notInGroup" className="h-4 w-4" />
-            <div className="grid gap-1.5 leading-none">
-              <label
-                htmlFor="terms1"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Not in group
-              </label>
-            </div>
+          <div className="items-top flex space-x-2 items-center ">
+            <input type="checkbox" className="h-4 w-4"></input>
+            <p>Not in Group</p>
           </div>
 
           <FormField

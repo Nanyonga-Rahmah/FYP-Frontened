@@ -53,7 +53,7 @@ function SignUpPage() {
       )}
 
       {currentStep === 2 && (
-        <div className="border  rounded-xl flex flex-col xl:w-[560px] w-[90vw]   p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
+        <div className="border  rounded-xl flex flex-col items-center justify-center xl:w-[560px] w-[90vw]   p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
           <div className="flex flex-col items-center justify-center">
             {" "}
             <Logo />
@@ -62,11 +62,11 @@ function SignUpPage() {
             </span>
           </div>
 
-          <span className="text-base font-normal text-[#222222]">
+          <span className="text-sm font-medium text-[#222222]">
             We need to verify your identity. Submit now and wait for approval.
           </span>
 
-          <div className="flex justify-between gap-5">
+          <div className="flex justify-between gap-5  w-full">
             <Progress value={100} />
             <Progress value={100} />
           </div>
