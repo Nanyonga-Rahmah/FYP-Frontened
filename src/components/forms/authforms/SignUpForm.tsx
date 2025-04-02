@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Checkbox } from "@/components/ui/checkbox";
 
 import { Button } from "@/components/ui/button";
 
@@ -39,9 +38,9 @@ const FormSchema = z.object({
 
   phoneNumber: z
     .string()
-    .min(13, "Phone number must be at least 13 digits")
-    .max(13, "Phone number must be 13 digits")
-    .regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number format"),
+    .min(10, "Phone number must be at least 10 digits")
+    .max(10, "Phone number must be 10 digits"),
+   
 
   password: z.string().min(2, { message: "Field is required." }),
   notInGroup: z.boolean().optional(),
