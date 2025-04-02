@@ -14,6 +14,7 @@ const containerStyle = {
 };
 
 const FarmMap = () => {
+  // State definitions
   const [method, setMethod] = useState<"walking" | "selecting" | null>(null);
   const [isCollecting, setIsCollecting] = useState(false);
   const [positions, setPositions] = useState<google.maps.LatLngLiteral[]>([]);
@@ -24,18 +25,14 @@ const FarmMap = () => {
     lat: 0,
     lng: 0,
   });
-  const [area, setArea] = useState<number | null>(null);
-  const [perimeter, setPerimeter] = useState<number | null>(null);
-  const [areaUnit, setAreaUnit] = useState<"sqm" | "ha" | "ac">("sqm");
-  const [showMarkers, setShowMarkers] = useState(true); // State to toggle marker visibility
 
+  // Load Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: ["geometry"],
   });
 
-  // Get initial location
+  // Get initial user location to center the map
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -51,7 +48,7 @@ const FarmMap = () => {
     );
   }, []);
 
-  // Handle walking method tracking
+  // Handle walking method with continuous GPS tracking
   useEffect(() => {
     if (!isCollecting || method !== "walking" || !isLoaded) return;
 
@@ -60,7 +57,7 @@ const FarmMap = () => {
         const { latitude, longitude } = position.coords;
         const newPoint = { lat: latitude, lng: longitude };
         setPositions((prev) => [...prev, newPoint]);
-        setMapCenter(newPoint);
+        setMapCenter(newPoint); // Follow user's position
       },
       (error) => {
         console.error("Geolocation Error:", error);
@@ -72,29 +69,14 @@ const FarmMap = () => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, [isCollecting, method, isLoaded]);
 
-  // Calculate area and perimeter when polygon is set
-  useEffect(() => {
-    if (polygonPath && polygonPath.length >= 3) {
-      const closedPath = [...polygonPath, polygonPath[0]];
-      const areaSqm = google.maps.geometry.spherical.computeArea(closedPath);
-      const perimeterM =
-        google.maps.geometry.spherical.computeLength(closedPath);
-      setArea(areaSqm);
-      setPerimeter(perimeterM);
-    } else {
-      setArea(null);
-      setPerimeter(null);
-    }
-  }, [polygonPath]);
-
-  // Functions
+  // Function to add a point manually for the selecting method
   const addPoint = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         const newPoint = { lat: latitude, lng: longitude };
         setPositions((prev) => [...prev, newPoint]);
-        setMapCenter(newPoint);
+        setMapCenter(newPoint); // Center map on the new point
       },
       (error) => {
         console.error("Error getting position:", error);
@@ -103,6 +85,7 @@ const FarmMap = () => {
     );
   };
 
+  // Function to finish collecting points and create polygon
   const finishCollecting = () => {
     if (positions.length < 3) {
       alert("At least 3 points are needed to form a polygon.");
@@ -112,49 +95,29 @@ const FarmMap = () => {
     setIsCollecting(false);
   };
 
+  // Start collecting points (for walking method)
   const startCollecting = () => {
-    setPositions([]);
+    setPositions([]); // Clear previous points
     setIsCollecting(true);
   };
 
+  // Choose a method and reset states
   const chooseMethod = (newMethod: "walking" | "selecting") => {
     setMethod(newMethod);
     setPositions([]);
     setPolygonPath(null);
-    setIsCollecting(newMethod === "selecting");
-    setShowMarkers(true); // Ensure markers are shown by default
+    setIsCollecting(newMethod === "selecting"); // Start collecting immediately for selecting method
   };
 
+  // Clear all data and reset to initial state
   const clear = () => {
     setMethod(null);
     setIsCollecting(false);
     setPositions([]);
     setPolygonPath(null);
-    setShowMarkers(true); // Reset to show markers
   };
 
-  const redefinePolygon = () => {
-    setPolygonPath(null);
-    setPositions([]);
-    // For walking, isCollecting remains false so "Start Walking" appears
-    // For selecting, controls appear immediately due to method being set
-  };
-
-  const getAreaDisplay = (areaSqm: number, unit: string) => {
-    switch (unit) {
-      case "sqm":
-        return { value: areaSqm.toFixed(2), label: "sqm" };
-      case "ha":
-        const areaHa = areaSqm / 10000;
-        return { value: areaHa.toFixed(3), label: "ha" };
-      case "ac":
-        const areaAc = areaSqm / 4046.856;
-        return { value: areaAc.toFixed(3), label: "ac" };
-      default:
-        return { value: areaSqm.toFixed(2), label: "sqm" };
-    }
-  };
-
+  // Loading and error states
   if (!isLoaded)
     return <div className="text-center text-lg font-bold">Loading map...</div>;
   if (loadError)
@@ -168,22 +131,23 @@ const FarmMap = () => {
         zoom={18}
         mapTypeId={google.maps.MapTypeId.SATELLITE}
       >
-        {/* Render markers only if showMarkers is true */}
-        {showMarkers &&
-          positions.map((pos, index) => (
-            <Marker
-              key={index}
-              position={pos}
-              icon={{
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 6,
-                fillColor: "#00ff00",
-                fillOpacity: 1,
-                strokeWeight: 2,
-                strokeColor: "#fff",
-              }}
-            />
-          ))}
+        {/* Show markers for each collected point */}
+        {positions.map((pos, index) => (
+          <Marker
+            key={index}
+            position={pos}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 6,
+              fillColor: "#00ff00",
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: "#fff",
+            }}
+          />
+        ))}
+
+        {/* Show polyline while collecting points */}
         {isCollecting && positions.length > 1 && (
           <Polyline
             path={positions}
@@ -195,6 +159,8 @@ const FarmMap = () => {
             }}
           />
         )}
+
+        {/* Show final polygon outline */}
         {polygonPath && (
           <Polygon
             path={polygonPath}
@@ -202,61 +168,13 @@ const FarmMap = () => {
               strokeColor: "#0000ff",
               strokeOpacity: 1.0,
               strokeWeight: 4,
-              fillOpacity: 0,
+              fillOpacity: 0, // Transparent fill to show only outline
             }}
           />
         )}
       </GoogleMap>
 
-      {/* Side panel with measurements, toggle, and redefine button */}
-      {area !== null && perimeter !== null && (
-        <div className="absolute top-40 right-5 bg-white p-4 shadow-md rounded-xl w-60 text-gray-700">
-          <h3 className="font-bold text-lg mb-2">Farm Measurements</h3>
-          <p>
-            <b>Perimeter:</b> {perimeter.toFixed(2)} meters
-          </p>
-          <p>
-            <b>Area:</b> {getAreaDisplay(area, areaUnit).value}{" "}
-            {getAreaDisplay(area, areaUnit).label}
-          </p>
-          <div className="mt-2">
-            <label htmlFor="areaUnit" className="block text-sm font-medium">
-              Area Unit:
-            </label>
-            <select
-              id="areaUnit"
-              value={areaUnit}
-              onChange={(e) =>
-                setAreaUnit(e.target.value as "sqm" | "ha" | "ac")
-              }
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="sqm">Square Meters</option>
-              <option value="ha">Hectares</option>
-              <option value="ac">Acres</option>
-            </select>
-          </div>
-          <div className="mt-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={showMarkers}
-                onChange={() => setShowMarkers(!showMarkers)}
-                className="mr-2"
-              />
-              Show Points
-            </label>
-          </div>
-          <button
-            onClick={redefinePolygon}
-            className="mt-4 w-full bg-yellow-600 text-white px-4 py-2 rounded-md shadow hover:bg-yellow-700 transition"
-          >
-            Redefine Polygon
-          </button>
-        </div>
-      )}
-
-      {/* Controls */}
+      {/* Dynamic Controls */}
       {polygonPath ? (
         <button
           onClick={clear}
@@ -328,7 +246,7 @@ const FarmMap = () => {
         </div>
       ) : null}
 
-      {/* GPS Info */}
+      {/* Debug Info */}
       <div className="absolute top-5 right-5 bg-white p-4 shadow-md rounded-xl w-60 text-gray-700">
         <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
           <FaMapMarkerAlt className="text-blue-600" /> GPS Info

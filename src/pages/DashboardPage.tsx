@@ -3,6 +3,7 @@ import { SubmitBatch } from "@/components/Farmers/SubmitHarvest";
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 
 const actions = [
   {
@@ -22,12 +23,12 @@ const actions = [
   },
 
   {
-    name: "Batch History",
+    name: <Link to='/view-batch' className="text-black/80 hover:none">Batch History</Link>,
     description: "View records of all submitted batches",
     imageUrl: "/images/history.png",
   },
   {
-    name: "Farm Details",
+    name: <Link to='/view-farms' className="text-black/80 hover:none">Farm Details</Link>,
     description: "Review your farm location and data",
     imageUrl: "/images/farm-details.png",
   },
