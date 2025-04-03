@@ -47,10 +47,10 @@ const formSchema = z.object({
 
 interface KYCProps {
   handlePrevious: () => void;
-  signUpData: z.infer<typeof SignUpFormSchema>; // Import or define this type
+  signUpData: z.infer<typeof SignUpFormSchema>; 
 }
 
-// Assuming SignUpFormSchema is exported from SignUpForm, otherwise define it here
+// Assuming SignUpFormSchema is exported from SignUpForm
 const SignUpFormSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),

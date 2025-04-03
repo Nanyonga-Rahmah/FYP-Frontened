@@ -63,7 +63,7 @@ export function SignUpForm({ onNext }: SignUpProps) {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    onNext(data); // Pass data to parent instead of submitting
+    onNext(data); // Pass data 
   }
 
   return (
