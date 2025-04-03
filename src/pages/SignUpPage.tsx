@@ -2,44 +2,53 @@ import KYCForms from "@/components/forms/authforms/KYCForms";
 import { SignUpForm } from "@/components/forms/authforms/SignUpForm";
 import Logo from "@/components/globals/Logo";
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
+import { z } from "zod";
+
+// Define the schema for sign-up data (same as in SignUpForm)
+const SignUpSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  role: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  password: z.string(),
+  nationalIdNumber: z.string(),
+  cooperativeMembershipNumber: z.string(),
+});
+
+type SignUpData = z.infer<typeof SignUpSchema>;
 
 function SignUpPage() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [signUpData, setSignUpData] = useState<SignUpData | null>(null);
   const navigate = useNavigate();
-
-  const HandleNextStep = () => {
-    setCurrentStep(currentStep + 1);
-  };
-
-  const HandlePreviousStep = () => {
-    setCurrentStep(1);
-  };
 
   const handleClick = () => {
     navigate("/login");
   };
+
   return (
-    <div className="flex justify-center items-center min-h-screen ">
+    <div className="flex justify-center items-center min-h-screen">
       {currentStep === 1 && (
-        <div className="border  rounded-xl flex flex-col xl:w-[560px] w-[90vw]   p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
+        <div className="border rounded-xl flex flex-col xl:w-[560px] w-[90vw] p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
           <div className="flex flex-col items-center justify-center">
-            {" "}
             <Logo />
             <span className="text-2xl font-bold text-[#222222]">
               Signup to get started
             </span>
           </div>
-
           <div className="flex justify-between gap-4">
             <Progress value={100} />
             <Progress value={0} />
           </div>
-
-          <SignUpForm handleNext={HandleNextStep} />
-
+          <SignUpForm
+            onNext={(data) => {
+              setSignUpData(data);
+              setCurrentStep(2);
+            }}
+          />
           <span className="text-sm font-normal text-[#202020] text-center">
             Already have an account?
             <span
@@ -53,25 +62,24 @@ function SignUpPage() {
       )}
 
       {currentStep === 2 && (
-        <div className="border  rounded-xl flex flex-col items-center justify-center xl:w-[560px] w-[90vw]   p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
+        <div className="border rounded-xl flex flex-col items-center justify-center xl:w-[560px] w-[90vw] p-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
           <div className="flex flex-col items-center justify-center">
-            {" "}
             <Logo />
             <span className="text-2xl font-bold text-center text-[#222222]">
               Complete your KYC
             </span>
           </div>
-
           <span className="text-sm font-medium text-[#222222]">
             We need to verify your identity. Submit now and wait for approval.
           </span>
-
-          <div className="flex justify-between gap-5  w-full">
+          <div className="flex justify-between gap-5 w-full">
             <Progress value={100} />
             <Progress value={100} />
           </div>
-
-          <KYCForms handlePrevious={HandlePreviousStep} />
+          <KYCForms
+            handlePrevious={() => setCurrentStep(1)}
+            signUpData={signUpData!}
+          />
         </div>
       )}
     </div>
