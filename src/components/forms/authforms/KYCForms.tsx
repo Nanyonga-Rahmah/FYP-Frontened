@@ -12,8 +12,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-
-
 import {
   Command,
   CommandEmpty,
@@ -30,69 +28,110 @@ import {
 import { Check, ChevronsUpDown, ImageIcon } from "lucide-react";
 import { cooperatives } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Register } from "@/lib/routes";
 
+// Define the schema for KYC data
 const formSchema = z.object({
-  idPhotos: z
-    .array(z.instanceof(File))
-    .nonempty("At least one ID photo is required"),
-  passportPhoto: z.instanceof(File).optional(),
-  cooperativeSociety: z.string(),
+  nationalIdPhoto: z.instanceof(File, {
+    message: "National ID photo is required",
+  }),
+  passportSizePhoto: z.instanceof(File, {
+    message: "Passport photo is required",
+  }),
+  cooperativeLocation: z
+    .string()
+    .min(1, { message: "Cooperative location is required" }),
 });
 
 interface KYCProps {
   handlePrevious: () => void;
+  signUpData: z.infer<typeof SignUpFormSchema>; // Import or define this type
 }
 
-export default function KYCForms({ handlePrevious }: KYCProps) {
+// Assuming SignUpFormSchema is exported from SignUpForm, otherwise define it here
+const SignUpFormSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  role: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  password: z.string(),
+  nationalIdNumber: z.string(),
+  cooperativeMembershipNumber: z.string(),
+});
+
+export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
   const [preview, setPreview] = useState<{
-    idPhotos: string[];
-    passportPhoto: string | null;
-  }>({ idPhotos: [], passportPhoto: null });
+    nationalIdPhoto: string | null;
+    passportSizePhoto: string | null;
+  }>({ nationalIdPhoto: null, passportSizePhoto: null });
   const [open, setOpen] = useState(false);
-  
   const [selectedCooperative, setSelectedCooperative] = useState("");
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      idPhotos: [] as File[],
-      passportPhoto: null as File | null,
-      cooperativeSociety: "",
+      nationalIdPhoto: undefined,
+      passportSizePhoto: undefined,
+      cooperativeLocation: "",
     },
   });
 
-  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files;
-    if (!files) return;
+  function handleImageChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+    fieldName: keyof z.infer<typeof formSchema>
+  ) {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    const newFiles = Array.from(files);
-    form.setValue("idPhotos", newFiles);
+    form.setValue(fieldName, file);
     setPreview((prev) => ({
       ...prev,
-      idPhotos: newFiles.map((file) => URL.createObjectURL(file)),
+      [fieldName]: URL.createObjectURL(file),
     }));
   }
 
-  function handlePassportChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const formData = new FormData();
 
-    form.setValue("passportPhoto", files[0]);
-    setPreview((prev) => ({
-      ...prev,
-      passportPhoto: URL.createObjectURL(files[0]),
-    }));
-  }
+    // Append user data from SignUpForm
+    formData.append("firstName", signUpData.firstName);
+    formData.append("lastName", signUpData.lastName);
+    formData.append("email", signUpData.email);
+    formData.append("phone", signUpData.phone);
+    formData.append("password", signUpData.password);
+    formData.append("role", signUpData.role);
+    formData.append(
+      "cooperativeMembershipNumber",
+      signUpData.cooperativeMembershipNumber
+    );
+    formData.append("nationalIdNumber", signUpData.nationalIdNumber);
 
-  function handleCooperativeSelect(value: string) {
-    setSelectedCooperative(value);
-    form.setValue("cooperativeSociety", value);
-    setOpen(false);
-  }
+    // Append KYC data
+    formData.append("cooperativeLocation", values.cooperativeLocation);
+    formData.append("nationalIdPhoto", values.nationalIdPhoto);
+    formData.append("passportSizePhoto", values.passportSizePhoto);
 
-  const onSubmit = async(values: any)=> {
-    console.log("Form submitted", values);
-  }
+    try {
+      const response = await axios.post(Register, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast.success(
+        response.data.message ||
+          "Registration successful! Please check your email."
+      );
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
+    }
+  };
 
   return (
     <ScrollArea className="h-[500px]">
@@ -100,83 +139,76 @@ export default function KYCForms({ handlePrevious }: KYCProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="idPhotos"
+            name="nationalIdPhoto"
             render={() => (
               <FormItem>
-                <FormLabel>ID Photos (Front and Back)</FormLabel>
+                <FormLabel>ID Photo</FormLabel>
                 <FormControl>
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
                     <label
-                      htmlFor="file-upload"
+                      htmlFor="national-id-upload"
                       className="text-sm flex flex-col items-center gap-2 justify-center"
                     >
                       <ImageIcon />
-
-                      <span className="text-primary ">
-                        <span className="underline">Choose Files </span>{" "}
-                        <span> to Upload</span>
+                      <span className="text-primary">
+                        <span className="underline">Choose File </span> to
+                        Upload
                       </span>
                     </label>
                     <Input
-                      id="file-upload"
+                      id="national-id-upload"
                       type="file"
                       accept="image/*"
-                      multiple
-                      onChange={handleImageChange}
+                      onChange={(e) => handleImageChange(e, "nationalIdPhoto")}
                       className="hidden"
                     />
                   </div>
                 </FormControl>
                 <FormMessage />
-                <div className="flex gap-2 mt-2">
-                  {preview.idPhotos.map((src, index) => (
-                    <img
-                      key={index}
-                      src={src}
-                      alt={`ID Photo ${index + 1}`}
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                  ))}
-                </div>
+                {preview.nationalIdPhoto && (
+                  <img
+                    src={preview.nationalIdPhoto}
+                    alt="ID Photo"
+                    className="w-20 h-20 object-cover rounded mt-2"
+                  />
+                )}
               </FormItem>
             )}
           />
 
           <FormField
             control={form.control}
-            name="passportPhoto"
+            name="passportSizePhoto"
             render={() => (
               <FormItem>
-                <FormLabel>
-                  Passport-size Photo (Please upload a clear passport-size photo
-                  of yourself.)
-                </FormLabel>
+                <FormLabel>Passport-size Photo</FormLabel>
                 <FormControl>
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
                     <label
-                      htmlFor="file-upload"
+                      htmlFor="passport-upload"
                       className="text-sm flex flex-col justify-center gap-2 items-center"
                     >
                       <ImageIcon />
-                      <span className="text-primary ">
-                        <span className="underline">Choose Files </span>{" "}
-                        <span> to Upload</span>
+                      <span className="text-primary">
+                        <span className="underline">Choose File </span> to
+                        Upload
                       </span>
                     </label>
                     <Input
-                      id="file"
+                      id="passport-upload"
                       type="file"
                       accept="image/*"
-                      onChange={handlePassportChange}
+                      onChange={(e) =>
+                        handleImageChange(e, "passportSizePhoto")
+                      }
                       className="hidden"
                     />
                   </div>
-                  
                 </FormControl>
                 <FormMessage />
-                {preview.passportPhoto && (
+                {preview.passportSizePhoto && (
                   <img
-                    src={preview.passportPhoto}
+                    src={preview.passportSizePhoto}
                     alt="Passport"
                     className="w-20 h-20 mt-2 object-cover rounded"
                   />
@@ -187,8 +219,8 @@ export default function KYCForms({ handlePrevious }: KYCProps) {
 
           <FormField
             control={form.control}
-            name="cooperativeSociety"
-            render={() => (
+            name="cooperativeLocation"
+            render={({ field }) => (
               <FormItem className="col-span-2 flex flex-col text-left">
                 <FormLabel className="text-[#222222]">
                   Cooperative/Location
@@ -224,9 +256,11 @@ export default function KYCForms({ handlePrevious }: KYCProps) {
                               <CommandItem
                                 key={cooperative.value}
                                 value={cooperative.value}
-                                onSelect={() =>
-                                  handleCooperativeSelect(cooperative.value)
-                                }
+                                onSelect={() => {
+                                  setSelectedCooperative(cooperative.value);
+                                  field.onChange(cooperative.value);
+                                  setOpen(false);
+                                }}
                               >
                                 {cooperative.label}
                                 <Check
