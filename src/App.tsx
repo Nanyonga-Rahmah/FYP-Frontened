@@ -7,9 +7,9 @@ import DashboardPage from "./pages/DashboardPage";
 import ViewFarmsPage from "./pages/ViewFarms";
 import ViewHarvestsPage from "./pages/ViewHarvets";
 import ViewBatchPage from "./pages/ViewBatch";
-import Map from "./pages/Map";
 
 import VerificationPage from "./pages/VerificationPage";
+import { AddFarm } from "./components/Farmers/AddFarm";
 
 function App() {
   return (
@@ -21,11 +21,12 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/add-farm" element={<AddFarm />} />
           <Route path="/view-farms" element={<ViewFarmsPage />} />
           <Route path="/view-harvests" element={<ViewHarvestsPage />} />
           <Route path="/view-batch" element={<ViewBatchPage />} />
           <Route path="/verify-email" element={<VerificationPage />} />
-          <Route path="/map" element={<Map />} />
+         
         </Routes>
       </HashRouter>
     </>
