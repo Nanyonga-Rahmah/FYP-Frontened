@@ -12,9 +12,11 @@ const containerStyle = {
   width: "100%",
   height: "600px",
 };
-
-const FarmMap = () => {
-  // State definitions
+interface MapProps {
+  currentStep: number;
+  handleNext:()=>void;
+}
+const FarmMap = ({ currentStep,handleNext }: MapProps) => {
   const [method, setMethod] = useState<"walking" | "selecting" | null>(null);
   const [isCollecting, setIsCollecting] = useState(false);
   const [positions, setPositions] = useState<google.maps.LatLngLiteral[]>([]);
@@ -234,7 +236,10 @@ const FarmMap = () => {
           </button>
           {positions.length >= 3 && (
             <button
-              onClick={finishCollecting}
+              onClick={() => {
+                finishCollecting;
+                handleNext();
+              }}
               className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition"
             >
               Finish
@@ -246,8 +251,44 @@ const FarmMap = () => {
         </div>
       ) : null}
 
-      {/* Debug Info */}
-      <div className="absolute top-5 right-5 bg-white p-4 shadow-md rounded-xl w-60 text-gray-700">
+      <div className="absolute top-5 right-5 bg-white p-4  rounded-md w-60 text-gray-700">
+        {currentStep === 2 && (
+          <div className="">
+            <h3 className="text-center text-[#222222] font-bold text-sm">
+              Register your farm
+            </h3>
+            <p className="text-center text-[#838383] text-xs">
+              Step 2/3 - Mark Location
+            </p>
+
+            <div className="flex justify-center gap-2 mt-3 w-full">
+              {[1, 2, 3].map((step) => (
+                <div
+                  key={step}
+                  className={`h-2 flex-1 rounded-full ${
+                    currentStep >= step ? "bg-[#112D3E]" : "bg-gray-400"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="absolute top-32 right-5 bg-white p-4  rounded-md w-60 text-gray-700">
+        {currentStep === 2 && (
+          <div className="">
+            <h3 className="text-center text-[#222222] font-bold text-sm">
+              Instructions
+            </h3>
+            <p className="text-center text-[#838383] text-xs">
+              Walk around your farm. Your path is being recorded.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="absolute top-[230px] right-5 bg-white p-4 shadow-md rounded-xl w-60 text-gray-700">
         <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
           <FaMapMarkerAlt className="text-blue-600" /> GPS Info
         </h3>

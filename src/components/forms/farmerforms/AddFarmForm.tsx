@@ -33,8 +33,8 @@ const FormSchema = z.object({
   farmLocation: z.string().min(2, {
     message: "Field is required.",
   }),
-  latitude: z.string(),
-  longitude: z.string(),
+
+  numberofTrees: z.number(),
   cultivationMethod: z.string(),
   certification: z.string(),
 
@@ -60,7 +60,12 @@ const FormSchema = z.object({
   }),
 });
 
-export function AddFarmForm() {
+interface AddFarmProps{
+  handlePrevious: () => void;
+
+}
+
+export function AddFarmForm({handlePrevious}: AddFarmProps) {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
@@ -83,10 +88,10 @@ export function AddFarmForm() {
       farmLocation: "",
       farmSize: "",
       documents: [],
-      longitude: "",
+      numberofTrees: 0,
       certification: "",
       cultivationMethod: "",
-      latitude: "",
+
       yearOfEstablishment: "",
     },
   });
@@ -101,12 +106,10 @@ export function AddFarmForm() {
     try {
       const formData = new FormData();
 
-      // Append text fields
       formData.append("farmName", data.farmName);
-      formData.append("location", data.farmLocation);
-      formData.append("latitude", data.latitude);
-      formData.append("longitude", data.longitude);
-      formData.append("farmSize", data.farmSize);
+
+      formData.append("numberofTrees", data.numberofTrees.toString());
+
       formData.append("cultivationMethods", data.cultivationMethod);
       formData.append("certifications", data.certification);
       formData.append("yearEstablished", data.yearOfEstablishment);
@@ -120,7 +123,7 @@ export function AddFarmForm() {
       const response = await fetch(FarmCreate, {
         method: "POST",
         body: formData,
-        credentials: "include", 
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -160,66 +163,14 @@ export function AddFarmForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="farmLocation"
-            render={({ field }) => (
-              <FormItem className="col-span-2 text-left">
-                <FormLabel className="font-normal text-[#222222] text-sm">
-                  Farm location
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Doe" {...field} className="py-2.5" />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}
-            name="latitude"
+            name="numberofTrees"
             render={({ field }) => (
               <FormItem className="col-span-1 text-left">
                 <FormLabel className="font-normal text-[#222222] text-sm">
-                  Latitude
-                  <span>(Optional)</span>
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="" {...field} className="py-2.5" />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="longitude"
-            render={({ field }) => (
-              <FormItem className="col-span-1 text-left">
-                <FormLabel className="font-normal text-[#222222] text-sm">
-                  Longitude
-                  <span>(Optional)</span>
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="" {...field} className="py-2.5" />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="farmSize"
-            render={({ field }) => (
-              <FormItem className="col-span-1 text-left">
-                <FormLabel className="font-normal text-[#222222] text-sm">
-                  Farm size
+                  Total coffee trees on farm
                 </FormLabel>
                 <FormControl>
                   <Input placeholder="" {...field} className="py-2.5" />
@@ -236,7 +187,7 @@ export function AddFarmForm() {
             render={({ field }) => (
               <FormItem className="col-span-1 text-left">
                 <FormLabel className="font-normal text-[#222222] text-sm">
-                  Year of Establishment
+                  Year farm started
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -358,9 +309,18 @@ export function AddFarmForm() {
             )}
           />
 
-          <Button type="submit" className="col-span-2 py-2 mt-2">
-            Save farm
-          </Button>
+          <div className="flex justify-between items-center ">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              className="px-6 text-black/80"
+            >
+              Back
+            </Button>
+            <Button type="submit" className="grow">
+              Submit
+            </Button>
+          </div>
         </form>
       </Form>
     </ScrollArea>
