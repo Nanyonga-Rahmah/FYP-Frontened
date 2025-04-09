@@ -142,7 +142,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
             name="nationalIdPhoto"
             render={() => (
               <FormItem>
-                <FormLabel>ID Photo</FormLabel>
+                <FormLabel className="text-[#222222]">ID Photo</FormLabel>
                 <FormControl>
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
                     <label
@@ -181,7 +181,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
             name="passportSizePhoto"
             render={() => (
               <FormItem>
-                <FormLabel>Passport-size Photo</FormLabel>
+                <FormLabel className="text-[#222222]">Passport-size Photo</FormLabel>
                 <FormControl>
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
                     <label
@@ -250,7 +250,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
                           className="h-10"
                         />
                         <CommandList>
-                          <CommandEmpty>No cooperative found.</CommandEmpty>
+                          <CommandEmpty className="text-[#222222]">No cooperative found.</CommandEmpty>
                           <CommandGroup>
                             {cooperatives.map((cooperative) => (
                               <CommandItem
@@ -284,7 +284,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
           />
 
           <div className="flex justify-between items-center gap-56">
-            <Button variant="outline" onClick={handlePrevious} className="px-6">
+            <Button variant="outline" onClick={handlePrevious} className="px-6 text-black/80">
               Back
             </Button>
             <Button type="submit" className="grow">

@@ -1,9 +1,10 @@
-import { AddFarm } from "@/components/Farmers/AddFarm";
 import { SubmitBatch } from "@/components/Farmers/SubmitHarvest";
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { LocateFixed } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 const actions = [
   {
@@ -23,12 +24,20 @@ const actions = [
   },
 
   {
-    name: <Link to='/view-batch' className="text-black/80 hover:none">Batch History</Link>,
+    name: (
+      <Link to="/view-batch" className="text-black/80 hover:none">
+        Batch History
+      </Link>
+    ),
     description: "View records of all submitted batches",
     imageUrl: "/images/history.png",
   },
   {
-    name: <Link to='/view-farms' className="text-black/80 hover:none">Farm Details</Link>,
+    name: (
+      <Link to="/view-farms" className="text-black/80 hover:none">
+        Farm Details
+      </Link>
+    ),
     description: "Review your farm location and data",
     imageUrl: "/images/farm-details.png",
   },
@@ -39,6 +48,7 @@ const actions = [
   },
 ];
 function DashboardPage() {
+  const navigate = useNavigate();
   return (
     <section
       className="min-h-screen"
@@ -67,7 +77,15 @@ function DashboardPage() {
           </div>
 
           <div>
-            <AddFarm />
+            <Button
+              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
+              onClick={() => {
+                navigate("/add-farm");
+              }}
+            >
+              <LocateFixed />
+              <span>Add Farm location</span>
+            </Button>
           </div>
         </div>
 
@@ -85,7 +103,9 @@ function DashboardPage() {
                 <div className="object-cover h-20 w-20  flex justify-center items-center  ">
                   <img src={action.imageUrl} alt={action.description} />
                 </div>
-                <span className="font-semibold text-xl text-[#222222]">{action.name}</span>
+                <span className="font-semibold text-xl text-[#222222]">
+                  {action.name}
+                </span>
                 <span className="font-normal tetx-sm text-[#5C6474]">
                   {action.description}
                 </span>
@@ -94,9 +114,9 @@ function DashboardPage() {
           </div>
         </section>
       </section>
-     <section className="fixed bottom-0 w-full">
-     <Footer />
-     </section>
+      <section className="fixed bottom-0 w-full">
+        <Footer />
+      </section>
     </section>
   );
 }
