@@ -19,10 +19,9 @@ export function AddFarm() {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-
   return (
     <div
-      className={` min-h-screen flex flex-col bg-white ${currentStep !== 2 && "px-20 py-10"} `}
+      className={` min-h-screen flex flex-col bg-white ${currentStep !== 2 && "px-20 py-10"}  ${open && "bg-white"} `}
     >
       {currentStep === 2 && <FarmMap currentStep={2} handleNext={handleNext} />}
 
@@ -66,7 +65,9 @@ export function AddFarm() {
                 <RegisterFarm handlenext={handleNext} onclose={handleClose} />
               )}
 
-              {currentStep === 3 && <AddFarmForm handlePrevious={handlePrevious} />}
+              {currentStep === 3 && (
+                <AddFarmForm handlePrevious={handlePrevious} />
+              )}
             </div>
           </div>
         </div>
