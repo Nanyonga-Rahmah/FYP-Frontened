@@ -6,17 +6,31 @@ import {
   Marker,
   Polygon,
 } from "@react-google-maps/api";
-import { FaWalking, FaStop, FaMapMarkerAlt, FaTimes } from "react-icons/fa";
+import {
+  FaWalking,
+  FaStop,
+  FaMapMarkerAlt,
+  FaTimes,
+  FaArrowRight,
+} from "react-icons/fa";
 
 const containerStyle = {
   width: "100%",
   height: "600px",
 };
+
 interface MapProps {
   currentStep: number;
-  handleNext:()=>void;
+  handleNext: (farmData: {
+    polygon: any;
+    area: number;
+    perimeter: number;
+    coordinates: number[][];
+    center: { lat: number; lng: number };
+  }) => void;
 }
-const FarmMap = ({ currentStep,handleNext }: MapProps) => {
+
+const FarmMap = ({ currentStep, handleNext }: MapProps) => {
   const [method, setMethod] = useState<"walking" | "selecting" | null>(null);
   const [isCollecting, setIsCollecting] = useState(false);
   const [positions, setPositions] = useState<google.maps.LatLngLiteral[]>([]);
@@ -27,14 +41,17 @@ const FarmMap = ({ currentStep,handleNext }: MapProps) => {
     lat: 0,
     lng: 0,
   });
+  const [area, setArea] = useState<number | null>(null);
+  const [perimeter, setPerimeter] = useState<number | null>(null);
+  const [areaUnit, setAreaUnit] = useState<"sqm" | "ha" | "ac">("sqm");
+  const [showMarkers, setShowMarkers] = useState(true);
 
-  // Load Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries: ["geometry"],
   });
 
-  // Get initial user location to center the map
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -43,14 +60,11 @@ const FarmMap = ({ currentStep,handleNext }: MapProps) => {
       },
       (error) => {
         console.error("Error getting initial position:", error);
-        alert(
-          "Unable to get your location. Please enable location permissions."
-        );
+        alert("Please enable location permissions to continue.");
       }
     );
   }, []);
 
-  // Handle walking method with continuous GPS tracking
   useEffect(() => {
     if (!isCollecting || method !== "walking" || !isLoaded) return;
 
@@ -59,11 +73,11 @@ const FarmMap = ({ currentStep,handleNext }: MapProps) => {
         const { latitude, longitude } = position.coords;
         const newPoint = { lat: latitude, lng: longitude };
         setPositions((prev) => [...prev, newPoint]);
-        setMapCenter(newPoint); // Follow user's position
+        setMapCenter(newPoint);
       },
       (error) => {
-        console.error("Geolocation Error:", error);
-        alert("Please enable location permissions");
+        console.error("Geolocation error:", error);
+        alert("Unable to track position. Please check location settings.");
       },
       { enableHighAccuracy: true }
     );
@@ -71,59 +85,78 @@ const FarmMap = ({ currentStep,handleNext }: MapProps) => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, [isCollecting, method, isLoaded]);
 
-  // Function to add a point manually for the selecting method
-  const addPoint = () => {
+  useEffect(() => {
+    if (polygonPath && polygonPath.length >= 3) {
+      const closedPath = [...polygonPath, polygonPath[0]];
+      const areaSqm = google.maps.geometry.spherical.computeArea(closedPath);
+      const perimeterM =
+        google.maps.geometry.spherical.computeLength(closedPath);
+      setArea(areaSqm);
+      setPerimeter(perimeterM);
+    } else {
+      setArea(null);
+      setPerimeter(null);
+    }
+  }, [polygonPath]);
+
+  const getAreaDisplay = (areaSqm: number, unit: "sqm" | "ha" | "ac") => {
+    switch (unit) {
+      case "ha":
+        return { value: (areaSqm / 10000).toFixed(3), label: "ha" };
+      case "ac":
+        return { value: (areaSqm / 4046.856).toFixed(3), label: "ac" };
+      default:
+        return { value: areaSqm.toFixed(2), label: "sqm" };
+    }
+  };
+
+  const handleAddPoint = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
-        const newPoint = { lat: latitude, lng: longitude };
+        const newPoint = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
         setPositions((prev) => [...prev, newPoint]);
-        setMapCenter(newPoint); // Center map on the new point
+        setMapCenter(newPoint);
       },
-      (error) => {
-        console.error("Error getting position:", error);
-        alert("Unable to get your location.");
-      }
+      (_error) => alert("Couldn't get current position. Please try again.")
     );
   };
 
-  // Function to finish collecting points and create polygon
-  const finishCollecting = () => {
+  const finalizePolygon = () => {
     if (positions.length < 3) {
-      alert("At least 3 points are needed to form a polygon.");
+      alert("Minimum 3 points required to create a polygon");
       return;
     }
     setPolygonPath(positions);
     setIsCollecting(false);
   };
 
-  // Start collecting points (for walking method)
-  const startCollecting = () => {
-    setPositions([]); // Clear previous points
-    setIsCollecting(true);
-  };
-
-  // Choose a method and reset states
-  const chooseMethod = (newMethod: "walking" | "selecting") => {
-    setMethod(newMethod);
-    setPositions([]);
-    setPolygonPath(null);
-    setIsCollecting(newMethod === "selecting"); // Start collecting immediately for selecting method
-  };
-
-  // Clear all data and reset to initial state
-  const clear = () => {
+  const resetMeasurement = () => {
     setMethod(null);
     setIsCollecting(false);
     setPositions([]);
     setPolygonPath(null);
+    setArea(null);
+    setPerimeter(null);
   };
 
-  // Loading and error states
+  const startCollection = (method: "walking" | "selecting") => {
+    setMethod(method);
+    setPositions([]);
+    setPolygonPath(null);
+    setIsCollecting(method === "walking");
+  };
+
   if (!isLoaded)
-    return <div className="text-center text-lg font-bold">Loading map...</div>;
+    return (
+      <div className="text-center p-4 text-lg font-bold">Loading map...</div>
+    );
   if (loadError)
-    return <div className="text-center text-red-600">Error loading map</div>;
+    return (
+      <div className="text-center p-4 text-red-600">Map loading failed</div>
+    );
 
   return (
     <div className="relative">
@@ -133,134 +166,127 @@ const FarmMap = ({ currentStep,handleNext }: MapProps) => {
         zoom={18}
         mapTypeId={google.maps.MapTypeId.SATELLITE}
       >
-        {/* Show markers for each collected point */}
-        {positions.map((pos, index) => (
-          <Marker
-            key={index}
-            position={pos}
-            icon={{
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 6,
-              fillColor: "#00ff00",
-              fillOpacity: 1,
-              strokeWeight: 2,
-              strokeColor: "#fff",
-            }}
-          />
-        ))}
-
-        {/* Show polyline while collecting points */}
+        {showMarkers &&
+          positions.map((pos, i) => (
+            <Marker
+              key={i}
+              position={pos}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 6,
+                fillColor: "#00FF00",
+                fillOpacity: 1,
+                strokeColor: "#FFFFFF",
+                strokeWeight: 2,
+              }}
+            />
+          ))}
         {isCollecting && positions.length > 1 && (
           <Polyline
             path={positions}
             options={{
-              strokeColor: "#ff0000",
-              strokeOpacity: 1.0,
+              strokeColor: "#FF0000",
+              strokeOpacity: 1,
               strokeWeight: 4,
               geodesic: true,
             }}
           />
         )}
-
-        {/* Show final polygon outline */}
         {polygonPath && (
           <Polygon
-            path={polygonPath}
+            paths={polygonPath}
             options={{
-              strokeColor: "#0000ff",
-              strokeOpacity: 1.0,
+              strokeColor: "#0000FF",
+              strokeOpacity: 1,
               strokeWeight: 4,
-              fillOpacity: 0, // Transparent fill to show only outline
+              fillOpacity: 0,
             }}
           />
         )}
       </GoogleMap>
 
-      {/* Dynamic Controls */}
-      {polygonPath ? (
-        <button
-          onClick={clear}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-700 transition"
-        >
-          <FaTimes className="text-lg" />
-          Clear
-        </button>
-      ) : method === null ? (
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex gap-4">
-          <button
-            onClick={() => chooseMethod("walking")}
-            className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition"
-          >
-            <FaWalking className="text-lg" />
-            Walk Around
-          </button>
-          <button
-            onClick={() => chooseMethod("selecting")}
-            className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition"
-          >
-            <FaMapMarkerAlt className="text-lg" />
-            Select Points
-          </button>
-        </div>
-      ) : method === "walking" ? (
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-          {isCollecting ? (
+      {/* Measurement Panel */}
+      {polygonPath && (
+        <div className="absolute top-40 left-5 bg-white p-4 rounded-xl shadow-lg w-64">
+          <h3 className="text-lg font-bold mb-3">Farm Measurements</h3>
+          <div className="space-y-2 mb-4">
+            <p className="text-sm">
+              <span className="font-semibold">Perimeter:</span>{" "}
+              {perimeter?.toFixed(2)} meters
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">Area:</span>{" "}
+              {area && getAreaDisplay(area, areaUnit).value}{" "}
+              {area && getAreaDisplay(area, areaUnit).label}
+            </p>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Unit</label>
+            <select
+              value={areaUnit}
+              onChange={(e) => setAreaUnit(e.target.value as any)}
+              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="sqm">Square Meters</option>
+              <option value="ha">Hectares</option>
+              <option value="ac">Acres</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <input
+              type="checkbox"
+              checked={showMarkers}
+              onChange={(e) => setShowMarkers(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-sm">Show Markers</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={resetMeasurement}
+              className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 flex items-center justify-center"
+            >
+              <FaTimes className="mr-2" /> Clear
+            </button>
             <button
               onClick={() => {
-                setIsCollecting(false);
-                finishCollecting();
-              }}
-              className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-700 transition"
-            >
-              <FaStop className="text-lg" />
-              Stop Walking
-            </button>
-          ) : (
-            <button
-              onClick={startCollecting}
-              className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition"
-            >
-              <FaWalking className="text-lg" />
-              Start Walking
-            </button>
-          )}
-        </div>
-      ) : method === "selecting" ? (
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex gap-4">
-          <button
-            onClick={addPoint}
-            className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 transition"
-          >
-            <FaMapMarkerAlt className="text-lg" />
-            Add Point
-          </button>
-          {positions.length >= 3 && (
-            <button
-              onClick={() => {
-                finishCollecting;
-                handleNext();
-              }}
-              className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition"
-            >
-              Finish
-            </button>
-          )}
-          <p className="text-white bg-gray-800 px-4 py-2 rounded-full">
-            Points: {positions.length}
-          </p>
-        </div>
-      ) : null}
+                if (!polygonPath) return;
 
-      <div className="absolute top-5 right-5 bg-white p-4  rounded-md w-60 text-gray-700">
+                const coordinates = polygonPath.map((point) => [
+                  point.lng,
+                  point.lat,
+                ]);
+                const center = mapCenter;
+
+                handleNext({
+                  polygon: {
+                    type: "Polygon",
+                    coordinates: [coordinates],
+                  },
+                  area: area || 0,
+                  perimeter: perimeter || 0,
+                  coordinates,
+                  center,
+                });
+              }}
+              className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 flex items-center justify-center"
+            >
+              Continue <FaArrowRight className="ml-2" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step Indicator */}
+      <div className="absolute top-5 right-5 bg-white p-4 rounded-md w-60 text-gray-700">
         {currentStep === 2 && (
           <div className="">
             <h3 className="text-center text-[#222222] font-bold text-sm">
-              Register your farm
+              Register Your Farm
             </h3>
             <p className="text-center text-[#838383] text-xs">
               Step 2/3 - Mark Location
             </p>
-
             <div className="flex justify-center gap-2 mt-3 w-full">
               {[1, 2, 3].map((step) => (
                 <div
@@ -275,19 +301,23 @@ const FarmMap = ({ currentStep,handleNext }: MapProps) => {
         )}
       </div>
 
-      <div className="absolute top-32 right-5 bg-white p-4  rounded-md w-60 text-gray-700">
+      {/* Instruction Panel */}
+      <div className="absolute top-32 right-5 bg-white p-4 rounded-md w-60 text-gray-700">
         {currentStep === 2 && (
           <div className="">
             <h3 className="text-center text-[#222222] font-bold text-sm">
               Instructions
             </h3>
             <p className="text-center text-[#838383] text-xs">
-              Walk around your farm. Your path is being recorded.
+              {method === "walking"
+                ? "Walk around your farm. Your path is being recorded."
+                : "Tap the map to select boundary points for your farm."}
             </p>
           </div>
         )}
       </div>
 
+      {/* GPS Info Section */}
       <div className="absolute top-[230px] right-5 bg-white p-4 shadow-md rounded-xl w-60 text-gray-700">
         <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
           <FaMapMarkerAlt className="text-blue-600" /> GPS Info
@@ -309,6 +339,55 @@ const FarmMap = ({ currentStep,handleNext }: MapProps) => {
           {isCollecting ? "Tracking in Progress..." : "Tracking Stopped"}
         </p>
       </div>
+
+      {/* Control Buttons */}
+      {!polygonPath && (
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
+          {method === null ? (
+            <div className="flex gap-4">
+              <button
+                onClick={() => startCollection("walking")}
+                className="bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 flex items-center"
+              >
+                <FaWalking className="mr-2" /> Walk Boundary
+              </button>
+              <button
+                onClick={() => startCollection("selecting")}
+                className="bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 flex items-center"
+              >
+                <FaMapMarkerAlt className="mr-2" /> Mark Points
+              </button>
+            </div>
+          ) : method === "walking" ? (
+            <button
+              onClick={finalizePolygon}
+              className="bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-700 flex items-center"
+            >
+              <FaStop className="mr-2" /> Stop Tracking
+            </button>
+          ) : (
+            <div className="flex gap-4 items-center">
+              <button
+                onClick={handleAddPoint}
+                className="bg-green-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-700 flex items-center"
+              >
+                <FaMapMarkerAlt className="mr-2" /> Add Point
+              </button>
+              <span className="bg-gray-800 text-white px-4 py-2 rounded-full">
+                Points: {positions.length}
+              </span>
+              {positions.length >= 3 && (
+                <button
+                  onClick={finalizePolygon}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700"
+                >
+                  Finish
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

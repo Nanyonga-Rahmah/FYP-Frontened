@@ -47,10 +47,10 @@ const formSchema = z.object({
 
 interface KYCProps {
   handlePrevious: () => void;
-  signUpData: z.infer<typeof SignUpFormSchema>; // Import or define this type
+  signUpData: z.infer<typeof SignUpFormSchema>;
 }
 
-// Assuming SignUpFormSchema is exported from SignUpForm, otherwise define it here
+// Assuming SignUpFormSchema is exported from SignUpForm
 const SignUpFormSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
@@ -114,12 +114,12 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
     formData.append("nationalIdPhoto", values.nationalIdPhoto);
     formData.append("passportSizePhoto", values.passportSizePhoto);
 
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ":", pair[1]);
+    }
+
     try {
-      const response = await axios.post(Register, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(Register, formData, {});
       toast.success(
         response.data.message ||
           "Registration successful! Please check your email."
@@ -158,6 +158,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
                     <Input
                       id="national-id-upload"
                       type="file"
+                      name="nationalIdPhoto"
                       accept="image/*"
                       onChange={(e) => handleImageChange(e, "nationalIdPhoto")}
                       className="hidden"
@@ -181,7 +182,9 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
             name="passportSizePhoto"
             render={() => (
               <FormItem>
-                <FormLabel className="text-[#222222]">Passport-size Photo</FormLabel>
+                <FormLabel className="text-[#222222]">
+                  Passport-size Photo
+                </FormLabel>
                 <FormControl>
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
                     <label
@@ -198,6 +201,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
                       id="passport-upload"
                       type="file"
                       accept="image/*"
+                      name="passportSizePhoto"
                       onChange={(e) =>
                         handleImageChange(e, "passportSizePhoto")
                       }
@@ -250,7 +254,9 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
                           className="h-10"
                         />
                         <CommandList>
-                          <CommandEmpty className="text-[#222222]">No cooperative found.</CommandEmpty>
+                          <CommandEmpty className="text-[#222222]">
+                            No cooperative found.
+                          </CommandEmpty>
                           <CommandGroup>
                             {cooperatives.map((cooperative) => (
                               <CommandItem
@@ -284,7 +290,11 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
           />
 
           <div className="flex justify-between items-center gap-56">
-            <Button variant="outline" onClick={handlePrevious} className="px-6 text-black/80">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              className="px-6 text-black/80"
+            >
               Back
             </Button>
             <Button type="submit" className="grow">

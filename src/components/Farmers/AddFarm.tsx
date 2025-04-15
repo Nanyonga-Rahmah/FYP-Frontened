@@ -7,6 +7,18 @@ import FarmMap from "./FarmMap";
 export function AddFarm() {
   const [open, setOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [farmGeoData, setFarmGeoData] = useState<{
+    polygon: any;
+    area: number;
+    perimeter: number;
+    coordinates: number[][];
+    center: { lat: number; lng: number };
+  } | null>(null);
+
+  const handleMapNext = (geoData: any) => {
+    setFarmGeoData(geoData);
+    handleNext();
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -23,7 +35,9 @@ export function AddFarm() {
     <div
       className={` min-h-screen flex flex-col bg-white ${currentStep !== 2 && "px-20 py-10"}  ${open && "bg-white"} `}
     >
-      {currentStep === 2 && <FarmMap currentStep={2} handleNext={handleNext} />}
+      {currentStep === 2 && (
+        <FarmMap currentStep={2} handleNext={handleMapNext} />
+      )}
 
       {currentStep !== 2 && (
         <div className="flex   justify-end">
@@ -65,8 +79,11 @@ export function AddFarm() {
                 <RegisterFarm handlenext={handleNext} onclose={handleClose} />
               )}
 
-              {currentStep === 3 && (
-                <AddFarmForm handlePrevious={handlePrevious} />
+              {currentStep === 3 && farmGeoData && (
+                <AddFarmForm
+                  handlePrevious={handlePrevious}
+                  geoData={farmGeoData}
+                />
               )}
             </div>
           </div>

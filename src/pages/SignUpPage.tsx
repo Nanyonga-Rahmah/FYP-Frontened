@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import { z } from "zod";
 
-// Define the schema for sign-up data (same as in SignUpForm)
+// Define the schema for sign-up data
 const SignUpSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
