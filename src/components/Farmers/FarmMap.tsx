@@ -296,10 +296,21 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
               onClick={() => {
                 if (!polygonPath) return;
 
-                const coordinates = polygonPath.map((point) => [
+                let coordinates = polygonPath.map((point) => [
                   point.lng,
                   point.lat,
                 ]);
+
+                if (
+                  coordinates.length > 2 &&
+                  (coordinates[0][0] !==
+                    coordinates[coordinates.length - 1][0] ||
+                    coordinates[0][1] !==
+                      coordinates[coordinates.length - 1][1])
+                ) {
+                  coordinates.push(coordinates[0]);
+                }
+
                 const center = mapCenter;
 
                 handleNext({
