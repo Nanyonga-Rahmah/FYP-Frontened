@@ -15,7 +15,8 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Login} from "@/lib/routes";
+import { Login } from "@/lib/routes";
+import { toast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
   user_email: z.string().min(2, { message: "Field is Required" }).email(),
@@ -28,7 +29,8 @@ export function LoginForm() {
     navigate("/forgot-password");
   };
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [submitting] = useState(false);
+  const [submitting, setIsSubmitting] = useState(false);
+
   const navigate = useNavigate();
   const togglePassword = () => {
     setPasswordVisible(!passwordVisible);
@@ -44,6 +46,8 @@ export function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
+      setIsSubmitting(true);
+
       const response = await fetch(Login, {
         method: "POST",
         headers: {
@@ -56,16 +60,37 @@ export function LoginForm() {
         credentials: "include",
       });
 
+      console.log(response);
+
       const result = await response.json();
+      console.log(result);
 
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
+      if (response.ok) {
+        toast({
+          variant: "success",
+          title: "Successful",
+          description: `${result.message}`,
+        });
+
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failure",
+          description: `${result.message}`,
+        });
       }
-
-      // Handle successful login (store user info, navigate to dashboard, etc.)
-      navigate("/dashboard");
     } catch (error: any) {
-      console.log(error.message);
+      toast({
+        variant: "destructive",
+        title: "Failure",
+        description: `Login  failed. Please try again. || ${error.response?.data?.message}`,
+      });
+    }
+    finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -85,6 +110,7 @@ export function LoginForm() {
                 <Input
                   placeholder="johndoe@gmail"
                   className=" border-[#DCE1EC] h-10  "
+                  disabled={submitting}
                   {...field}
                 />
               </FormControl>
@@ -109,6 +135,7 @@ export function LoginForm() {
                     placeholder="Enter your password"
                     className="h-12 border-none focus-visible:ring-0  focus-visible:ring-offset-0 shadow-none  "
                     {...field}
+                    disabled={submitting}
                   />
                   <p onClick={togglePassword}>
                     {passwordVisible ? (

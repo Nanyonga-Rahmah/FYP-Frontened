@@ -46,7 +46,7 @@ export function AddFarm() {
       )}
       {currentStep !== 2 && (
         <div className="flex items-center justify-center my-10">
-          <div className="flex flex-col items-center justify-center border border-[#F0F0F0] rounded-lg px-6 py-2 ">
+          <div className="flex flex-col items-center justify-center border border-[#F0F0F0] xl:w-[560px] rounded-lg px-6 py-2 ">
             <div className="flex flex-col gap-4 my-3">
               <h3 className="text-center text-[#222222] font-bold text-xl">
                 Register your farm
