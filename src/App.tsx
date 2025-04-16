@@ -3,7 +3,7 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/ew/DashboardPage";
 import ViewFarmsPage from "./pages/ViewFarms";
 import ViewHarvestsPage from "./pages/ViewHarvets";
 import ViewBatchPage from "./pages/ViewBatch";
@@ -18,7 +18,7 @@ function App() {
       <Toaster />
       <HashRouter>
         <Routes>
-          <Route path="/" element={<SignUpPage />} />
+          <Route path="/" element={<DashboardPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
