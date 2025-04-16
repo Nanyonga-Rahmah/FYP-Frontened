@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route } from "react-router-dom";
 import SignUpPage from "./pages/SignUpPage";
+import ExporterSignUpPage from "./pages/ExtensionWorker/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -16,7 +17,7 @@ function App() {
     <>
       <HashRouter>
         <Routes>
-          <Route path="/" element={<SignUpPage />} />
+          <Route path="/" element={<DashboardPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -26,6 +27,7 @@ function App() {
           <Route path="/view-harvests" element={<ViewHarvestsPage />} />
           <Route path="/view-batch" element={<ViewBatchPage />} />
           <Route path="/verify-email" element={<VerificationPage />} />
+          <Route path="/exporter-signup" element={<SignUpPage />} />
          
         </Routes>
       </HashRouter>

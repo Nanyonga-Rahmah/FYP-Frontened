@@ -23,3 +23,26 @@ export const cooperatives = [
       label: "Kigezi Highland Farmers Cooperative",
     },
   ]
+
+  export const LOCATION_OPTIONS = [
+    {
+      value: "mbale_bugisu",
+      label: "Mbale, Bugisu",
+    },
+    {
+      value: "mbarara_ankole",
+      label: "Mbarara, Ankole",
+    },
+    {
+      value: "kasese_rwenzori",
+      label: "Kasese, Rwenzori",
+    },
+    {
+      value: "kapchorwa_sebei",
+      label: "Kapchorwa, Sebei",
+    },
+    {
+      value: "kabale_kigezi",
+      label: "Kabale, Kigezi",
+    },
+  ];
