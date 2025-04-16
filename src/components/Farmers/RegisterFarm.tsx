@@ -9,7 +9,7 @@ interface RegisterFarmProps {
 function RegisterFarm({ handlenext,onclose }: RegisterFarmProps) {
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col justify-center items-center ">
       <div className="flex items-center flex-col p-4 justify-center w-full rounded-md bg-[#FAFAFA]">
         <div className="w-[150px] h-[150px] rounded-full">
           <img

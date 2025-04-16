@@ -28,9 +28,11 @@ import {
 import { Check, ChevronsUpDown, ImageIcon } from "lucide-react";
 import { cooperatives } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import axios from "axios";
-import toast from "react-hot-toast";
+
 import { Register } from "@/lib/routes";
+
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 // Define the schema for KYC data
 const formSchema = z.object({
@@ -50,7 +52,6 @@ interface KYCProps {
   signUpData: z.infer<typeof SignUpFormSchema>;
 }
 
-// Assuming SignUpFormSchema is exported from SignUpForm
 const SignUpFormSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
@@ -58,8 +59,8 @@ const SignUpFormSchema = z.object({
   email: z.string().email(),
   phone: z.string(),
   password: z.string(),
-  nationalIdNumber: z.string(),
-  cooperativeMembershipNumber: z.string(),
+  nationalIdNumber: z.string().optional(),
+  cooperativeMembershipNumber: z.string().optional(),
 });
 
 export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
@@ -69,6 +70,8 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
   }>({ nationalIdPhoto: null, passportSizePhoto: null });
   const [open, setOpen] = useState(false);
   const [selectedCooperative, setSelectedCooperative] = useState("");
+  const [submitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -96,7 +99,6 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const formData = new FormData();
 
-    // Append user data from SignUpForm
     formData.append("firstName", signUpData.firstName);
     formData.append("lastName", signUpData.lastName);
     formData.append("email", signUpData.email);
@@ -105,11 +107,10 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
     formData.append("role", signUpData.role);
     formData.append(
       "cooperativeMembershipNumber",
-      signUpData.cooperativeMembershipNumber
+      signUpData.cooperativeMembershipNumber || ""
     );
-    formData.append("nationalIdNumber", signUpData.nationalIdNumber);
+    formData.append("nationalIdNumber", signUpData.nationalIdNumber || "");
 
-    // Append KYC data
     formData.append("cooperativeLocation", values.cooperativeLocation);
     formData.append("nationalIdPhoto", values.nationalIdPhoto);
     formData.append("passportSizePhoto", values.passportSizePhoto);
@@ -119,24 +120,50 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
     }
 
     try {
-      const response = await axios.post(Register, formData, {});
-      toast.success(
-        response.data.message ||
-          "Registration successful! Please check your email."
-      );
+      setIsSubmitting(true);
+
+      const response = await fetch(Register, {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log("---->", response);
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.status === 201) {
+        toast({
+          variant: "success",
+          title: "Successful",
+          description: `${data.message}`,
+        });
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failure",
+          description: `${data.message}`,
+        });
+      }
     } catch (error: any) {
-      console.error("Registration error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Registration failed. Please try again."
-      );
+      toast({
+        variant: "destructive",
+        title: "Failure",
+        description: `Registration failed. Please try again. || ${error.response?.data?.message}`,
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <ScrollArea className="h-[500px]">
+    <ScrollArea className="h-[500px] ">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
           <FormField
             control={form.control}
             name="nationalIdPhoto"
@@ -236,7 +263,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="justify-between"
+                        className="justify-between text-black/90 outline-none  focus:ring-0"
                       >
                         {selectedCooperative
                           ? cooperatives.find(
@@ -251,7 +278,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
                       <Command>
                         <CommandInput
                           placeholder="Select Cooperative/Sub-County"
-                          className="h-10"
+                          className="h-10 text-[#222222]"
                         />
                         <CommandList>
                           <CommandEmpty className="text-[#222222]">
@@ -297,8 +324,8 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
             >
               Back
             </Button>
-            <Button type="submit" className="grow">
-              Submit
+            <Button type="submit" className="grow" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </form>

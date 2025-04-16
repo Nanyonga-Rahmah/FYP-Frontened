@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
+import { Stage, Layer, Line } from "react-konva";
+
 import {
   Select,
   SelectContent,
@@ -25,13 +27,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useState } from "react";
 import { FarmCreate } from "@/lib/routes";
+import { toast } from "@/hooks/use-toast";
 
 // Modified schema to better handle file uploads
 const FormSchema = z.object({
   farmName: z.string().min(2, {
     message: "Field is required.",
   }),
-  farmLocation: z.string().optional(), // Made optional since it's derived from geoData
+  farmLocation: z.string().optional(),
   numberofTrees: z.string(),
   cultivationMethod: z.string(),
   certification: z.string(),
@@ -84,6 +87,34 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
     },
   });
 
+  console.log(geoData);
+
+  // const stage = new Konva.Stage({
+  //   container: 'container',
+  //   width: window.innerWidth,
+  //   height: window.innerHeight
+  // });
+
+  //   const layer = new Konva.Layer();
+  // stage.add(layer);
+
+  // const polygon = new Konva.Line({
+  //   points: [73, 192, 73, 160, 340, 23, 500, 109, 499, 139, 342, 93],
+  //   fill: '#00D2FF',
+  //   stroke: 'black',
+  //   strokeWidth: 5,
+  //   closed: true
+  // });
+
+  const toKonvaPoints = (geoCoords: [number, number][]) => {
+    return geoCoords.flatMap(([lng, lat]) => [lng * 1000, lat * 1000]);
+  };
+
+  const validCoordinates = geoData.coordinates.filter(
+    (coord): coord is [number, number] => coord.length === 2
+  );
+  const points = toKonvaPoints(validCoordinates);
+
   function handleFileChange(files: FileList | null) {
     if (!files) return;
     const fileArray: File[] = Array.from(files);
@@ -118,16 +149,14 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
       formData.append("area", geoData.area.toString());
       formData.append("perimeter", geoData.perimeter.toString());
 
-      // Add location derived from geoData
       formData.append(
         "farmLocation",
         `${geoData.center.lat},${geoData.center.lng}`
       );
 
-      // Add files
-    selectedFiles.forEach((file) => {
-      formData.append("documents", file);
-    });
+      selectedFiles.forEach((file) => {
+        formData.append("documents", file);
+      });
 
       console.log("Sending form data to server...");
 
@@ -137,19 +166,33 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
         credentials: "include",
       });
 
-      console.log("Server response status:", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create farm");
-      }
-
       const result = await response.json();
-      console.log("Farm created successfully", result);
-      navigate("/view-farms");
+
+      console.log(result);
+
+      if (response.ok) {
+        toast({
+          variant: "success",
+          title: "Successful",
+          description: `${result.message}`,
+        });
+
+        setTimeout(() => {
+          navigate("/view-farms");
+        }, 2000);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failure",
+          description: `${result.error}`,
+        });
+      }
     } catch (error: any) {
-      console.error("Error submitting form:", error.message);
-      alert(`Failed to submit form: ${error.message}`);
+      toast({
+        variant: "destructive",
+        title: "Failure",
+        description: `${error.message}`,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -162,6 +205,42 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid grid-cols-2 gap-2 px-3 py-1.5"
         >
+          <div className="border border-[#DFA32D] px-4 py-2 rounded-[5px] col-span-2 flex gap-4 bg-[#FFF8EA] ">
+            <div className="h-[100px]">
+              <Stage width={200} height={200}>
+                <Layer>
+                  <Line
+                    points={points}
+                    closed
+                    fill="#E7B35A"
+                    stroke="#A56D00"
+                  />
+                </Layer>
+              </Stage>
+            </div>
+
+            <div className="flex flex-col ">
+              <div className="flex  items-center">
+                <span>Location:</span>
+                <span></span>
+              </div>
+              <div className="flex  items-center">
+                <span>Coordinates:</span>[
+                {geoData.coordinates
+                  .map(([lat, lng]) => `${lat.toFixed(2)}, ${lng.toFixed(2)}`)
+                  .join(", ")}
+                ]{" "}
+              </div>
+              <div className="flex  items-center">
+                <span>Perimeter:</span>
+                <span>{geoData.perimeter}</span>
+              </div>
+              <div className="flex  items-center">
+                <span>Area:</span>
+                <span>{geoData.area}</span>
+              </div>
+            </div>
+          </div>
           <FormField
             control={form.control}
             name="farmName"
@@ -175,6 +254,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
                     placeholder="Enter farm name"
                     {...field}
                     className="py-2.5"
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -196,6 +276,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
                     {...field}
                     className="py-2.5"
                     type="number"
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -217,6 +298,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
                     {...field}
                     className="py-2.5"
                     type="date"
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -310,6 +392,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
                       multiple
                       onChange={(e) => handleFileChange(e.target.files)}
                       className="hidden"
+                      disabled={isSubmitting}
                     />
                   </div>
                 </FormControl>
@@ -323,7 +406,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
               type="button"
               variant="outline"
               onClick={handlePrevious}
-              className="px-6 text-black/80"
+              className="px-6 text-black/80 grow"
             >
               Back
             </Button>

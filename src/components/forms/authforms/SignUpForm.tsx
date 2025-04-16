@@ -24,7 +24,6 @@ import { useState } from "react";
 import { USER_ROLES } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// Define the schema matching the backend
 const FormSchema = z.object({
   firstName: z.string().min(2, { message: "First name is required." }),
   lastName: z.string().min(2, { message: "Last name is required." }),
@@ -35,10 +34,8 @@ const FormSchema = z.object({
     .min(10, "Phone number must be at least 10 digits")
     .max(10, "Phone number must be 10 digits"),
   password: z.string().min(2, { message: "Password is required." }),
-  nationalIdNumber: z.string().min(2, { message: "NIN is required." }),
-  cooperativeMembershipNumber: z
-    .string()
-    .min(2, { message: "Membership number is required." }),
+  nationalIdNumber: z.string().optional(),
+  cooperativeMembershipNumber: z.string().optional(),
 });
 
 interface SignUpProps {
@@ -48,22 +45,28 @@ interface SignUpProps {
 export function SignUpForm({ onNext }: SignUpProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
+  const rawUserData = localStorage.getItem ("UserData");
+  const userData = rawUserData ? JSON.parse(rawUserData) : {};
+  
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      password: "",
-      email: "",
-      nationalIdNumber: "",
-      cooperativeMembershipNumber: "",
-      role: "",
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      phone: userData.phone || '',
+      password:userData.password ||  '',
+      email: userData.email || '',
+      nationalIdNumber: userData.nationalIdNumber || '',
+      cooperativeMembershipNumber: userData.cooperativeMembershipNumber || '',
+      role: userData.role || '',
     },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    onNext(data); // Pass data 
+    localStorage.setItem("UserData", JSON.stringify(data));
+   
+    onNext(data);
   }
 
   return (
@@ -71,7 +74,7 @@ export function SignUpForm({ onNext }: SignUpProps) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="grid grid-cols-2 gap-3 px-3 py-1.5"
+          className="grid grid-cols-2 gap-3 py-1.5"
         >
           <div className="col-span-2">
             <p className="font-normal text-[#222222] text-sm">Role</p>
@@ -109,7 +112,7 @@ export function SignUpForm({ onNext }: SignUpProps) {
             render={({ field }) => (
               <FormItem className="text-left">
                 <FormLabel className="text-[#222222]">First Name</FormLabel>
-                CLOCK
+
                 <FormControl>
                   <Input placeholder="John" {...field} className="py-2.5" />
                 </FormControl>
