@@ -11,6 +11,7 @@ import ViewBatchPage from "./pages/ViewBatch";
 import VerificationPage from "./pages/VerificationPage";
 import { AddFarm } from "./components/Farmers/AddFarm";
 import { Toaster } from "./components/ui/toaster";
+import ProcessorDashboardPage from "./pages/ProcessorDashboardPage";
 
 function App() {
   return (
@@ -28,6 +29,10 @@ function App() {
           <Route path="/view-harvests" element={<ViewHarvestsPage />} />
           <Route path="/view-batch" element={<ViewBatchPage />} />
           <Route path="/verify-email" element={<VerificationPage />} />
+          <Route
+            path="/processor-dashboard"
+            element={<ProcessorDashboardPage />}
+          />
         </Routes>
       </HashRouter>
     </>
