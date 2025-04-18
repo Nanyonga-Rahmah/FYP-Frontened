@@ -16,7 +16,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function ReviewFarmerModal({ farmer, onClose }: Props) {
+export default function ViewFarmerModal({ farmer, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
       <div className="bg-white w-full max-w-xl rounded-md shadow-xl relative overflow-hidden">
@@ -30,7 +30,7 @@ export default function ReviewFarmerModal({ farmer, onClose }: Props) {
         <div className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">KYC-001</p>
-            <span className="bg-[#339DFF] text-white text-xs px-3 py-1 rounded-full">{farmer.status}</span>
+            <span className="bg-[#FF5C5C] text-white text-xs px-3 py-1 rounded-full">{farmer.status}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
@@ -83,6 +83,7 @@ export default function ReviewFarmerModal({ farmer, onClose }: Props) {
               <span className="text-sm text-black">Mary.jpg</span>
             </div>
           </div>
+
           <div className="space-y-1 text-sm">
             <h3 className="font-medium">Timeline</h3>
             <div className="flex items-center gap-2">
@@ -90,13 +91,17 @@ export default function ReviewFarmerModal({ farmer, onClose }: Props) {
               <p className="text-black">{farmer.name} #U-09M created account</p>
               <span className="ml-auto text-gray-500">2025-03-28 10:30:15</span>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 bg-red-500 rounded-full"></div>
+              <p className="text-black">Kayongo #U-09M rejected Mary</p>
+              <span className="ml-auto text-gray-500">2025-03-28 11:30:15</span>
+            </div>
           </div>
         </div>
 
         <div className="px-6 py-4 border-t bg-white flex justify-between items-center text-black">
           <Button variant="outline" onClick={onClose}>Close</Button>
           <div className="flex gap-2">
-            <Button variant="destructive">Rejected</Button>
             <Button className="bg-green-600 hover:bg-green-700">Approve</Button>
           </div>
         </div>

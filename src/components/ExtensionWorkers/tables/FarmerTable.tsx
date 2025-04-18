@@ -9,7 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ReviewFarmerModal from "@/components/ExtensionWorkers/modals/ReviewFarmerModal";
+import ViewFarmerModal from "../modals/ViewFarmerModal";
+import ReviewFarmerModal from "../modals/ReviewFarmerModal";
+
 
 const farmers = [
   {
@@ -91,16 +93,17 @@ export function FarmerTableFilters() {
 
 export function FarmerTableRows() {
   type Farmer = {
-  name: string;
-  phone: string;
-  email: string;
-  idNumber: string;
-  subcounty: string;
-  status: string;
-  date: string;
-};
+    name: string;
+    phone: string;
+    email: string;
+    idNumber: string;
+    subcounty: string;
+    status: string;
+    date: string;
+  };
 
   const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
+  const [viewMode, setViewMode] = useState<"review" | "view" | null>(null);
 
   const getStatusBadge = (status: string) => {
     const base = "text-white text-xs px-3 py-1 rounded-full";
@@ -118,9 +121,25 @@ export function FarmerTableRows() {
 
   return (
     <div className="w-full bg-white rounded-md">
-      {selectedFarmer && (
-        <ReviewFarmerModal farmer={selectedFarmer} onClose={() => setSelectedFarmer(null)} />
+      {selectedFarmer && viewMode === "review" && (
+        <ReviewFarmerModal
+          farmer={selectedFarmer}
+          onClose={() => {
+            setSelectedFarmer(null);
+            setViewMode(null);
+          }}
+        />
       )}
+      {selectedFarmer && viewMode === "view" && (
+        <ViewFarmerModal
+          farmer={selectedFarmer}
+          onClose={() => {
+            setSelectedFarmer(null);
+            setViewMode(null);
+          }}
+        />
+      )}
+
       <table className="w-full text-sm">
         <thead className="bg-white text-[#5C6474] border-b border-white">
           <tr>
@@ -152,7 +171,7 @@ export function FarmerTableRows() {
                   <button
                     onClick={() => {
                       const allMenus = document.querySelectorAll('[id^="menu-"]');
-                      allMenus.forEach(menu => menu.classList.add("hidden"));
+                      allMenus.forEach((menu) => menu.classList.add("hidden"));
 
                       const currentMenu = document.getElementById(`menu-${index}`);
                       if (currentMenu) {
@@ -172,10 +191,12 @@ export function FarmerTableRows() {
                   >
                     <div
                       className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setSelectedFarmer(farmer)}
+                      onClick={() => {
+                        setSelectedFarmer(farmer);
+                        setViewMode(farmer.status === "Pending" ? "review" : "view");
+                      }}
                     >
-                      {farmer.status === "Pending" && "Review farmer"}
-                      {(farmer.status === "Approved" || farmer.status === "Rejected") && "View farmer"}
+                      {farmer.status === "Pending" ? "Review farmer" : "View farmer"}
                     </div>
                   </div>
                 </div>
@@ -188,8 +209,11 @@ export function FarmerTableRows() {
       {/* Pagination */}
       <div className="flex justify-center items-center px-6 py-4 border-t border-white">
         <span className="text-sm text-gray-500 mr-4">Page 1 of 50</span>
-        <Button className="bg-[#E7B35A] hover:bg-[#e0a844] text-white px-4">Next Page</Button>
+        <Button className="bg-[#E7B35A] hover:bg-[#e0a844] text-white px-4">
+          Next Page
+        </Button>
       </div>
     </div>
   );
 }
+
