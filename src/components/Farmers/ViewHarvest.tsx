@@ -11,7 +11,11 @@ import {
 import { checkBadgeStatus } from "@/pages/ViewHarvets";
 import { Calendar1, FileText, MapPin, Sprout } from "lucide-react";
 
-export function ViewHarvest() {
+interface ViewHarvestProps {
+  farmId?: string;
+}
+
+export function ViewHarvest({ farmId }: ViewHarvestProps)  {
   const harvest = {
     name: "HRV-001",
     variety: "Robusta",

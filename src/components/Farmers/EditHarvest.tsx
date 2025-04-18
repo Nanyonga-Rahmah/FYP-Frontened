@@ -7,8 +7,11 @@ import {
 } from "@/components/ui/dialog";
 
 import { EditHarvestForm } from "../forms/farmerforms/EditHarvestForm";
+interface EditHarvestProps {
+  farmId?: string;
+}
 
-export function EditHarvest() {
+export function EditHarvest({ farmId }: EditHarvestProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>

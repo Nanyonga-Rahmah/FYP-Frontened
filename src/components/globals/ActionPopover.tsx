@@ -13,33 +13,35 @@ import { EditHarvest } from "../Farmers/EditHarvest";
 import { RemoveHarvest } from "../Farmers/RemoveHarvest";
 
 interface ActionProps {
+  farmId?: string;
   status?: string;
 }
 
-export function PopoverDemo({ status }: ActionProps) {
+export function PopoverDemo({ farmId, status }: ActionProps) {
   const location = useLocation();
   const { pathname } = location;
+  
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <MoreHorizontal className="relative text-black" />
+        <MoreHorizontal className="relative text-black cursor-pointer" />
       </PopoverTrigger>
       <PopoverContent className="w-32 flex flex-col gap-2 absolute right-2">
         {pathname === "/view-farms" && (
           <>
-            <ViewFarm />
-            <EditFarm />
-            <RemoveFarm />
+            <ViewFarm farmId={farmId} />
+            <EditFarm farmId={farmId} />
+            <RemoveFarm farmId={farmId} />
           </>
         )}
 
         {pathname === "/view-harvests" && (
           <>
-            <ViewHarvest />
+            <ViewHarvest farmId={farmId} />
             {status !== "submitted" && (
               <>
-                <EditHarvest />
-                <RemoveHarvest />
+                <EditHarvest farmId={farmId} />
+                <RemoveHarvest farmId={farmId} />
               </>
             )}
           </>
