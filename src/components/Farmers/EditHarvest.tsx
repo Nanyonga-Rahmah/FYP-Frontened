@@ -8,10 +8,10 @@ import {
 
 import { EditHarvestForm } from "../forms/farmerforms/EditHarvestForm";
 interface EditHarvestProps {
-  farmId?: string;
+  harvestId?: string;
 }
 
-export function EditHarvest({ farmId }: EditHarvestProps) {
+export function EditHarvest({ harvestId }: EditHarvestProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>

@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/dialog";
 
 interface RemoveHarvestProps {
-  farmId?: string;
+  harvestId?: string;
 }
 
-export function RemoveHarvest({ farmId }: RemoveHarvestProps) {
+export function RemoveHarvest({ harvestId }: RemoveHarvestProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>

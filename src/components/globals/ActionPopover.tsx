@@ -37,11 +37,11 @@ export function PopoverDemo({ farmId, status }: ActionProps) {
 
         {pathname === "/view-harvests" && (
           <>
-            <ViewHarvest farmId={farmId} />
+            <ViewHarvest harvestId={farmId} />
             {status !== "submitted" && (
               <>
-                <EditHarvest farmId={farmId} />
-                <RemoveHarvest farmId={farmId} />
+                <EditHarvest harvestId={farmId} />
+                <RemoveHarvest harvestId={farmId} />
               </>
             )}
           </>
