@@ -1,4 +1,3 @@
-import { SubmitBatch } from "@/components/Farmers/SubmitHarvest";
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/ew/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

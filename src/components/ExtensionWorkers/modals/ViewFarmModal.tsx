@@ -3,7 +3,6 @@ import { X, FileText, CornerUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ApproveFarmerModal from "./ApproveFarmerModal";
 import RejectFarmerModal from "./RejectFarmerModal";
-import { date } from "zod";
 
 interface FarmData {
     name: string;
