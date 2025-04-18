@@ -16,6 +16,7 @@ import { Toaster } from "./components/ui/toaster";
 // Extension Worker Imports
 import ExtensionWorkerDashboard from "./pages/ew/DashboardPage";
 import ApproveKYCPage from "./pages/ew/ApproveKYCPage";
+import ApproveFarmPage from "./pages/ew/ApproveFarmPage";
 
 function App() {
   return (
@@ -35,7 +36,7 @@ function App() {
           <Route path="/view-batch" element={<ViewBatchPage />} />
           <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
           <Route path="/approve-kyc" element={<ApproveKYCPage />} />
-          <Route path="/approve-farm" element={<VerificationPage />} />
+          <Route path="/approve-farms" element={<ApproveFarmPage />} />
           <Route path="/manage-farmers" element={<VerificationPage />} />
           <Route path="/support" element={<VerificationPage />} />
 

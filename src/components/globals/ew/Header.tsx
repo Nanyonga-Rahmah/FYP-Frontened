@@ -35,8 +35,8 @@ function Header() {
           KYC Approvals
         </Link>
         <Link
-          to="/farm-approvals"
-          className={isActive("/farm-approvals") ? "text-white font-semibold" : "text-[#C0C9DD]"}
+          to="/approve-farms"
+          className={isActive("/approve-farms") ? "text-white font-semibold" : "text-[#C0C9DD]"}
         >
           Farm Approvals
         </Link>
