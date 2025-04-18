@@ -76,7 +76,6 @@ export function AddHarvestForm() {
   }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    // Create structured data object 
     const harvestData = {
       farmId: data.farm,
       coffeeVariety: data.coffeeVariety,
@@ -90,15 +89,11 @@ export function AddHarvestForm() {
         end: data.harvestEnd
       },
       cultivationMethods: [data.cultivationMethod]
-    };
-  
-    // Create FormData for sending the files
+    };  
     const formData = new FormData();
     
-    // Append JSON data as a string
     formData.append('data', JSON.stringify(harvestData));
     
-    // Append files
     selectedFiles.forEach((file) => formData.append("documents", file));
   
     try {
