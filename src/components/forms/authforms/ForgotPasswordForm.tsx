@@ -51,8 +51,9 @@ export function ForgotPasswordForm() {
               <FormControl>
                 <Input
                   placeholder="johndoe@gmail"
-                  className=" border-[#DCE1EC] py-2.5 "
+                  className=" border-[#DCE1EC] py-2.5"
                   {...field}
+                 
                 />
               </FormControl>
 

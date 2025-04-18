@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Plus } from "lucide-react";
-import { AddHarvestForm } from "../forms/authforms/AddHarvestForm";
+import { AddHarvestForm } from "../forms/farmerforms/AddHarvestForm";
 
 export function AddHarvest() {
   return (

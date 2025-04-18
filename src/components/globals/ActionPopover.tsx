@@ -22,7 +22,7 @@ export function PopoverDemo({ status }: ActionProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <MoreHorizontal className="relative" />
+        <MoreHorizontal className="relative text-black" />
       </PopoverTrigger>
       <PopoverContent className="w-32 flex flex-col gap-2 absolute right-2">
         {pathname === "/view-farms" && (

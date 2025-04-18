@@ -1,10 +1,12 @@
 import { PopoverDemo } from "@/components/globals/ActionPopover";
-import { AddFarm } from "@/components/Farmers/AddFarm";
+
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-import { MapPin } from "lucide-react";
+import { LocateFixed, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const farms = [
   {
@@ -30,6 +32,7 @@ export const getRandomColor = () => {
 };
 
 function ViewFarmsPage() {
+  const navigate = useNavigate();
   return (
     <section
       className="h-screen"
@@ -58,7 +61,15 @@ function ViewFarmsPage() {
           </div>
 
           <div>
-            <AddFarm />
+            <Button
+              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
+              onClick={() => {
+                navigate("/add-farm");
+              }}
+            >
+              <LocateFixed />
+              <span>Add Farm location</span>
+            </Button>
           </div>
         </div>
 
@@ -69,7 +80,7 @@ function ViewFarmsPage() {
             {farms.map((action, index) => (
               <div
                 key={index}
-                className="bg-white flex flex-col  rounded-[10px] py-1  px-3 shadow-sm"
+                className="bg-white flex flex-col max-w-[370px] max-h-[237px]  rounded-[10px] py-1  px-3 shadow-sm"
               >
                 <div className="flex justify-end">
                   <PopoverDemo />
@@ -78,7 +89,9 @@ function ViewFarmsPage() {
                   <div className="">
                     <MapPin size={60} color="#fffafa" fill={getRandomColor()} />
                   </div>
-                  <span className="font-semibold tetx-xl">{action.name}</span>
+                  <span className="font-semibold tetx-xl text-[#222222]">
+                    {action.name}
+                  </span>
                   <span className="font-normal tetx-sm flex items-center gap-1 text-[#5C6474]">
                     <span>
                       <MapPin size={10} />
