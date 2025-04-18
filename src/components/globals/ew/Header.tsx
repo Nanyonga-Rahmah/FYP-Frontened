@@ -26,7 +26,7 @@ function Header() {
         <Link to="/ew-dashboard" className="text-[#C0C9DD]">
           Home
         </Link>
-        <Link to="/kyc-approvals" className="text-[#C0C9DD]">
+        <Link to="/approve-kyc" className="text-[#C0C9DD]">
           KYC Approvals
         </Link>
         <Link to="/farm-approvals" className="text-[#C0C9DD]">

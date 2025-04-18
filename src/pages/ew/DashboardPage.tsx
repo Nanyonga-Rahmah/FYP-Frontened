@@ -8,7 +8,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 const actions = [
   {
-    name: "Approve Farmers",
+    name: (
+      <Link to="/approve-kyc" className="text-black/80 hover:none">
+        Approve Farmers
+      </Link>
+    ),
     description: "Review pending KYC submissions.",
     imageUrl: "/images/approve-farmer.png",
   },
@@ -19,7 +23,11 @@ const actions = [
   // },
 
   {
-    name: "Approve Farm",
+    name: (
+      <Link to="/approve-farm" className="text-black/80 hover:none">
+        Approve Farm
+      </Link>
+    ),
     description: "Review farm registrations for compliance",
     imageUrl: "/images/coffeeleaf.png",
   },
