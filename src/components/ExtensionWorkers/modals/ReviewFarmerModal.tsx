@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type Farmer = {
@@ -17,6 +18,15 @@ interface Props {
 }
 
 export default function ReviewFarmerModal({ farmer, onClose }: Props) {
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+    const handleImageClick = (imageSrc: string) => {
+      setSelectedImage(imageSrc);
+    };
+  
+    const closeImageModal = () => {
+      setSelectedImage(null);
+    };
   return (
     <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
       <div className="bg-white w-full max-w-xl rounded-md shadow-xl relative overflow-hidden">
@@ -62,27 +72,35 @@ export default function ReviewFarmerModal({ farmer, onClose }: Props) {
             <div className="font-medium text-black text-right">{farmer.date}</div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-black">ID Photo</h3>
-            <div className="space-y-2">
-              <div className="flex items-center bg-gray-100 border rounded px-3 py-2">
-                <img src="/images/image-placeholder.svg" alt="icon" className="w-5 h-5 mr-2" />
-                <span className="text-sm text-black">Front_Id.jpg</span>
-              </div>
-              <div className="flex items-center bg-gray-100 border rounded px-3 py-2">
-                <img src="/images/image-placeholder.svg" alt="icon" className="w-5 h-5 mr-2" />
-                <span className="text-sm text-black">Back_Id.jpg</span>
-              </div>
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-black">Passport size Photo</h3>
-            <div className="flex items-center bg-gray-100 border rounded px-3 py-2">
-              <img src="/images/image-placeholder.svg" alt="icon" className="w-5 h-5 mr-2" />
-              <span className="text-sm text-black">Mary.jpg</span>
+            {/* ID Photos */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-black">ID Photo</h3>
+              <div className="space-y-2">
+                {["/images/passport.jpg", "/images/passport.jpg"].map((src, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center bg-gray-100 border rounded px-3 py-2 cursor-pointer"
+                    onClick={() => handleImageClick(src)}
+                  >
+                    <img src="/images/image-placeholder.svg" alt="icon" className="w-5 h-5 mr-2" />
+                    <span className="text-sm text-black">{src.split("/").pop()}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+
+            {/* Passport Photo */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-black">Passport size Photo</h3>
+              <div
+                className="flex items-center bg-gray-100 border rounded px-3 py-2 cursor-pointer"
+                onClick={() => handleImageClick("/images/passport.jpg")}
+              >
+                <img src="/images/image-placeholder.svg" alt="icon" className="w-5 h-5 mr-2" />
+                <span className="text-sm text-black">Mary.jpg</span>
+              </div>
+            </div>
           <div className="space-y-1 text-sm">
             <h3 className="font-medium">Timeline</h3>
             <div className="flex items-center gap-2">
