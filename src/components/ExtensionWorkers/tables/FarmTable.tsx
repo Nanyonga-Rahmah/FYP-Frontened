@@ -1,4 +1,3 @@
-// FarmTable.tsx
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,39 +9,88 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ReviewFarmerModal from "../modals/ReviewFarmerModal";
+import ViewFarmModal from "../modals/ViewFarmModal";
+import ReviewFarmModal from "../modals/ReviewFarmModal";
 
-const farmers = [
-  {
-    name: "Mary Nantongo",
-    phone: "+256771234567",
-    email: "mary12@gmail.com",
-    idNumber: "CF981092793G9K",
-    subcounty: "Makindye-Ssabagabo",
-    status: "Pending",
-    date: "Mar 1, 2026",
-  },
-  {
-    name: "Mary Nantongo",
-    phone: "+256771234567",
-    email: "mary12@gmail.com",
-    idNumber: "CF981092793G9K",
-    subcounty: "Makindye-Ssabagabo",
-    status: "Rejected",
-    date: "Mar 1, 2026",
-  },
-  {
-    name: "Mary Nantongo",
-    phone: "+256771234567",
-    email: "mary12@gmail.com",
-    idNumber: "CF981092793G9K",
-    subcounty: "Makindye-Ssabagabo",
-    status: "Approved",
-    date: "Mar 1, 2026",
-  },
-];
-
-function Filters() {
+const farms = [
+    {
+      name: "Green Valley Coffee Farm",
+      location: "Bombo, Luweero",
+      size: "5 Acres",
+      farmer: "Mary Nantongo",
+      phone: "+256771234567",
+      email: "mary12@gmail.com",
+      idNumber: "CF981092793G9K",
+      subcounty: "Makindye-Ssabagabo",
+      status: "Pending",
+      date: "Mar 1, 2026",
+      yearStarted: "2020",
+      coffeeTrees: 20 - 100,
+      coordinates: "(0.3424, 32.4543)",
+      perimeter: "1200m",
+      methods: ["Organic"],
+      certifications: ["FairTrade"],
+      documents: ["FairTrade.pdf"],
+      auditLogs: [
+        {
+          text: "Farm added by Jane Smith",
+          date: "2025-03-28 10:30:15",
+        },
+      ],
+    },
+    {
+      name: "Sunset Arabica Farm",
+      location: "Mbale Hills",
+      size: "7 Acres",
+      farmer: "James Sserugo",
+      phone: "+256771234568",
+      email: "james@gmail.com",
+      idNumber: "CF000000001AA",
+      subcounty: "Mbale",
+      status: "Approved",
+      date: "Feb 20, 2026",
+      yearStarted: "2018",
+      coffeeTrees: 5 - 20,
+      coordinates: "(0.4000, 33.2000)",
+      perimeter: "1500m",
+      methods: ["Agroforestry"],
+      certifications: ["Rainforest Alliance"],
+      documents: ["Rainforest.pdf"],
+      auditLogs: [
+        {
+          text: "Farm reviewed by Allan",
+          date: "2025-03-20 09:00:00",
+        },
+      ],
+    },
+    {
+      name: "Riverbend Estate",
+      location: "Fort Portal",
+      size: "4 Acres",
+      farmer: "Sarah Nabisere",
+      phone: "+256772222222",
+      email: "sarah@coffee.com",
+      idNumber: "CF123456789XYZ",
+      subcounty: "Fort Portal Central",
+      status: "Rejected",
+      date: "Jan 10, 2026",
+      yearStarted: "2019",
+      coffeeTrees: 100 - 300,
+      coordinates: "(0.5432, 30.1234)",
+      perimeter: "1000m",
+      methods: ["Conventional"],
+      certifications: ["None"],
+      documents: ["LocationMap.pdf"],
+      auditLogs: [
+        {
+          text: "Farm rejected by Peter",
+          date: "2025-03-10 15:00:00",
+        },
+      ],
+    },
+  ];
+  
+export function Filters() {
   const [search, setSearch] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -81,8 +129,9 @@ function Filters() {
   );
 }
 
-function Rows() {
-  const [selectedFarmer, setSelectedFarmer] = useState<any | null>(null);
+export function Rows() {
+  const [selectedFarm, setSelectedFarm] = useState<any | null>(null);
+  const [modalType, setModalType] = useState<"view" | "review" | null>(null);
 
   const getStatusBadge = (status: string) => {
     const base = "text-white text-xs px-3 py-1 rounded-full";
@@ -93,12 +142,11 @@ function Rows() {
 
   return (
     <div className="w-full">
-      {selectedFarmer && (
-        <ReviewFarmerModal
-          farmer={selectedFarmer}
-          mode={selectedFarmer.status === "Pending" ? "review" : "view"}
-          onClose={() => setSelectedFarmer(null)}
-        />
+      {selectedFarm && modalType === "view" && (
+        <ViewFarmModal farm={selectedFarm} onClose={() => setSelectedFarm(null)} />
+      )}
+      {selectedFarm && modalType === "review" && (
+        <ReviewFarmModal farm={selectedFarm} onClose={() => setSelectedFarm(null)} />
       )}
 
       <table className="w-full text-sm">
@@ -114,16 +162,16 @@ function Rows() {
           </tr>
         </thead>
         <tbody className="text-[#222]">
-          {farmers.map((farmer, index) => (
+          {farms.map((farm, index) => (
             <tr key={index} className="border-t border-white">
-              <td className="px-6 py-4 font-semibold">Green Valley Coffee Farm</td>
-              <td className="px-6 py-4">Bombo, Luweero</td>
-              <td className="px-6 py-4">5 Acres</td>
-              <td className="px-6 py-4">{farmer.name}</td>
+              <td className="px-6 py-4 font-semibold">{farm.name}</td>
+              <td className="px-6 py-4">{farm.location}</td>
+              <td className="px-6 py-4">{farm.size}</td>
+              <td className="px-6 py-4">{farm.farmer}</td>
               <td className="px-6 py-4">
-                <span className={getStatusBadge(farmer.status)}>{farmer.status}</span>
+                <span className={getStatusBadge(farm.status)}>{farm.status}</span>
               </td>
-              <td className="px-6 py-4">{farmer.date}</td>
+              <td className="px-6 py-4">{farm.date}</td>
               <td className="px-6 py-4 relative">
                 <div className="relative">
                   <button
@@ -149,9 +197,12 @@ function Rows() {
                   >
                     <div
                       className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setSelectedFarmer(farmer)}
+                      onClick={() => {
+                        setSelectedFarm(farm);
+                        setModalType(farm.status === "Pending" ? "view" : "review");
+                      }}
                     >
-                      {farmer.status === "Pending" ? "Review farm" : "View farm"}
+                      {farm.status === "Pending" ? "View farm" : "Review farm"}
                     </div>
                   </div>
                 </div>
@@ -160,13 +211,6 @@ function Rows() {
           ))}
         </tbody>
       </table>
-
-      <div className="flex justify-center items-center px-6 py-4 border-t border-white">
-        <span className="text-sm text-gray-500 mr-4">Page 1 of 1</span>
-        <Button className="bg-[#E7B35A] hover:bg-[#e0a844] text-white px-4">
-          Next Page
-        </Button>
-      </div>
     </div>
   );
 }
