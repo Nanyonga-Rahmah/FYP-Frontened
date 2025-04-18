@@ -1,6 +1,6 @@
 import Header from "@/components/globals/ew/Header";
 import Footer from "@/components/globals/Footer";
-import { FarmerTableFilters, FarmerTableRows } from "@/components/ExtensionWorkers/FarmerTable";
+import { FarmerTableFilters, FarmerTableRows } from "@/components/ExtensionWorkers/tables/FarmerTable";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocateFixed } from "lucide-react";

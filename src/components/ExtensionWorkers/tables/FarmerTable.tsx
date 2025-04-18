@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ReviewFarmerModal from "@/components/ExtensionWorkers/modals/ReviewFarmerModal";
 
 const farmers = [
   {
@@ -89,6 +90,18 @@ export function FarmerTableFilters() {
 }
 
 export function FarmerTableRows() {
+  type Farmer = {
+  name: string;
+  phone: string;
+  email: string;
+  idNumber: string;
+  subcounty: string;
+  status: string;
+  date: string;
+};
+
+  const [selectedFarmer, setSelectedFarmer] = useState<Farmer | null>(null);
+
   const getStatusBadge = (status: string) => {
     const base = "text-white text-xs px-3 py-1 rounded-full";
     switch (status) {
@@ -105,6 +118,9 @@ export function FarmerTableRows() {
 
   return (
     <div className="w-full bg-white rounded-md">
+      {selectedFarmer && (
+        <ReviewFarmerModal farmer={selectedFarmer} onClose={() => setSelectedFarmer(null)} />
+      )}
       <table className="w-full text-sm">
         <thead className="bg-white text-[#5C6474] border-b border-white">
           <tr>
@@ -131,10 +147,38 @@ export function FarmerTableRows() {
                 <span className={getStatusBadge(farmer.status)}>{farmer.status}</span>
               </td>
               <td className="px-6 py-4">{farmer.date}</td>
-              <td className="px-6 py-4">
-                <button className="p-2 rounded bg-white">
-                  <MoreHorizontal className="w-5 h-5 text-black" />
-                </button>
+              <td className="px-6 py-4 relative">
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      const allMenus = document.querySelectorAll('[id^="menu-"]');
+                      allMenus.forEach(menu => menu.classList.add("hidden"));
+
+                      const currentMenu = document.getElementById(`menu-${index}`);
+                      if (currentMenu) {
+                        currentMenu.classList.remove("hidden");
+                        setTimeout(() => {
+                          currentMenu.classList.add("hidden");
+                        }, 5000);
+                      }
+                    }}
+                    className="p-2 rounded bg-white hover:bg-gray-100 focus:outline-none"
+                  >
+                    <MoreHorizontal className="w-5 h-5 text-black" />
+                  </button>
+                  <div
+                    id={`menu-${index}`}
+                    className="absolute right-0 mt-2 z-10 hidden bg-white border border-gray-200 rounded shadow-md w-36"
+                  >
+                    <div
+                      className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                      onClick={() => setSelectedFarmer(farmer)}
+                    >
+                      {farmer.status === "Pending" && "Review farmer"}
+                      {(farmer.status === "Approved" || farmer.status === "Rejected") && "View farmer"}
+                    </div>
+                  </div>
+                </div>
               </td>
             </tr>
           ))}
