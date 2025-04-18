@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import RegisterFarm from "./RegisterFarm";
 import FarmMap from "./FarmMap";
+import { useNavigate } from "react-router-dom";
 
 export function AddFarm() {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,7 @@ export function AddFarm() {
     setFarmGeoData(geoData);
     handleNext();
   };
+  const navigate = useNavigate();
 
   const handleClose = () => {
     setOpen(false);
@@ -41,7 +43,12 @@ export function AddFarm() {
 
       {currentStep !== 2 && (
         <div className="flex   justify-end">
-          <X className="h-10 w-10 text-black" />
+          <X
+            className="h-10 w-10 text-black cursor-pointer"
+            onClick={() => {
+              navigate("/dashboard");
+            }}
+          />
         </div>
       )}
       {currentStep !== 2 && (
