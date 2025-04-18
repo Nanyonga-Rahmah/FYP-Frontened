@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ApproveFarmerModal from "./ApproveFarmerModal";
+import RejectFarmerModal from "./RejectFarmerModal";
 
 type Farmer = {
   name: string;
@@ -19,6 +21,8 @@ interface Props {
 
 export default function ViewFarmerModal({ farmer, onClose }: Props) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
 
   const handleImageClick = (imageSrc: string) => {
     setSelectedImage(imageSrc);
@@ -26,6 +30,18 @@ export default function ViewFarmerModal({ farmer, onClose }: Props) {
 
   const closeImageModal = () => {
     setSelectedImage(null);
+  };
+
+  const handleApprove = (notes: string) => {
+    console.log("✅ Approved farmer with notes:", notes);
+    setShowApprovalModal(false);
+    // Submit approval logic
+  };
+
+  const handleReject = (notes: string) => {
+    console.log("❌ Rejected farmer with notes:", notes);
+    setShowRejectionModal(false);
+    // Submit rejection logic
   };
 
   return (
@@ -45,11 +61,12 @@ export default function ViewFarmerModal({ farmer, onClose }: Props) {
           <div className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">KYC-001</p>
-              <span className="bg-[#FF5C5C] text-white text-xs px-3 py-1 rounded-full">{farmer.status}</span>
+              <span className="bg-[#FF5C5C] text-white text-xs px-3 py-1 rounded-full">
+                {farmer.status}
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
-              {/* Details */}
               <div className="text-gray-500">UserID</div>
               <div className="font-medium text-right text-black">U-09M</div>
 
@@ -82,7 +99,7 @@ export default function ViewFarmerModal({ farmer, onClose }: Props) {
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-black">ID Photo</h3>
               <div className="space-y-2">
-                {["/images/passport.jpg", "/images/passport.jpg"].map((src, idx) => (
+                {["/images/front-id.jpg", "/images/back-id.jpg"].map((src, idx) => (
                   <div
                     key={idx}
                     className="flex items-center bg-gray-100 border rounded px-3 py-2 cursor-pointer"
@@ -123,10 +140,22 @@ export default function ViewFarmerModal({ farmer, onClose }: Props) {
             </div>
           </div>
 
+          {/* Footer Actions */}
           <div className="px-6 py-4 border-t bg-white flex justify-between items-center text-black">
             <Button variant="outline" onClick={onClose}>Close</Button>
             <div className="flex gap-2">
-              <Button className="bg-green-600 hover:bg-green-700">Approve</Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => setShowRejectionModal(true)}
+              >
+                Reject
+              </Button>
+              <Button
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => setShowApprovalModal(true)}
+              >
+                Approve
+              </Button>
             </div>
           </div>
         </div>
@@ -142,10 +171,26 @@ export default function ViewFarmerModal({ farmer, onClose }: Props) {
             >
               <X className="w-5 h-5" />
             </button>
-            <img src={selectedImage} alt="Preview" className="max-h-[80vh] max-w-[90vw] rounded-md" />
+            <img
+              src={selectedImage}
+              alt="Preview"
+              className="max-h-[80vh] max-w-[90vw] rounded-md"
+            />
           </div>
         </div>
       )}
+
+      {/* Modals */}
+      <ApproveFarmerModal
+        isOpen={showApprovalModal}
+        onClose={() => setShowApprovalModal(false)}
+        onApprove={handleApprove}
+      />
+      <RejectFarmerModal
+        isOpen={showRejectionModal}
+        onClose={() => setShowRejectionModal(false)}
+        onReject={handleReject}
+      />
     </>
   );
 }
