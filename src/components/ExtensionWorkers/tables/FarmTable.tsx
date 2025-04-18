@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -91,7 +90,7 @@ const farms = [
   ];
   
 export function Filters() {
-  const [search, setSearch] = useState("");
+  const [, setSearch] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
