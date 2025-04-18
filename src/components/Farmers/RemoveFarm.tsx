@@ -9,7 +9,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function RemoveFarm() {
+interface RemoveFarmProps {
+  farmId?: string;
+}
+
+export function RemoveFarm({farmId}: RemoveFarmProps ) {
   return (
     <Dialog>
       <DialogTrigger asChild>
