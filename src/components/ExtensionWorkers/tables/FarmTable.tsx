@@ -73,6 +73,7 @@ const farms = [
       idNumber: "CF123456789XYZ",
       subcounty: "Fort Portal Central",
       status: "Rejected",
+      notes: "Farm overlaps area",
       date: "Jan 10, 2026",
       yearStarted: "2019",
       coffeeTrees: 100 - 300,

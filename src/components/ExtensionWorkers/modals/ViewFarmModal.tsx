@@ -127,7 +127,7 @@ export default function ViewFarmModal({ onClose, farm }: Props) {
                                         key={idx}
                                         className="flex items-center bg-gray-100 border rounded px-3 py-2"
                                     >
-                                        <FileText className="w-5 h-5 mr-2" />
+                                        <FileText className="w-5 h-5 mr-2 text-black" />
                                         <span className="text-sm text-black">{doc}</span>
                                     </div>
                                 ))}
@@ -136,14 +136,17 @@ export default function ViewFarmModal({ onClose, farm }: Props) {
 
                         <div>
                             <h3 className="text-sm font-medium text-black mb-1">Audit Logs</h3>
-                            <div className="text-sm border-l-4 pl-3 border-blue-500">
+                            <div className="text-sm border-l-4 pl-3 border-blue-500 space-y-2">
                                 {farm.auditLogs.map((log, index) => (
-                                    <div key={index} className="mb-1">
-                                        <p className="text-black">● {log.text}</p>
+                                    <div key={index} className="flex justify-between items-center">
+                                        <p className="text-black">
+                                            <span className="text-blue-500">●</span> {log.text}
+                                        </p>
                                         <p className="text-gray-500 text-xs">{log.date}</p>
                                     </div>
                                 ))}
                             </div>
+
                         </div>
                     </div>
 

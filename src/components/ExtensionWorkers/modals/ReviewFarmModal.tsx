@@ -18,6 +18,7 @@ interface FarmData {
     farmer: string;
     documents: string[];
     status: string;
+    notes?: string;
     auditLogs: {
         text: string;
         date: string;
@@ -118,6 +119,14 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
 
                             <div className="text-gray-500">Farmer</div>
                             <div className="font-medium text-black text-right">{farm.farmer}</div>
+
+                            {farm.status === "Rejected" && (
+                                <>
+                                    <div className="text-gray-500">Notes</div>
+                                    <div className="font-medium text-black text-right">{farm.notes}</div>
+                                </>
+                            )}
+
                         </div>
 
                         <div>
@@ -128,7 +137,7 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
                                         key={idx}
                                         className="flex items-center bg-gray-100 border rounded px-3 py-2"
                                     >
-                                        <FileText className="w-5 h-5 mr-2" />
+                                        <FileText className="w-5 h-5 mr-2 text-black" />
                                         <span className="text-sm text-black">{doc}</span>
                                     </div>
                                 ))}
@@ -137,14 +146,37 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
 
                         <div>
                             <h3 className="text-sm font-medium text-black mb-1">Audit Logs</h3>
-                            <div className="text-sm border-l-4 pl-3 border-blue-500">
+                            <div className="text-sm border-l-4 pl-3 border-blue-500 space-y-2">
+                                {/* Existing audit logs */}
                                 {farm.auditLogs.map((log, index) => (
-                                    <div key={index} className="mb-1">
-                                        <p className="text-black">● {log.text}</p>
+                                    <div key={index} className="flex justify-between items-center">
+                                        <p className="text-black">
+                                            <span className="text-blue-500">●</span> {log.text}
+                                        </p>
                                         <p className="text-gray-500 text-xs">{log.date}</p>
                                     </div>
                                 ))}
+
+                                {/* Status-based custom log */}
+                                {farm.status === "Rejected" && (
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-black">
+                                            <span className="text-[#FF5C5C]">●</span> Farm rejected by Nsereko Julius
+                                        </p>
+                                        <p className="text-gray-500 text-xs">{new Date().toLocaleString()}</p>
+                                    </div>
+                                )}
+
+                                {farm.status === "Approved" && (
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-black">
+                                            <span className="text-[#3AB85E]">●</span> Farm approved by Rahma
+                                        </p>
+                                        <p className="text-gray-500 text-xs">{new Date().toLocaleString()}</p>
+                                    </div>
+                                )}
                             </div>
+
                         </div>
                     </div>
 
