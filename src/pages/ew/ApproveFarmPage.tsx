@@ -51,7 +51,7 @@ function ApproveFarmPage() {
           </div>
 
           {/* Table */}
-          <div className="border border-blue-400 border-t-0 rounded-b-md bg-white px-4 pb-4 pt-2">
+          <div className="border border-blue-400 rounded-t-md border-t-0 rounded-b-md bg-white px-4 pb-4 pt-2">
             <FarmTable.Rows />
           </div>
         </div>

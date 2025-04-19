@@ -33,7 +33,10 @@ const actions = [
 
 
   {
-    name: "Review Harvests",
+    name: (
+      <Link to="/approve-harvests" className="text-black/80 hover:none">
+        Review Harvests
+      </Link>),
     description: "Check and approve submittted harvests",
     imageUrl: "/images/Check.png",
   },

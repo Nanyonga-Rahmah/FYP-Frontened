@@ -17,6 +17,7 @@ import { Toaster } from "./components/ui/toaster";
 import ExtensionWorkerDashboard from "./pages/ew/DashboardPage";
 import ApproveKYCPage from "./pages/ew/ApproveKYCPage";
 import ApproveFarmPage from "./pages/ew/ApproveFarmPage";
+import ApproveHarvestsPage from "./pages/ew/ApproveHarvestsPage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
           <Route path="/approve-kyc" element={<ApproveKYCPage />} />
           <Route path="/approve-farms" element={<ApproveFarmPage />} />
+          <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
           <Route path="/manage-farmers" element={<VerificationPage />} />
           <Route path="/support" element={<VerificationPage />} />
 

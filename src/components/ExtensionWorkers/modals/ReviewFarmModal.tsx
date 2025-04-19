@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { X, FileText, CornerUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ApproveFarmerModal from "./ApproveFarmerModal";
-import RejectFarmerModal from "./RejectFarmerModal";
+import ApproveFarmModal from "./ApproveFarmModal";
+import RejectFarmModal from "./RejectFarmModal";
 
 interface FarmData {
     name: string;
@@ -88,7 +88,17 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
                             </div>
 
                             {/* Optional: corner icon */}
-                            <CornerUpRight className="w-5 h-5 text-yellow-500 self-start" />
+                            <button
+                                onClick={() => {
+                                    // Navigate to view farm map page
+                                    // Replace with useNavigate() if using React Router
+                                    window.location.href = "/view-farm-map";
+                                }}
+                                className="p-1 bg-[#FFF8E7]"
+                                title="View farm polygon on map"
+                            >
+                                <CornerUpRight className="w-5 h-5 text-yellow-500 self-start cursor-pointer" />
+                            </button>
                         </div>
 
 
@@ -194,12 +204,12 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
                 </div>
             </div>
 
-            <ApproveFarmerModal
+            <ApproveFarmModal
                 isOpen={showApprovalModal}
                 onClose={() => setShowApprovalModal(false)}
                 onApprove={handleApprove}
             />
-            <RejectFarmerModal
+            <RejectFarmModal
                 isOpen={showRejectionModal}
                 onClose={() => setShowRejectionModal(false)}
                 onReject={handleReject}
