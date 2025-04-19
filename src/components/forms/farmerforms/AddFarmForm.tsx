@@ -29,7 +29,6 @@ import { useState } from "react";
 import { FarmCreate } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
 
-// Modified schema to better handle file uploads
 const FormSchema = z.object({
   farmName: z.string().min(2, {
     message: "Field is required.",
@@ -38,8 +37,8 @@ const FormSchema = z.object({
   numberofTrees: z.string(),
   cultivationMethod: z.string(),
   certification: z.string(),
-  documents: z.any(), // Simplified to avoid validation issues
-  farmSize: z.string().optional(), // Made optional since it's derived from geoData
+  documents: z.any(), 
+  farmSize: z.string().optional(),
   yearOfEstablishment: z.string().min(2, {
     message: "Field is required.",
   }),
@@ -78,7 +77,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
     defaultValues: {
       farmName: "",
       farmLocation: "",
-      farmSize: geoData.area.toString(), // Pre-fill with area from geoData
+      farmSize: geoData.area.toString(),
       documents: [],
       numberofTrees: "0",
       certification: "",
