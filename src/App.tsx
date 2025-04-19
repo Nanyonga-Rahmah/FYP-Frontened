@@ -25,8 +25,8 @@ function App() {
       <Toaster />
       <HashRouter>
         <Routes>
-          {/* <Route path="/" element={<SignUpPage />} /> */}
-          <Route path="/" element={<ExtensionWorkerDashboard />} />
+          <Route path="/" element={<SignUpPage />} />
+          {/* <Route path="/" element={<ExtensionWorkerDashboard />} /> */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
