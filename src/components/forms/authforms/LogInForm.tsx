@@ -17,6 +17,8 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Login } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
+import useAuth from "@/hooks/use-auth";
+
 
 const FormSchema = z.object({
   user_email: z.string().min(2, { message: "Field is Required" }).email(),
@@ -25,6 +27,7 @@ const FormSchema = z.object({
 });
 
 export function LoginForm() {
+  const { login } = useAuth();
   const handleClick = () => {
     navigate("/forgot-password");
   };
@@ -66,6 +69,7 @@ export function LoginForm() {
       console.log(result);
 
       if (response.ok) {
+        login(result.token);
         toast({
           variant: "success",
           title: "Successful",
@@ -92,8 +96,8 @@ export function LoginForm() {
     finally {
       setIsSubmitting(false);
     }
-  };
 
+  };
   return (
     <Form {...form}>
       <form
