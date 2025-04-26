@@ -5,6 +5,7 @@ import ApproveFarmModal from "./ApproveFarmModal";
 import RejectFarmModal from "./RejectFarmModal";
 import { Farm } from "../tables/FarmTable";
 import { FarmAdmin } from "@/lib/routes";
+import useAuth from "@/hooks/use-auth";
 
 interface Props {
   onClose: () => void;
@@ -14,13 +15,14 @@ interface Props {
 export default function ViewFarmModal({ onClose, farm }: Props) {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
-
+  const { authToken } = useAuth();
   const handleApprove = async (notes: string) => {
     try {
       const response = await fetch(`${FarmAdmin}approve-creation/${farm._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           status: "approved",
@@ -46,6 +48,7 @@ export default function ViewFarmModal({ onClose, farm }: Props) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           status: "rejected",

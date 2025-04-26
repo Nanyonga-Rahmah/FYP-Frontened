@@ -7,6 +7,7 @@ import { LocateFixed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FarmTable from "@/components/ExtensionWorkers/tables/FarmTable";
 import { FarmAdmin } from "@/lib/routes";
+import useAuth from "@/hooks/use-auth";
 
 interface Farm {
   _id?: string;
@@ -34,12 +35,19 @@ function ApproveFarmPage() {
     startDate: "",
     endDate: "",
   });
+  const { authToken } = useAuth();
 
   useEffect(() => {
     const fetchFarms = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${FarmAdmin}pending-creations`);
+        const response = await fetch(`${FarmAdmin}pending-creations`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
         if (!response.ok) throw new Error("Failed to fetch farms");
         const data = await response.json();
         setFarms(data);
