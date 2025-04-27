@@ -1,6 +1,7 @@
 import { SubmitBatch } from "@/components/Farmers/SubmitHarvest";
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
+import { SubmitLot } from "@/components/Processor/SubmitLot";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocateFixed, Sprout } from "lucide-react";
@@ -18,14 +19,14 @@ const actions = [
     imageUrl: "/images/delivered.png",
   },
   {
-    name: "Submit Consignment",
+    name: <SubmitLot />,
     description: "Share your processed batches for export.",
     imageUrl: "/images/growth.png",
   },
 
   {
     name: (
-      <Link to="/view-batch" className="text-black/80 hover:none">
+      <Link to="/processor/view-farmers" className="text-black/80 hover:none">
         View Farms
       </Link>
     ),
@@ -97,11 +98,13 @@ function ProcessorDashboardPage() {
             <div className="flex flex-col  border-r py-3 px-5">
               <div className="flex items-center gap-1">
                 <div className="rounded-full bg-[#43B75D]  p-1">
-                <Sprout className="text-white h-4 w-4" />
+                  <Sprout className="text-white h-4 w-4" />
                 </div>
                 <span>Pending Delivery</span>
               </div>
-              <span className="font-semibold text-[#09090B] mx-8">2 batches</span>
+              <span className="font-semibold text-[#09090B] mx-8">
+                2 batches
+              </span>
             </div>
             <div className="flex flex-col  border-r py-3 px-5">
               <div className="flex items-center gap-1">
@@ -110,16 +113,20 @@ function ProcessorDashboardPage() {
                 </div>
                 <span>Delivered</span>
               </div>
-              <span className="font-semibold text-[#09090B] mx-8">2 batches</span>
+              <span className="font-semibold text-[#09090B] mx-8">
+                2 batches
+              </span>
             </div>
             <div className="flex flex-col  py-3 px-5">
               <div className="flex items-center gap-1">
                 <div className="rounded-full bg-[#E67E22]  p-1">
-                <Sprout className="text-white h-4 w-4" />
+                  <Sprout className="text-white h-4 w-4" />
                 </div>
                 <span>Processed</span>
               </div>
-              <span className="font-semibold text-[#09090B] mx-8">2 batches</span>
+              <span className="font-semibold text-[#09090B] mx-8">
+                2 batches
+              </span>
             </div>
           </div>
 
