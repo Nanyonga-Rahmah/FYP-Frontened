@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { Routes, Route, HashRouter } from "react-router-dom"; // Using HashRouter here
 import { Toaster } from "./components/ui/toaster";
 
 // Dynamically import pages
@@ -35,11 +35,18 @@ const LotDetailsPage = lazy(
   () => import("./pages/processor/ViewLotDetailsPage")
 );
 
+// Exporter Imports
+import ExporterDashboardPage from "./pages/exporter/DashboardPage";
+import ViewLotsPage from "./pages/exporter/ViewLotsPage";
+import ViewLotDetailsPage from "@/pages/exporter/ViewLotDetailsPage";
+
+
 function App() {
   return (
     <>
       <Toaster />
-      <BrowserRouter>
+      {/* Use only one router: HashRouter or BrowserRouter */}
+      <HashRouter>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route path="/" element={<SignUpPage />} />
@@ -51,37 +58,31 @@ function App() {
             <Route path="/view-farms" element={<ViewFarmsPage />} />
             <Route path="/view-harvests" element={<ViewHarvestsPage />} />
             <Route path="/view-batch" element={<ViewBatchPage />} />
-            <Route
-              path="/ew-dashboard"
-              element={<ExtensionWorkerDashboard />}
-            />
+            <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
             <Route path="/approve-kyc" element={<ApproveKYCPage />} />
             <Route path="/approve-farms" element={<ApproveFarmPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
             <Route path="/manage-farmers" element={<VerificationPage />} />
-            <Route path="/support" element={<VerificationPage />} />
+            <Route path="/exporter-dashboard" element={<ExporterDashboardPage />} />
+            <Route path="/view-lots" element={<ViewLotsPage />} />
+            <Route path="/view-lot-details/:id" element={<ViewLotDetailsPage />} />
 
-            <Route
-              path="/processor-dashboard"
-              element={<ProcessorDashboardPage />}
-            />
+            {/* Extension Worker Pages */}
+            <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
+            <Route path="/approve-kyc" element={<ApproveKYCPage />} />
+            <Route path="/approve-farms" element={<ApproveFarmPage />} />
+            <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
+
+            {/* Processor Pages */}
+            <Route path="/processor-dashboard" element={<ProcessorDashboardPage />} />
             <Route path="/processor/view-batchs" element={<BatchHistory />} />
-            <Route
-              path="/processor/view-batchDetails/:batchId"
-              element={<BatchDetailsPage />}
-            />
-            <Route
-              path="/processor/view-farmers"
-              element={<ViewFarmersPage />}
-            />
+            <Route path="/processor/view-batchDetails/:batchId" element={<BatchDetailsPage />} />
+            <Route path="/processor/view-farmers" element={<ViewFarmersPage />} />
             <Route path="/processor/view-lots" element={<LotHistoryPage />} />
-            <Route
-              path="/processor/view-lots/:lotId"
-              element={<LotDetailsPage />}
-            />
+            <Route path="/processor/view-lots/:lotId" element={<LotDetailsPage />} />
           </Routes>
         </Suspense>
-      </BrowserRouter>
+      </HashRouter>
     </>
   );
 }
