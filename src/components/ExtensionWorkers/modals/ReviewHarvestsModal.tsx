@@ -22,14 +22,14 @@ export default function ReviewHarvestsModal({ onClose, harvest }: HarvestProps) 
         setSelectedImage(null);
     };
 
-    const statusColor =
-        harvest.status === "Approved"
-            ? "bg-[#3AB85E]"
-            : harvest.status === "Rejected"
-                ? "bg-[#FF5C5C]"
-                : harvest.status === "Flagged"
-                    ? "bg-[#E7B35A]"
-                    : "bg-[#339DFF]";
+    // const statusColor =
+    //     harvest.status === "Approved"
+    //         ? "bg-[#3AB85E]"
+    //         : harvest.status === "Rejected"
+    //             ? "bg-[#FF5C5C]"
+    //             : harvest.status === "Flagged"
+    //                 ? "bg-[#E7B35A]"
+    //                 : "bg-[#339DFF]";
 
     return (
         <>

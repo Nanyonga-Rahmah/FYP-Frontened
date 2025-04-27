@@ -8,7 +8,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 const actions = [
   {
-    name: "Record Harvest",
+    name:( <Link to="/view-harvests" className="text-black/80 hover:none">
+      Record Harvest
+    </Link>),
     description: "Add details about your harvest.",
     imageUrl: "/images/record-harvest.png",
   },
