@@ -3,8 +3,8 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ApproveFarmerModal from "./ApproveFarmerModal";
 import RejectFarmerModal from "./RejectFarmerModal";
-import { AllUsers } from "@/lib/routes";
-
+import { AllUsers } from "@/lib/routes"
+import useAuth from "@/hooks/use-auth";
 type Farmer = {
   _id: string;
   firstName: string;
@@ -44,13 +44,14 @@ export default function ViewFarmerModal({ farmer, onClose, onSubmit }: Props) {
   const closeImageModal = () => {
     setSelectedImage(null);
   };
-
+const {authToken} = useAuth()
   const handleApprove = async (notes: string) => {
     try {
       const response = await fetch(`${AllUsers}${farmer._id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           status: "approved",
@@ -75,6 +76,7 @@ export default function ViewFarmerModal({ farmer, onClose, onSubmit }: Props) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           status: "rejected",

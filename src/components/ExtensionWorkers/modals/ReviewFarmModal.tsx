@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import ApproveFarmModal from "./ApproveFarmModal";
 import RejectFarmModal from "./RejectFarmModal";
 import { Farm } from "../tables/FarmTable";
+import useAuth from "@/hooks/use-auth";
+import { API_URL } from "@/lib/routes";
 
 interface Props {
   onClose: () => void;
@@ -13,19 +15,23 @@ interface Props {
 export default function ReviewFarmModal({ onClose, farm }: Props) {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
-
+const {authToken} = useAuth()
   const handleApprove = async (notes: string) => {
     try {
-      const response = await fetch(`/api/admin/farms/approve/${farm._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: "approved",
-          adminNotes: notes,
-        }),
-      });
+      const response = await fetch(
+        `${API_URL}farm/admin/approve-creation/${farm._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            status: "approved",
+            adminNotes: notes,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to approve farm");
@@ -34,7 +40,6 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
       console.log("✅ Farm approved with notes:", notes);
       setShowApprovalModal(false);
       onClose();
-      // You might want to trigger a refresh of the farms list here
     } catch (error) {
       console.error("Error approving farm:", error);
     }
@@ -42,16 +47,20 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
 
   const handleReject = async (notes: string) => {
     try {
-      const response = await fetch(`/api/admin/farms/approve/${farm._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: "rejected",
-          adminNotes: notes,
-        }),
-      });
+      const response = await fetch(
+        `${API_URL}farm/admin/approve-creation/${farm._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            status: "rejected",
+            adminNotes: notes,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to reject farm");
@@ -60,7 +69,6 @@ export default function ReviewFarmModal({ onClose, farm }: Props) {
       console.log("❌ Farm rejected with notes:", notes);
       setShowRejectionModal(false);
       onClose();
-      // You might want to trigger a refresh of the farms list here
     } catch (error) {
       console.error("Error rejecting farm:", error);
     }

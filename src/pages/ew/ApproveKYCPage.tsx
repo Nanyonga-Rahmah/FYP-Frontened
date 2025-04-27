@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { LocateFixed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AllUsers } from "@/lib/routes";
+import useAuth from "@/hooks/use-auth";
 
 type Farmer = {
   _id: string;
@@ -46,12 +47,19 @@ function ApproveKYCPage() {
     location: "Makindye– Sabagabo",
   });
   const [totalFarmers, setTotalFarmers] = useState(0);
-
+  const { authToken } = useAuth();
+  
   useEffect(() => {
     const fetchFarmersData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(AllUsers);
+        const response = await fetch(AllUsers, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);

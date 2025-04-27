@@ -12,6 +12,7 @@ import {
 import ViewFarmerModal from "../modals/ViewFarmerModal";
 import ReviewFarmerModal from "../modals/ReviewFarmerModal";
 import { AllUsers } from "@/lib/routes";
+import useAuth from "@/hooks/use-auth";
 
 export type Farmer = {
   _id: string;
@@ -166,6 +167,7 @@ export function FarmerTableRows({
       year: "numeric",
     });
   };
+  const {authToken} = useAuth()
 
   const handleUpdateKycStatus = async (
     userId: string,
@@ -177,6 +179,7 @@ export function FarmerTableRows({
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           status,
