@@ -23,3 +23,11 @@ export const cooperatives = [
       label: "Kigezi Highland Farmers Cooperative",
     },
   ]
+
+
+ export const subCounties = [
+    "Nakawa", "Kawempe", "Rubaga", "Makindye", "Central Division",
+    "Nyakayojo", "Buhweju", "Kashari", 
+    "Goma", "Mukono Central", 
+    
+  ];
