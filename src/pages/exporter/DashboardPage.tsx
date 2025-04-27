@@ -30,7 +30,7 @@ function ExporterDashboardPage() {
       type: "link",
       name: "Mark as Delivered",
       description: "Confirm when lots are delivered",
-      imageUrl: "/images/mak-delivered-consignments.png",
+      imageUrl: "/images/mak-delivered.png",
       to: "/confirm-consignment",
     },
     {
