@@ -64,16 +64,6 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
         }
       );
 
-<<<<<<< HEAD
-    // const statusColor =
-    //     harvest.status === "Approved"
-    //         ? "bg-[#3AB85E]"
-    //         : harvest.status === "Rejected"
-    //             ? "bg-[#FF5C5C]"
-    //             : harvest.status === "Flagged"
-    //                 ? "bg-[#E7B35A]"
-    //                 : "bg-[#339DFF]";
-=======
       if (response.ok) {
         // Close modals and potentially update the parent component
         setShowApprovalModal(false);
@@ -86,7 +76,6 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
       console.error("Error approving harvest:", error);
     }
   };
->>>>>>> master
 
   const handleReject = async (reason: string) => {
     try {
@@ -110,14 +99,7 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
     }
   };
 
-  const statusColor =
-    harvest.status === "Approved"
-      ? "bg-[#3AB85E]"
-      : harvest.status === "Rejected"
-        ? "bg-[#FF5C5C]"
-        : harvest.status === "Flagged"
-          ? "bg-[#E7B35A]"
-          : "bg-[#339DFF]";
+
 
   return (
     <>
