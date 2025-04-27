@@ -11,6 +11,13 @@ import ViewBatchPage from "./pages/ViewBatch";
 import VerificationPage from "./pages/VerificationPage";
 import { AddFarm } from "./components/Farmers/AddFarm";
 import { Toaster } from "./components/ui/toaster";
+
+
+// Extension Worker Imports
+import ExtensionWorkerDashboard from "./pages/ew/DashboardPage";
+import ApproveKYCPage from "./pages/ew/ApproveKYCPage";
+import ApproveFarmPage from "./pages/ew/ApproveFarmPage";
+import ApproveHarvestsPage from "./pages/ew/ApproveHarvestsPage";
 import ProcessorDashboardPage from "./pages/ProcessorDashboardPage";
 
 function App() {
@@ -20,6 +27,7 @@ function App() {
       <HashRouter>
         <Routes>
           <Route path="/" element={<SignUpPage />} />
+          {/* <Route path="/" element={<ExtensionWorkerDashboard />} /> */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -28,7 +36,14 @@ function App() {
           <Route path="/view-farms" element={<ViewFarmsPage />} />
           <Route path="/view-harvests" element={<ViewHarvestsPage />} />
           <Route path="/view-batch" element={<ViewBatchPage />} />
-          <Route path="/verify-email" element={<VerificationPage />} />
+          <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
+          <Route path="/approve-kyc" element={<ApproveKYCPage />} />
+          <Route path="/approve-farms" element={<ApproveFarmPage />} />
+          <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
+          <Route path="/manage-farmers" element={<VerificationPage />} />
+          <Route path="/support" element={<VerificationPage />} />
+
+
           <Route
             path="/processor-dashboard"
             element={<ProcessorDashboardPage />}

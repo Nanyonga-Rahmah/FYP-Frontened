@@ -29,17 +29,16 @@ import { useState } from "react";
 import { FarmCreate } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
 
-// Modified schema to better handle file uploads
 const FormSchema = z.object({
   farmName: z.string().min(2, {
     message: "Field is required.",
   }),
-  farmLocation: z.string().optional(),
+ 
   numberofTrees: z.string(),
   cultivationMethod: z.string(),
   certification: z.string(),
-  documents: z.any(), // Simplified to avoid validation issues
-  farmSize: z.string().optional(), // Made optional since it's derived from geoData
+  documents: z.any(), 
+  farmSize: z.string().optional(),
   yearOfEstablishment: z.string().min(2, {
     message: "Field is required.",
   }),
@@ -77,8 +76,8 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       farmName: "",
-      farmLocation: "",
-      farmSize: geoData.area.toString(), // Pre-fill with area from geoData
+   
+      farmSize: geoData.area.toString(),
       documents: [],
       numberofTrees: "0",
       certification: "",
@@ -149,10 +148,10 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
       formData.append("area", geoData.area.toString());
       formData.append("perimeter", geoData.perimeter.toString());
 
-      formData.append(
-        "farmLocation",
-        `${geoData.center.lat},${geoData.center.lng}`
-      );
+      // formData.append(
+      //   "farmLocation",
+      //   `${geoData.center.lat},${geoData.center.lng}`
+      // );
 
       selectedFiles.forEach((file) => {
         formData.append("documents", file);

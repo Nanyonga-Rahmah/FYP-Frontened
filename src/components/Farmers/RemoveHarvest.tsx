@@ -9,6 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+// interface RemoveHarvestProps {
+//   harvestId?: string;
+// }
+
 export function RemoveHarvest() {
   return (
     <Dialog>

@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
-
 import {
   Select,
   SelectContent,
@@ -10,97 +9,134 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchMyFarms } from "@/lib/farm";
+import { HarvestCreate } from "@/lib/routes";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+} from "@/components/ui/command";
+import { ChevronDown } from "lucide-react";
 
 const FormSchema = z.object({
-  farmName: z.string().min(2, {
-    message: "Field is required.",
-  }),
-  farmLocation: z.string().min(2, {
-    message: "Field is required.",
-  }),
-  latitude: z.string(),
-  longitude: z.string(),
-  cultivationMethod: z.string(),
-  certification: z.string(),
-  variety: z.string(),
-  weight: z.string(),
-  harvestDate: z.string(),
+  farm: z.string().min(1, { message: "Farm is required." }),
+  coffeeVariety: z
+    .array(z.string())
+    .min(1, { message: "Select at least one variety" }),
+  weight: z.string().min(1, { message: "Number of bags is required." }),
+  plantingPeriod: z.string().min(1, { message: "Start date required." }),
 
+  harvestingPeroid: z.string().min(1, { message: "Start date required." }),
+
+  cultivationMethod: z
+    .array(z.string())
+    .min(1, { message: "Select at least one method" }),
   documents: z.array(
     z
       .any()
       .refine(
-        (file) =>
-          file instanceof File &&
-          (file.type.startsWith("image/") || file.name.endsWith(".zip")),
-        {
-          message: "File must be an image or a zipped file.",
-        }
+        (file) => file instanceof File && file.type.startsWith("image/"),
+        { message: "File must be an image." }
       )
   ),
-
-  farmSize: z.string().min(2, {
-    message: "Field is required.",
-  }),
 });
 
 export function AddHarvestForm() {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [farms, setFarms] = useState<{ _id: string; farmName: string }[]>([]);
+  const [loadingFarms, setLoadingFarms] = useState(true);
+  const cultivationMethods = [
+    "Weeding",
+    "Mulching",
+    "Fertilizer Application",
+    "Pest Control",
+    "Shade Management",
+  ];
+  const coffeeVarieties = ["Robusta", "Arabica"];
 
-  const [cultivationMethods] = useState([
-    "Organic",
-    "Convetional",
-    "Agroforestry",
-  ]);
-
-  const [certifications] = useState([
-    "Organic",
-    "Fairtrade",
-    "Rainforest Alliance",
-  ]);
+  useEffect(() => {
+    fetchMyFarms()
+      .then(setFarms)
+      .catch((err) => console.error("Failed to load farms:", err))
+      .finally(() => setLoadingFarms(false));
+  }, []);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      farmName: "",
-      farmLocation: "",
-      farmSize: "",
-      documents: [],
-      longitude: "",
-      certification: "",
-      cultivationMethod: "",
-      latitude: "",
-      variety: "",
+      farm: "",
+      coffeeVariety: [],
       weight: "",
-      harvestDate: "",
+      plantingPeriod: "",
+
+      harvestingPeroid: "",
+
+      cultivationMethod: [],
+      documents: [],
     },
   });
+
   function handleFileChange(files: FileList | null) {
     if (!files) return;
     const fileArray: File[] = Array.from(files);
     setSelectedFiles(fileArray);
     form.setValue("documents", fileArray, { shouldValidate: true });
   }
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-    console.log(selectedFiles);
-    navigate('/view-harvests')
-  }
 
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const harvestData = {
+      farmId: data.farm,
+      coffeeVariety: data.coffeeVariety,
+      weight: data.weight,
+      plantingPeriod: data.plantingPeriod,
+      harvestPeriod: data.harvestingPeroid,
+      cultivationMethods: [data.cultivationMethod],
+    };
+    const formData = new FormData();
+
+    formData.append("data", JSON.stringify(harvestData));
+
+    selectedFiles.forEach((file) => formData.append("documents", file));
+
+    try {
+      const response = await fetch(HarvestCreate, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Failed to save harvest");
+      }
+
+      const result = await response.json();
+      console.log("Saved harvest:", result);
+      navigate("/view-harvests");
+    } catch (error: any) {
+      console.error("Submit error:", error);
+      alert(error.message);
+    }
+  }
   return (
     <Form {...form}>
       <form
@@ -109,55 +145,121 @@ export function AddHarvestForm() {
       >
         <FormField
           control={form.control}
-          name="variety"
+          name="farm"
           render={({ field }) => (
-            <FormItem className="col-span-1 ">
+            <FormItem className="col-span-2">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Coffee Variety
+                Farm
               </FormLabel>
               <FormControl>
                 <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
+                  onValueChange={field.onChange}
                   value={field.value}
+                  disabled={loadingFarms}
                 >
-                  {" "}
                   <SelectTrigger>
-                    <SelectValue placeholder="Select variety" />
+                    <SelectValue
+                      placeholder={loadingFarms ? "Loading..." : "Select farm"}
+                    />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {cultivationMethods.map((method, index) => {
-                      return (
-                        <SelectItem key={index} value={method}>
-                          {method}
-                        </SelectItem>
-                      );
-                    })}
+                  <SelectContent>
+                    {farms.map((f) => (
+                      <SelectItem key={f._id} value={f._id}>
+                        {f.farmName}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
+        />
+
+        <FormField
+          control={form.control}
+          name="coffeeVariety"
+          render={({ field }) => {
+            const selectedVarieties: string[] = field.value || [];
+
+            const toggleVariety = (variety: string) => {
+              if (selectedVarieties.includes(variety)) {
+                field.onChange(selectedVarieties.filter((v) => v !== variety));
+              } else {
+                field.onChange([...selectedVarieties, variety]);
+              }
+            };
+
+            return (
+              <FormItem className="col-span-1">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Coffee Variety
+                </FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start">
+                      {selectedVarieties.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {selectedVarieties.map((v) => (
+                            <span
+                              key={v}
+                              className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs"
+                            >
+                              {v}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center w-full">
+                        <span>Select Varieties</span>
+                        <ChevronDown className="w-4 h-4" />
+                      </div>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+
+                  <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search varieties..." />
+                      <CommandList>
+                        {coffeeVarieties.map((v, index) => (
+                          <CommandItem
+                            key={index}
+                            onSelect={() => toggleVariety(v)}
+                          >
+                            {v}
+                            {selectedVarieties.includes(v) && (
+                              <span className="ml-auto text-green-600">
+                                Selected
+                              </span>
+                            )}
+                          </CommandItem>
+                        ))}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
 
         <FormField
           control={form.control}
           name="weight"
           render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
+            <FormItem className="col-span-1">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Weight
+                Number of bags
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter weight in kg"
+                  placeholder="Enter number of bags"
                   {...field}
                   className="h-9"
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -165,51 +267,15 @@ export function AddHarvestForm() {
 
         <FormField
           control={form.control}
-          name="harvestDate"
+          name="plantingPeriod"
           render={({ field }) => (
-            <FormItem className="col-span-2 text-left">
+            <FormItem className="col-span-2">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Harvest Date
+                Planting period
               </FormLabel>
               <FormControl>
                 <Input type="date" {...field} className="h-9" />
               </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="farmName"
-          render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Farm name
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  {" "}
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select farm" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {cultivationMethods.map((method, index) => {
-                      return (
-                        <SelectItem key={index} value={method}>
-                          {method}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -217,20 +283,15 @@ export function AddHarvestForm() {
 
         <FormField
           control={form.control}
-          name="farmSize"
+          name="harvestingPeroid"
           render={({ field }) => (
-            <FormItem className="col-span-1 text-left">
+            <FormItem className="col-span-2">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Farm size
+                Harvesting Period
               </FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter farm size in hectares"
-                  {...field}
-                  className="h-9"
-                />
+                <Input type="date" {...field} className="h-9" />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -239,71 +300,70 @@ export function AddHarvestForm() {
         <FormField
           control={form.control}
           name="cultivationMethod"
-          render={({ field }) => (
-            <FormItem className="col-span-2 space-y-1">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Cultivation methods
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  {" "}
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {cultivationMethods.map((method, index) => {
-                      return (
-                        <SelectItem key={index} value={method}>
-                          {method}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          render={({ field }) => {
+            const selectedMethods: string[] = field.value || [];
 
-        <FormField
-          control={form.control}
-          name="certification"
-          render={({ field }) => (
-            <FormItem className="col-span-2 space-y-1">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Certification
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  {" "}
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select certifications" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] overflow-y-auto">
-                    {certifications.map((certificate, index) => {
-                      return (
-                        <SelectItem key={index} value={certificate}>
-                          {certificate}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+            const toggleMethod = (method: string) => {
+              if (selectedMethods.includes(method)) {
+                field.onChange(selectedMethods.filter((m) => m !== method));
+              } else {
+                field.onChange([...selectedMethods, method]);
+              }
+            };
+
+            return (
+              <FormItem className="col-span-2">
+                <FormLabel className="font-normal text-[#222222] text-sm">
+                  Farming methods
+                </FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start">
+                      {selectedMethods.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {selectedMethods.map((method) => (
+                            <span
+                              key={method}
+                              className="bg-blue-100 text-[#222222] px-2 py-1 rounded-md text-xs"
+                            >
+                              {method}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center w-full">
+                          <span>Select Method</span>
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+
+                  <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search methods..." />
+                      <CommandList>
+                        {cultivationMethods.map((method, index) => (
+                          <CommandItem
+                            key={index}
+                            onSelect={() => toggleMethod(method)}
+                          >
+                            {method}
+                            {selectedMethods.includes(method) && (
+                              <span className=" text-green-600">
+                                Selected
+                              </span>
+                            )}
+                          </CommandItem>
+                        ))}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
 
         <FormField
@@ -312,26 +372,27 @@ export function AddHarvestForm() {
           render={() => (
             <FormItem className="col-span-2">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Documents
-                <span> (Upload relevant images of harvest)</span>
+                Images of harvest
               </FormLabel>
               <FormControl>
-                <div className=" rounded-[6px] border border-dashed h-10 flex justify-center items-center">
+                <div className="rounded-[6px] border border-dashed h-20 flex justify-center items-center">
                   <label htmlFor="file-upload" className="text-sm">
                     <span className="text-primary underline">Choose Files</span>{" "}
-                    to Upload
+                    to upload
                   </label>
                   <Input
                     id="file-upload"
                     type="file"
-                    accept="image/*, .zip"
+                    accept="image/*"
                     multiple
                     onChange={(e) => handleFileChange(e.target.files)}
                     className="hidden"
                   />
                 </div>
               </FormControl>
-
+              <FormDescription>
+                Accepted formats: JPG, PNG. Max size: 5MB
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

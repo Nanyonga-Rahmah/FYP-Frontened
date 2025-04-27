@@ -2,7 +2,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+} from "@/components/ui/command";
 import { Textarea } from "@/components/ui/textarea";
 
 import {
@@ -13,14 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
 
 import { useState } from "react";
@@ -30,9 +34,13 @@ const FormSchema = z.object({
     message: "Field is required.",
   }),
 
-  harvestRecords: z.string().min(2, {
-    message: "Field is required.",
+  processingFacility: z.array(z.string()).min(1, {
+    message: "Select at least one processing facility",
   }),
+
+  harvestRecords: z
+    .array(z.string())
+    .min(1, { message: "Select at least one harvest" }),
   comments: z.string().min(2, {
     message: "Field is required.",
   }),
@@ -50,7 +58,12 @@ const FormSchema = z.object({
   ),
 });
 
-export function SubmitBatchForm() {
+interface SubmitBatchFormProps {
+  handleNext: () => void;
+  setBatchData: (data: any) => void;
+}
+
+export function SubmitBatchForm({ handleNext ,setBatchData}: SubmitBatchFormProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -58,9 +71,10 @@ export function SubmitBatchForm() {
     defaultValues: {
       weight: "",
       comments: "",
+      processingFacility: [],
 
       documents: [],
-      harvestRecords: "",
+      harvestRecords: [],
     },
   });
 
@@ -74,6 +88,8 @@ export function SubmitBatchForm() {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
     console.log(selectedFiles);
+    setBatchData(data);
+    handleNext();
   }
 
   return (
@@ -88,34 +104,73 @@ export function SubmitBatchForm() {
             <FormField
               control={form.control}
               name="harvestRecords"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger className=" my-2 shadow-none ">
-                      <SelectValue
-                        placeholder="Select  harvest records "
-                        className=" "
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="apple">Apple</SelectItem>
-                        <SelectItem value="banana">Banana</SelectItem>
-                        <SelectItem value="blueberry">Blueberry</SelectItem>
-                        <SelectItem value="grapes">Grapes</SelectItem>
-                        <SelectItem value="pineapple">Pineapple</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+              render={({ field }) => {
+                const selectedRecords: string[] = field.value || [];
 
-                  <FormMessage />
-                </FormItem>
-              )}
+                const toggleRecord = (record: string) => {
+                  if (selectedRecords.includes(record)) {
+                    field.onChange(selectedRecords.filter((r) => r !== record));
+                  } else {
+                    field.onChange([...selectedRecords, record]);
+                  }
+                };
+
+                return (
+                  <FormItem className="w-full">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full my-2 shadow-none justify-start"
+                        >
+                          {selectedRecords.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {selectedRecords.map((r) => (
+                                <span
+                                  key={r}
+                                  className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs"
+                                >
+                                  {r}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            "Select harvest records"
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-[300px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search records..." />
+                          <CommandList>
+                            {[
+                              "apple",
+                              "banana",
+                              "blueberry",
+                              "grapes",
+                              "pineapple",
+                            ].map((record, index) => (
+                              <CommandItem
+                                key={index}
+                                onSelect={() => toggleRecord(record)}
+                              >
+                                {record}
+                                {selectedRecords.includes(record) && (
+                                  <span className="ml-auto text-green-600">
+                                    Selected
+                                  </span>
+                                )}
+                              </CommandItem>
+                            ))}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
         </div>
@@ -136,6 +191,86 @@ export function SubmitBatchForm() {
             </FormItem>
           )}
         />
+
+        <div className="col-span-2">
+          <p className="font-normal text-[#222222] text-sm">
+            Processing Facility
+          </p>
+          <div className="flex flex-row gap-4">
+            <FormField
+              control={form.control}
+              name="processingFacility"
+              render={({ field }) => {
+                const selectedRecords: string[] = field.value || [];
+
+                const toggleRecord = (record: string) => {
+                  if (selectedRecords.includes(record)) {
+                    field.onChange(selectedRecords.filter((r) => r !== record));
+                  } else {
+                    field.onChange([...selectedRecords, record]);
+                  }
+                };
+
+                return (
+                  <FormItem className="w-full">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full my-2 shadow-none justify-start"
+                        >
+                          {selectedRecords.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {selectedRecords.map((r) => (
+                                <span
+                                  key={r}
+                                  className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs"
+                                >
+                                  {r}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            "Select facility"
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-[300px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search facilities..." />
+                          <CommandList>
+                            {[
+                              "apple",
+                              "banana",
+                              "blueberry",
+                              "grapes",
+                              "pineapple",
+                            ].map((record, index) => (
+                              <CommandItem
+                                key={index}
+                                onSelect={() => toggleRecord(record)}
+                              >
+                                {record}
+                                {selectedRecords.includes(record) && (
+                                  <span className="ml-auto text-green-600">
+                                    Selected
+                                  </span>
+                                )}
+                              </CommandItem>
+                            ))}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          </div>
+        </div>
+
         <FormField
           control={form.control}
           name="comments"
@@ -184,9 +319,8 @@ export function SubmitBatchForm() {
           )}
         />
 
-        <div className="flex items-center justify-between col-span-2">
-          <Button variant={"outline"} className="text-black">Save Draft</Button>
-          <Button type="submit">Submit Batch</Button>
+        <div className=" col-span-2">
+          <Button className="w-full">Continue</Button>
         </div>
       </form>
     </Form>
