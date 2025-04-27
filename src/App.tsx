@@ -20,7 +20,10 @@ import ApproveFarmPage from "./pages/ew/ApproveFarmPage";
 import ApproveHarvestsPage from "./pages/ew/ApproveHarvestsPage";
 
 // Exporter Imports
-import ExporterDashboard from "./pages/exporter/DashboardPage";
+import ExporterDashboardPage from "./pages/exporter/DashboardPage";
+import ViewLotsPage from "./pages/exporter/ViewLotsPage";
+import ViewLotDetailsPage from "@/pages/exporter/ViewLotDetailsPage";
+
 
 function App() {
   return (
@@ -29,7 +32,7 @@ function App() {
       <HashRouter>
         <Routes>
           {/* <Route path="/" element={<SignUpPage />} /> */}
-          <Route path="/" element={<ExporterDashboard />} />
+          <Route path="/" element={<ExporterDashboardPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -43,7 +46,10 @@ function App() {
           <Route path="/approve-farms" element={<ApproveFarmPage />} />
           <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
           <Route path="/manage-farmers" element={<VerificationPage />} />
-          <Route path="/exporter-dashboard" element={<ExporterDashboard />} />
+          <Route path="/exporter-dashboard" element={<ExporterDashboardPage />} />
+          <Route path="/view-lots" element={<ViewLotsPage />} />
+          <Route path="/view-lot-details/:id" element={<ViewLotDetailsPage />} />
+
 
 
         </Routes>
