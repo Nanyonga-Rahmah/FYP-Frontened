@@ -53,7 +53,7 @@ export function SubmitBatch() {
         <DialogContent className="">
           <DialogHeader>
             <DialogTitle className="text-black text-2xl font-semibold">
-              Submit coffee batch
+              {step === 1 ? "Submit coffee batch" : "Preview batch"}
             </DialogTitle>
           </DialogHeader>
           {step === 1 && (
