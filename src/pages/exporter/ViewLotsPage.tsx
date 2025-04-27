@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/globals/exporter/Header";
 import Footer from "@/components/globals/Footer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { LocateFixed } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { CalendarIcon, MapPin, User, CalendarDays } from "lucide-react";
-import useAuth from "@/hooks/use-auth";
+import { CalendarIcon} from "lucide-react";
+// import useAuth from "@/hooks/use-auth";
 
 interface Lot {
     id: string;
@@ -21,10 +21,10 @@ function ViewLotsPage() {
     const navigate = useNavigate();
     const [lots, setLots] = useState<Lot[]>([]);
     const [filteredLots, setFilteredLots] = useState<Lot[]>([]);
-    const [loading, setLoading] = useState(true);
+    const setLoading = useState(true)[1];  // Only use the setter function
     const [activeTab, setActiveTab] = useState("All");
     const [searchTerm, setSearchTerm] = useState("");
-    const { authToken } = useAuth();
+    // const { authToken } = useAuth();
 
     useEffect(() => {
         const fetchLots = async () => {
