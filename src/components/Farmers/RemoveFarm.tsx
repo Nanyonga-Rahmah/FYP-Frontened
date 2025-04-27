@@ -21,9 +21,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-interface RemoveFarmProps {
-  farmId?: string;
-}
+// interface RemoveFarmProps {
+//   farmId?: string;
+// }
 
 const formSchema = z.object({
   reason: z.string().min(2, {
@@ -31,7 +31,7 @@ const formSchema = z.object({
   }),
 });
 
-export function RemoveFarm({ farmId }: RemoveFarmProps) {
+export function RemoveFarm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

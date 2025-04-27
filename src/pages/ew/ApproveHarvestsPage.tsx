@@ -3,11 +3,10 @@ import Footer from "@/components/globals/Footer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocateFixed } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import HarvestsTable from "@/components/ExtensionWorkers/tables/HarvestsTable";
 
 function ApproveHarvestsPage() {
-    const navigate = useNavigate();
+   
 
     return (
         <section

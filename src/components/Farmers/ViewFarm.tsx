@@ -5,10 +5,10 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+ 
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Calendar1, FileText, MapPin } from "lucide-react";
+import { FileText } from "lucide-react";
 import { format } from "date-fns";
 import { viewOneFarm } from "@/lib/routes";
 

@@ -6,11 +6,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { EditFarmForm } from "../forms/farmerforms/EditFarmForm";
-interface EditFarmProps {
-  farmId?: string;
-}
+// interface EditFarmProps {
+//   farmId?: string;
+// }
 
-export function EditFarm({farmId}: EditFarmProps ) {
+export function EditFarm() {
   return (
     <Dialog>
       <DialogTrigger asChild>
