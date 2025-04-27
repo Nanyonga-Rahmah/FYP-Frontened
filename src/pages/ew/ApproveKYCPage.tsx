@@ -71,6 +71,7 @@ function ApproveKYCPage() {
         );
 
         setFarmers(farmerUsers);
+        setAdminInfo(data)
         setFilteredFarmers(farmerUsers);
         setTotalFarmers(farmerUsers.length);
 

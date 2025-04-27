@@ -73,7 +73,7 @@ export function LoginForm() {
         toast({
           variant: "success",
           title: "Successful",
-          description: `${result.message}`,
+          description: `Successfully logged in`,
         });
 
         setTimeout(() => {

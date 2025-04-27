@@ -3,7 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { MoreHorizontal } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { RemoveFarm } from "../Farmers/RemoveFarm";
 import { EditFarm } from "../Farmers/EditFarm";
 import { ViewFarm } from "../Farmers/ViewFarm";
@@ -20,18 +20,19 @@ interface ActionProps {
 export function PopoverDemo({ farmId, status }: ActionProps) {
   const location = useLocation();
   const { pathname } = location;
-  
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <MoreHorizontal className="relative text-black cursor-pointer" />
+        <MoreVertical className="relative text-black cursor-pointer" />
       </PopoverTrigger>
-      <PopoverContent className="w-32 flex flex-col gap-2 absolute right-2">
+      <PopoverContent className="w-44 flex flex-col gap-2 absolute right-2">
         {pathname === "/view-farms" && (
           <>
-            <ViewFarm farmId={farmId} />
-            <EditFarm farmId={farmId} />
-            <RemoveFarm farmId={farmId} />
+            <ViewFarm />
+            <EditFarm />
+            <span>Transfer Ownership</span>
+            <RemoveFarm />
           </>
         )}
 
@@ -40,8 +41,8 @@ export function PopoverDemo({ farmId, status }: ActionProps) {
             <ViewHarvest harvestId={farmId} />
             {status !== "submitted" && (
               <>
-                <EditHarvest harvestId={farmId} />
-                <RemoveHarvest harvestId={farmId} />
+                <EditHarvest />
+                <RemoveHarvest />
               </>
             )}
           </>
