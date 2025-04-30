@@ -53,8 +53,8 @@ function App() {
       <HashRouter>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            {/* <Route path="/" element={<SignUpPage />} /> */}
-            <Route path="/" element={<ExporterDashboardPage />} />
+            <Route path="/" element={<SignUpPage />} />
+            {/* <Route path="/" element={<ExporterDashboardPage />} /> */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { QRCode } from "react-qrcode-logo";
 import { Button } from "@/components/ui/button";
 import { useReactToPrint } from "react-to-print";
-import { Weight } from "lucide-react";
+// import { Weight } from "lucide-react";
 
 interface Batch {
     batchId: string;
