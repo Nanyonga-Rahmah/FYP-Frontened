@@ -41,10 +41,11 @@ function ExporterDashboardPage() {
       to: "/view-lots",
     },
     {
-      type: "normal",
+      type: "link",
       name: "View Consignments",
       description: "See processors who work with you",
       imageUrl: "/images/view-consignment.png",
+      to: "/view-consignment",
     },
     {
       type: "normal",

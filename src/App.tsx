@@ -35,10 +35,12 @@ const LotDetailsPage = lazy(
   () => import("./pages/processor/ViewLotDetailsPage")
 );
 
-// Exporter Imports
-import ExporterDashboardPage from "./pages/exporter/DashboardPage";
-import ViewLotsPage from "./pages/exporter/ViewLotsPage";
-import ViewLotDetailsPage from "@/pages/exporter/ViewLotDetailsPage";
+// Exporter Pages
+const ExporterDashboardPage = lazy(() => import("./pages/exporter/DashboardPage"));
+const ViewLotsPage = lazy(() => import("./pages/exporter/ViewLotsPage"));
+const ViewLotDetailsPage = lazy(() => import("./pages/exporter/ViewLotDetailsPage"));
+const ConsignmentPage = lazy(() => import("./pages/exporter/ConsignmentPage"));
+const ViewConsignmentDetailsPage = lazy(() => import("./pages/exporter/ConsignmentDetails"));
 
 
 function App() {
@@ -49,7 +51,8 @@ function App() {
       <HashRouter>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            <Route path="/" element={<SignUpPage />} />
+            {/* <Route path="/" element={<SignUpPage />} /> */}
+            <Route path="/" element={<ExporterDashboardPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -63,9 +66,7 @@ function App() {
             <Route path="/approve-farms" element={<ApproveFarmPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
             <Route path="/manage-farmers" element={<VerificationPage />} />
-            <Route path="/exporter-dashboard" element={<ExporterDashboardPage />} />
-            <Route path="/view-lots" element={<ViewLotsPage />} />
-            <Route path="/view-lot-details/:id" element={<ViewLotDetailsPage />} />
+
 
             {/* Extension Worker Pages */}
             <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
@@ -80,6 +81,15 @@ function App() {
             <Route path="/processor/view-farmers" element={<ViewFarmersPage />} />
             <Route path="/processor/view-lots" element={<LotHistoryPage />} />
             <Route path="/processor/view-lots/:lotId" element={<LotDetailsPage />} />
+
+            {/* Exporter Pages */}
+            <Route path="/exporter-dashboard" element={<ExporterDashboardPage />} />
+            <Route path="/view-lots" element={<ViewLotsPage />} />
+            <Route path="/view-lot-details/:id" element={<ViewLotDetailsPage />} />
+            <Route path="/view-consignment" element={<ConsignmentPage />} />
+            <Route path="/view-consignment-details/:id" element={<ViewConsignmentDetailsPage />} />
+
+
           </Routes>
         </Suspense>
       </HashRouter>
