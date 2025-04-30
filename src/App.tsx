@@ -41,6 +41,8 @@ const ViewLotsPage = lazy(() => import("./pages/exporter/ViewLotsPage"));
 const ViewLotDetailsPage = lazy(() => import("./pages/exporter/ViewLotDetailsPage"));
 const ConsignmentPage = lazy(() => import("./pages/exporter/ConsignmentPage"));
 const ViewConsignmentDetailsPage = lazy(() => import("./pages/exporter/ConsignmentDetails"));
+const DueDiligenceReport = lazy(() => import("./pages/exporter/DueDeligenceReport"));
+
 
 
 function App() {
@@ -88,6 +90,7 @@ function App() {
             <Route path="/view-lot-details/:id" element={<ViewLotDetailsPage />} />
             <Route path="/view-consignment" element={<ConsignmentPage />} />
             <Route path="/view-consignment-details/:id" element={<ViewConsignmentDetailsPage />} />
+            <Route path="/due-diligence-report/:consignmentId" element={<DueDiligenceReport />} />
 
 
           </Routes>

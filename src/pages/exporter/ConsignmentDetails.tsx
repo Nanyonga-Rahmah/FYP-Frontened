@@ -204,9 +204,62 @@ function ConsignmentDetailsPage() {
                                         </ul>
                                     </div>
 
-                                    <Button className="bg-[#0F2A38] text-white text-sm rounded-md px-4 py-2 w-fit">
+                                    import {useNavigate} from "react-router-dom";
+
+                                    // Inside your component:
+                                    <Button
+                                        onClick={() =>
+                                            navigate(`/due-diligence-report/${id}`, {
+                                                state: {
+                                                    consignment: {
+                                                        id,
+                                                        exporter: "Green Coffee Farm",
+                                                        processor: "Kyagalanyi Processors",
+                                                        submittedDate: "Nov 30, 2026",
+                                                        hsCode: "0901.11",
+                                                        tradeName: "Uganda Robusta, Screen 16",
+                                                        batches: [
+                                                            {
+                                                                batchId: "BH-001",
+                                                                farmName: "Mary’s plot",
+                                                                location: "Mbale",
+                                                                weight: "40kg",
+                                                                qr: "BH-001",
+                                                                geo: "0.5312N, 31.2345E → 0.5314N, 31.2346E",
+                                                            },
+                                                        ],
+                                                        farmers: [
+                                                            {
+                                                                id: "F-001",
+                                                                name: "Mary Nabwire",
+                                                                address: "Budaka, Uganda",
+                                                                email: "mary@farm.com",
+                                                            },
+                                                        ],
+                                                        processors: [
+                                                            {
+                                                                id: "P-001",
+                                                                name: "Kyagalanyi Ltd",
+                                                                address: "Mbale, Uganda",
+                                                                email: "info@kyagalanyi.com",
+                                                            },
+                                                        ],
+                                                        blockchain: [
+                                                            {
+                                                                batch: "BH-001",
+                                                                txHash: "0x123...def",
+                                                                timestamp: "2025-03-28 11:00",
+                                                            },
+                                                        ],
+                                                    },
+                                                }
+                                            })
+                                        }
+                                        className="bg-[#0F2A38] text-white text-sm"
+                                    >
                                         Download Due Diligence Report
                                     </Button>
+
                                 </>
                             )}
                         </div>
