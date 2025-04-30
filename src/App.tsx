@@ -63,9 +63,6 @@ function App() {
             <Route path="/view-farms" element={<ViewFarmsPage />} />
             <Route path="/view-harvests" element={<ViewHarvestsPage />} />
             <Route path="/view-batch" element={<ViewBatchPage />} />
-            <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
-            <Route path="/approve-kyc" element={<ApproveKYCPage />} />
-            <Route path="/approve-farms" element={<ApproveFarmPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
             <Route path="/manage-farmers" element={<VerificationPage />} />
 

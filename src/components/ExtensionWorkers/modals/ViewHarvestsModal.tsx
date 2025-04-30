@@ -11,11 +11,16 @@ interface Harvest {
   farm: {
     farmName: string;
     location: string;
-  };
-  farmer: string;
-  bags: string;
+  } | null;
+  farmerId?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+  weight: number;
   status: string;
-  dateAdded: string;
+  createdAt: string;
   id?: string;
   farmId?: string;
   coordinates?: string;
@@ -23,14 +28,24 @@ interface Harvest {
   area?: string;
   coffeeVariety?: string;
   expectedYield?: string;
-  dateOfPlanting?: string;
-  harvestPeriod?: string | { start: string; end: string };
-  methods?: string[];
+  plantingPeriod?: {
+    start: string;
+    end: string;
+  } | null;
+  harvestPeriod?:
+    | {
+        start: string;
+        end: string;
+      }
+    | string
+    | null;
+  cultivationMethods?: string[];
   auditLogs?: {
     text: string;
     date: string;
   }[];
 }
+
 
 interface HarvestProps {
   onClose: () => void;
@@ -65,10 +80,8 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
       );
 
       if (response.ok) {
-        // Close modals and potentially update the parent component
         setShowApprovalModal(false);
         onClose();
-        // You might want to add some callback to refresh the list
       } else {
         console.error("Failed to approve harvest");
       }
@@ -99,7 +112,17 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
     }
   };
 
+  const getHarvestPeriodDisplay = () => {
+    if (!harvest.harvestPeriod) return "N/A";
+    if (typeof harvest.harvestPeriod === "string") return harvest.harvestPeriod;
 
+
+    const harvestPeriod = harvest.harvestPeriod as { start: string; end: string };
+    if (harvestPeriod && 'start' in harvestPeriod && 'end' in harvestPeriod) {
+      return `${harvestPeriod.start} - ${harvestPeriod.end}`;
+    }
+    return "N/A";
+  };
 
   return (
     <>
@@ -127,7 +150,7 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Location</span>
                   <span className="font-medium text-black">
-                    {harvest.farm?.location}
+                    {harvest.farm?.location || "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -152,7 +175,6 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
               {/* Optional: corner icon */}
               <button
                 onClick={() => {
-                  // Navigate to view farm map page
                   window.location.href = `/view-farm-map?id=${harvest._id}`;
                 }}
                 className="p-1 bg-[#FFF8E7]"
@@ -171,7 +193,7 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
 
               <div className="text-gray-500">Farm</div>
               <div className="font-medium text-black text-right">
-                {typeof harvest.farm === 'object' ? harvest.farm.farmName : String(harvest.farm)}
+                {harvest.farm?.farmName || "N/A"}
                 <span className="text-sm text-gray-400 ml-2">
                   {harvest.farmId}
                 </span>
@@ -184,7 +206,7 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
 
               <div className="text-gray-500">Number of bags</div>
               <div className="font-medium text-black text-right">
-                {harvest.bags}
+                {harvest.weight ? `${harvest.weight} Bags` : "N/A"}
               </div>
 
               <div className="text-gray-500">Expected yield</div>
@@ -194,29 +216,36 @@ export default function ViewHarvestsModal({ onClose, harvest }: HarvestProps) {
 
               <div className="text-gray-500">Date of planting</div>
               <div className="font-medium text-black text-right">
-                {harvest.dateOfPlanting || "N/A"}
+                {harvest.plantingPeriod
+                  ? typeof harvest.plantingPeriod === "object" &&
+                    "start" in harvest.plantingPeriod
+                    ? harvest.plantingPeriod.start
+                    : harvest.plantingPeriod
+                  : "N/A"}
               </div>
 
               <div className="text-gray-500">Harvest period</div>
               <div className="font-medium text-black text-right">
-                {typeof harvest.harvestPeriod === "object"
-                  ? `${harvest.harvestPeriod.start} - ${harvest.harvestPeriod.end}`
-                  : harvest.harvestPeriod || "N/A"}
+                {getHarvestPeriodDisplay()}
               </div>
 
               <div className="text-gray-500">Date added</div>
               <div className="font-medium text-black text-right">
-                {harvest.dateAdded}
+                {harvest.createdAt
+                  ? new Date(harvest.createdAt).toLocaleDateString()
+                  : "N/A"}
               </div>
 
               <div className="text-gray-500">Farming methods</div>
               <div className="font-medium text-black text-right">
-                {harvest.methods?.join(", ") || "N/A"}
+                {harvest.cultivationMethods?.join(", ") || "N/A"}
               </div>
 
               <div className="text-gray-500">Farmer</div>
               <div className="font-medium text-black text-right">
-                {harvest.farmer}
+                {harvest.farmerId
+                  ? `${harvest.farmerId.firstName} ${harvest.farmerId.lastName}`
+                  : "N/A"}
               </div>
             </div>
 

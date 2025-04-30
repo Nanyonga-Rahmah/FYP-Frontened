@@ -11,12 +11,18 @@ interface Harvest {
   farm: {
     farmName: string;
     location: string;
-  };
-  farmer: string;
-  bags: string;
+  } | null;
+  farmerId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+  weight: number;
   status: string;
-  dateAdded: string;
+  createdAt: string;
 }
+
 
 function ApproveHarvestsPage() {
   const [harvests, setHarvests] = useState<Harvest[]>([]);
@@ -63,7 +69,7 @@ function ApproveHarvestsPage() {
 
       if (filters.search) {
         filtered = filtered.filter((harvest) =>
-          harvest.farm.farmName
+          harvest.farm?.farmName
             .toLowerCase()
             .includes(filters.search.toLowerCase())
         );
@@ -78,9 +84,8 @@ function ApproveHarvestsPage() {
       if (filters.startDate && filters.endDate) {
         filtered = filtered.filter(
           (harvest) =>
-            new Date(harvest.dateAdded) >= new Date(filters.startDate) &&
-            new Date(harvest.dateAdded) <= new Date(filters.endDate)
-        );
+            new Date(harvest.createdAt) >= new Date(filters.startDate) &&
+            new Date(harvest.createdAt) <= new Date(filters.endDate)        );
       }
 
       setFilteredHarvests(filtered);
@@ -192,5 +197,4 @@ function ApproveHarvestsPage() {
     </section>
   );
 }
-
 export default ApproveHarvestsPage;
