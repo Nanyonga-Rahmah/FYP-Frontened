@@ -43,7 +43,8 @@ const ConsignmentPage = lazy(() => import("./pages/exporter/ConsignmentPage"));
 const ViewConsignmentDetailsPage = lazy(() => import("./pages/exporter/ConsignmentDetails"));
 const DueDiligenceReport = lazy(() => import("./pages/exporter/DueDeligenceReport"));
 
-
+// Regulator Pages
+const QRScanTraceabilityPage =lazy(() => import("./pages/regulator/QRScanTraceabilityPage"));
 
 function App() {
   return (
@@ -53,8 +54,8 @@ function App() {
       <HashRouter>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            <Route path="/" element={<SignUpPage />} />
-            {/* <Route path="/" element={<ExporterDashboardPage />} /> */}
+            {/* <Route path="/" element={<SignUpPage />} /> */}
+            <Route path="/" element={<QRScanTraceabilityPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
