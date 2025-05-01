@@ -1,11 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-
 import { Textarea } from "@/components/ui/textarea";
-
 import {
   Form,
   FormControl,
@@ -14,33 +12,87 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import useAuth from "@/hooks/use-auth";
+import { API_URL } from "@/lib/routes";
 
 const FormSchema = z.object({
   date: z.string().min(1, { message: "Date is required." }),
-
-  numberofbags: z.string().min(2, {
-    message: "Field is required.",
+  numberofbags: z.string().min(1, {
+    message: "Number of bags is required.",
   }),
   comments: z.string().min(2, {
-    message: "Field is required.",
+    message: "Comments are required.",
   }),
 });
 
-export function MarkDeliveredForm() {
+interface MarkDeliveredFormProps {
+  batchId: string;
+}
+
+export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const { authToken } = useAuth();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       date: "",
       comments: "",
-
       numberofbags: "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      setIsSubmitting(true);
+
+      const payload = {
+        batchId: batchId,
+        receivedBags: parseInt(data.numberofbags),
+        dateReceived: data.date,
+        receiptNotes: data.comments,
+      };
+
+      const response = await fetch(
+        `${API_URL}batches/processor/mark-received`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to mark batch as delivered");
+      }
+
+      toast({
+        title: "Success",
+        description: "Batch has been marked as delivered successfully.",
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error marking batch as delivered:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to mark batch as delivered",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -60,7 +112,6 @@ export function MarkDeliveredForm() {
               <FormControl>
                 <Input placeholder="" {...field} className="py-2.5" />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -72,7 +123,7 @@ export function MarkDeliveredForm() {
           render={({ field }) => (
             <FormItem className="col-span-2">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Date Recieved
+                Date Received
               </FormLabel>
               <FormControl>
                 <Input type="date" {...field} className="h-9" />
@@ -93,15 +144,22 @@ export function MarkDeliveredForm() {
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className=" col-span-2 flex items-center justify-between g">
-          <Button variant={"outline"}>Cancel</Button>
-          <Button className="">Mark Delivered</Button>
+        <div className="col-span-2 flex items-center justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => window.location.reload()}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Processing..." : "Mark Delivered"}
+          </Button>
         </div>
       </form>
     </Form>

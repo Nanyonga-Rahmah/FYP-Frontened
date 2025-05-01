@@ -5,20 +5,59 @@ import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/exporter/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LocateFixed } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ExportConsignmentModal } from "@/components/exporter/modals/ExportConsignmentModal";
 import { PreviewConsignmentModal } from "@/components/exporter/modals/PreviewConsignmentModal";
+import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
+
+// Define interface for consignment data to fix TypeScript errors
+interface ConsignmentData {
+  lotIds?: string[];
+  lot?: string;
+  destinationCountry: string;
+  destinationPort?: string;
+  permitNumber?: string;
+  productType?: string;
+  hsCode?: string;
+  tradeName?: string;
+  exportDate: string | null;
+  exportVolume?: number;
+  shippingMethod?: string;
+  shippingDetails?: string;
+  qualityNotes?: string;
+  certificateFileName?: string;
+  certificateFile?: File;
+}
+
+// Define interface for action items
+interface ActionItem {
+  type: "modal" | "link" | "normal";
+  name: string;
+  description: string;
+  imageUrl: string;
+  onClick?: () => void;
+  to?: string;
+}
 
 function ExporterDashboardPage() {
-  const navigate = useNavigate();
+  const { authToken } = useAuth();
+  const { profile } = useUserProfile(authToken);
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [consignmentData, setConsignmentData] =
+    useState<ConsignmentData | null>(null);
 
-  const [consignmentData, setConsignmentData] = useState<any>(null);
+  // Get initials for avatar
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "RA"; // Fallback to default initials
+  };
 
-  const actions = [
+  const actions: ActionItem[] = [
     {
       type: "modal",
       name: "Export Consignment",
@@ -71,27 +110,27 @@ function ExporterDashboardPage() {
       <Header />
       <section className="px-20 py-10">
         {/* Greeting */}
-        <div className="flex items-center justify-between ">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback>MN</AvatarFallback>
+            <Avatar className="w-12 h-12">
+              <AvatarFallback className="bg-gray-400 text-white font-bold">
+                {getInitials()}
+              </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5]">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                Rahmah Akello
+                {profile
+                  ? `${profile.firstName} ${profile.lastName}`
+                  : "Rahmah Akello"}
               </span>
             </div>
           </div>
 
           <div>
-            <Button
-              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
-              onClick={() => navigate("/add-farm")}
-            >
-              <LocateFixed />
-              <span>Kabarole, Uganda</span>
+            <Button className="bg-[#E7B35A] text-white rounded-md px-4 py-2">
+              ABC Coffee Exporters Ltd
             </Button>
           </div>
         </div>
@@ -104,14 +143,19 @@ function ExporterDashboardPage() {
 
         {/* Quick Actions */}
         <section className="mt-16">
-          <span className="font-semibold text-xl text-white">Quick Actions</span>
+          <span className="font-semibold text-xl text-white">
+            Quick Actions
+          </span>
           <div className="grid lg:grid-cols-3 gap-5 mt-5 mb-10">
             {actions.map((action, index) => (
               <div
                 key={index}
                 className="bg-white flex flex-col items-center rounded-[10px] max-w-[370px] max-h-[237px] justify-center py-3 shadow-sm cursor-pointer"
                 onClick={() => {
-                  if (action.type === "modal" && typeof action.onClick === "function") {
+                  if (
+                    action.type === "modal" &&
+                    typeof action.onClick === "function"
+                  ) {
                     action.onClick();
                   }
                 }}
@@ -142,56 +186,30 @@ function ExporterDashboardPage() {
       </section>
 
       {/* Modals Section */}
-      {/* <ExportConsignmentModal
+      <ExportConsignmentModal
         open={isExportModalOpen}
-        onOpenChange={(open) => setIsExportModalOpen(open)}
-        onContinue={(data: any) => {
-          setConsignmentData(data);        // Save filled data
-          setIsExportModalOpen(false);     // Close Export modal
-          setIsPreviewModalOpen(true);     // Open Preview modal
+        onOpenChange={(open: boolean) => setIsExportModalOpen(open)}
+        onContinue={(data: ConsignmentData) => {
+          console.log("Export form data:", data);
+          setConsignmentData(data);
+          setIsExportModalOpen(false);
+          setIsPreviewModalOpen(true);
         }}
       />
 
       <PreviewConsignmentModal
         open={isPreviewModalOpen}
-        onOpenChange={(open) => setIsPreviewModalOpen(open)}
+        onOpenChange={(open: boolean) => setIsPreviewModalOpen(open)}
         consignmentData={consignmentData}
         onBack={() => {
           setIsPreviewModalOpen(false);
           setIsExportModalOpen(true);
         }}
         onConfirm={() => {
-          console.log("Confirmed submission:", consignmentData);
-          setIsPreviewModalOpen(false);
-          // Do something like API call here later
+          // The API call is now handled inside the PreviewConsignmentModal component
+          console.log("Confirmation handled by PreviewConsignmentModal");
         }}
-      /> */}
-
-<ExportConsignmentModal
-  open={isExportModalOpen}
-  onOpenChange={(open) => setIsExportModalOpen(open)}
-  onContinue={(data) => {
-    setConsignmentData(data);
-    setIsExportModalOpen(false);
-    setIsPreviewModalOpen(true);
-  }}
-/>
-
-<PreviewConsignmentModal
-  open={isPreviewModalOpen}
-  onOpenChange={(open) => setIsPreviewModalOpen(open)}
-  consignmentData={consignmentData}
-  onBack={() => {
-    setIsPreviewModalOpen(false);
-    setIsExportModalOpen(true);
-  }}
-  onConfirm={() => {
-    // TODO: Handle Final Submission API call here
-    console.log("Confirmed submission", consignmentData);
-    setIsPreviewModalOpen(false);
-  }}
-/>
-
+      />
 
       <section className="fixed bottom-0 w-full">
         <Footer />

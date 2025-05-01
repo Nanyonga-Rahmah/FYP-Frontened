@@ -12,12 +12,18 @@ interface Harvest {
   farm: {
     farmName: string;
     location: string;
-  };
-  farmer: string;
-  bags: string;
+  } | null;
+  farmerId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+  weight: number;
   status: string;
-  dateAdded: string;
+  createdAt: string;
 }
+
 
 interface RowsProps {
   harvests: Harvest[];
@@ -111,16 +117,26 @@ export function Rows({ harvests, onApprove}: RowsProps) {
             <tr key={harvest._id} className="border-t border-white">
               <td className="px-6 py-4 font-semibold">{harvest._id}</td>
               <td className="px-6 py-4">
-                {harvest.farm.farmName}, {harvest.farm.location}
+                {harvest.farm
+                  ? `${harvest.farm.farmName}, ${harvest.farm.location}`
+                  : "No Farm"}
               </td>
-              <td className="px-6 py-4">{harvest.farmer}</td>
-              <td className="px-6 py-4">{harvest.bags}</td>
-              <td className="px-6 py-4"> 
+              <td className="px-6 py-4">
+                {harvest.farmerId
+                  ? `${harvest.farmerId.firstName} ${harvest.farmerId.lastName}`
+                  : "N/A"}
+              </td>{" "}
+              <td className="px-6 py-4">{harvest.weight}</td>
+              <td className="px-6 py-4">
                 <span className={getStatusBadge(harvest.status)}>
                   {harvest.status}
                 </span>
               </td>
-              <td className="px-6 py-4">{harvest.dateAdded}</td>
+              <td className="px-6 py-4">
+                {harvest.createdAt
+                  ? new Date(harvest.createdAt).toLocaleDateString()
+                  : "N/A"}
+              </td>
               <td className="px-6 py-4 relative">
                 <div className="relative">
                   <button
@@ -181,7 +197,6 @@ export function Rows({ harvests, onApprove}: RowsProps) {
     </div>
   );
 }
-
 const HarvestsTable = {
   Filters,
   Rows,

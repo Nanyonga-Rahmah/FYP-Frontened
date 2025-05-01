@@ -19,7 +19,6 @@ import { Login } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
 import useAuth from "@/hooks/use-auth";
 
-
 const FormSchema = z.object({
   user_email: z.string().min(2, { message: "Field is Required" }).email(),
 
@@ -63,21 +62,40 @@ export function LoginForm() {
         credentials: "include",
       });
 
-      console.log(response);
-
       const result = await response.json();
-      console.log(result);
 
       if (response.ok) {
-        login(result.token);
+        login(result.token, result.user);
+
         toast({
           variant: "success",
           title: "Successful",
           description: `Successfully logged in`,
         });
 
+        // Redirect based on user role
+        const role = result.user.role;
+        let dashboardPath = "/dashboard";
+
+        switch (role) {
+          case "exporter":
+            dashboardPath = "/exporter-dashboard";
+            break;
+          case "processor":
+            dashboardPath = "/processor-dashboard";
+            break;
+          case "farmer":
+            dashboardPath = "/dashboard";
+            break;
+          case "admin":
+            dashboardPath = "/ew-dashboard";
+            break;
+          default:
+            dashboardPath = "/dashboard";
+        }
+
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate(dashboardPath);
         }, 2000);
       } else {
         toast({
@@ -90,14 +108,13 @@ export function LoginForm() {
       toast({
         variant: "destructive",
         title: "Failure",
-        description: `Login  failed. Please try again. || ${error.response?.data?.message}`,
+        description: `Login failed. Please try again. || ${error.response?.data?.message}`,
       });
-    }
-    finally {
+    } finally {
       setIsSubmitting(false);
     }
-
   };
+
   return (
     <Form {...form}>
       <form
