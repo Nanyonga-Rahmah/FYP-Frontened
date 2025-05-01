@@ -9,14 +9,14 @@ function CoffichainLandingPage() {
 
       {/* Hero Section */}
       <section
-        className="relative bg-cover bg-center px-10 lg:px-[7.5rem] py-24 min-h-screen"
+        className="relative bg-cover bg-center px-6 sm:px-8 md:px-12 lg:px-[7.5rem] py-20 min-h-screen flex items-center"
         style={{ backgroundImage: "url('/images/hero.png')" }}
       >
         <div className="max-w-2xl">
-          <h1 className="text-white text-5xl font-bold mb-6 leading-snug">
+          <h1 className="text-white text-4xl sm:text-5xl font-bold mb-6 leading-snug">
             Trace Coffee. Ensure <br /> EUDR-Compliant Exports.
           </h1>
-          <p className="text-white text-lg mb-8">
+          <p className="text-white text-base sm:text-lg mb-8">
             A complete traceability platform that helps you collect, verify, and report deforestation-free coffee data—secure, auditable, and ready for EU markets.
           </p>
           <Link
@@ -29,12 +29,12 @@ function CoffichainLandingPage() {
       </section>
 
       {/* Content Wrapper */}
-      <div className="max-w-[1280px] w-full mx-auto px-6 md:px-12 lg:px-[7.5rem] space-y-28 py-20">
+      <div className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 md:px-12 lg:px-[7.5rem] space-y-24 py-20">
 
         {/* Why Section */}
         <section>
-          <h2 className="text-3xl font-bold mb-6 text-center">Why Coffichain</h2>
-          <p className="text-gray-700 leading-relaxed text-lg">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-center">Why Coffichain</h2>
+          <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
             Uganda, as one of Africa’s top coffee exporters, faces an urgent challenge with the upcoming enforcement of the EU Deforestation Regulation (EUDR) beginning on 30 December 2024. This law requires that all coffee exported to the EU must be free from deforestation or forest degradation after 31 December 2020 and must comply with all applicable national laws in the country of production.
             <br /><br />
             To meet these standards, exporters must submit accurate geolocation data, verify supply chain activities, and provide a Due Diligence Statement for every consignment. Yet, most smallholder farmers and exporters in Uganda lack the tools and systems to meet these complex requirements.
@@ -44,59 +44,51 @@ function CoffichainLandingPage() {
         </section>
 
         {/* Features Section */}
-        <section>
-        <h2 className="text-3xl font-bold">A scalable, all-in-one solution for EUDR compliance</h2>
+        <section className="space-y-20">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">A scalable, all-in-one solution for EUDR compliance</h2>
 
-          {/* Feature 1 */}
-          <div className="flex flex-col md:flex-row items-center gap-5 min-h-[380px]">
-            <img
-              src="/images/all-in-one.png"
-              alt="QR Scan"
-              className="w-full md:w-[50%] h-full object-cover rounded-md"
-            />
-            <div className="flex-1 flex flex-col justify-center">
-              <h3 className="text-2xl font-semibold mb-3">End-to-end traceability for every batch</h3>
-              <p className="text-gray-700 text-lg">
-                Batch-level traceability using standardized data exchange to ensure regulatory compliance from farm to market.
-              </p>
+          {/* Feature Blocks */}
+          {[
+            {
+              title: "End-to-end traceability for every batch",
+              desc: "Batch-level traceability using standardized data exchange to ensure regulatory compliance from farm to market.",
+              image: "/images/all-in-one.png",
+              reverse: false,
+            },
+            {
+              title: "Unified farm location data",
+              desc: "Capture and manage EUDR data—like farm GPS points or polygons—in one centralized platform.",
+              image: "/images/unified-location.png",
+              reverse: true,
+            },
+            {
+              title: "Generate compliance reports effortlessly",
+              desc: "Easily generate Due Diligence Statements (DDS) and deforestation-free assessments for EUDR compliance.",
+              image: "/images/compliance-reports.png",
+              reverse: false,
+            },
+          ].map(({ title, desc, image, reverse }, i) => (
+            <div
+              key={i}
+              className={`flex flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} items-center gap-5 min-h-[360px]`}
+            >
+              <img
+                src={image}
+                alt={title}
+                className="w-full md:w-[50%] h-full object-cover rounded-md"
+              />
+              <div className="flex-1 flex flex-col justify-center">
+                <h3 className="text-2xl sm:text-3xl font-semibold mb-3">{title}</h3>
+                <p className="text-gray-700 text-base sm:text-lg">{desc}</p>
+              </div>
             </div>
-          </div>
-
-          {/* Feature 2 */}
-          <div className="flex flex-col md:flex-row-reverse items-center gap-5 min-h-[380px]">
-            <img
-              src="/images/unified-location.png"
-              alt="Map View"
-              className="w-full md:w-[50%] h-full object-cover rounded-md"
-            />
-            <div className="flex-1 flex flex-col justify-center">
-              <h3 className="text-2xl font-semibold mb-3">Unified farm location data</h3>
-              <p className="text-gray-700 text-lg">
-                Capture and manage EUDR data—like farm GPS points or polygons—in one centralized platform.
-              </p>
-            </div>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="flex flex-col md:flex-row items-center gap-5 min-h-[380px]">
-            <img
-              src="/images/compliance-reports.png"
-              alt="Reports"
-              className="w-full md:w-[50%] h-full object-cover rounded-md"
-            />
-            <div className="flex-1 flex flex-col justify-center">
-              <h3 className="text-2xl font-semibold mb-3">Generate compliance reports effortlessly</h3>
-              <p className="text-gray-700 text-lg">
-                Easily generate Due Diligence Statements (DDS) and deforestation-free assessments for EUDR compliance.
-              </p>
-            </div>
-          </div>
+          ))}
         </section>
 
-        {/* Benefits */}
+        {/* Benefits Section */}
         <section>
-          <h2 className="text-3xl font-bold mb-12 text-center">Benefits of Coffichain</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-12 text-center">Benefits of Coffichain</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {[
               {
                 icon: "/images/benefit-farmer.png",
@@ -126,16 +118,17 @@ function CoffichainLandingPage() {
         {/* Compliance Callout */}
         <section className="flex flex-col md:flex-row items-center gap-10 min-h-[400px]">
           <div className="md:w-1/2">
-            <h3 className="text-2xl font-semibold mb-4">Locally verified, legally compliant</h3>
-            <p className="text-gray-700 text-lg leading-relaxed">
+            <h3 className="text-2xl sm:text-3xl font-semibold mb-4">Locally verified, legally compliant</h3>
+            <p className="text-gray-700 text-base sm:text-lg leading-relaxed">
               CoffiChain simplifies EUDR compliance by ensuring all coffee exported from Uganda is deforestation-free after 31 December 2020 and fully adheres to national laws on land use, environmental protection, and sustainable farming.
-             <br /><br /> Through integrations with MAAIF, extension officers verify farm data, oversee registrations, and help regulate other actors in the coffee chain of custody. This makes compliance seamless, verifiable, and secure—right from the farm to export.
+              <br /><br />
+              Through integrations with MAAIF, extension officers verify farm data, oversee registrations, and help regulate other actors in the coffee chain of custody. This makes compliance seamless, verifiable, and secure—right from the farm to export.
             </p>
           </div>
           <img
             src="/images/locally-verified.png"
             alt="Verification"
-            className="md:w-1/2 h-full object-cover rounded-md"
+            className="md:w-1/2 w-full h-full object-cover rounded-md"
           />
         </section>
       </div>
