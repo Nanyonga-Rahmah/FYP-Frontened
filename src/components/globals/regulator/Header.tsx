@@ -31,7 +31,7 @@ function Header() {
           Login
         </Link>
         <Link
-          to="/create-account"
+          to="/signup"
           className="bg-[#EDB544] text-white text-sm px-4 py-1.5 rounded-md hover:bg-[#dfa435]"
         >
           Create Account

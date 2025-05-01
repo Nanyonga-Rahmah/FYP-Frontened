@@ -20,7 +20,7 @@ function CoffichainLandingPage() {
             A complete traceability platform that helps you collect, verify, and report deforestation-free coffee data—secure, auditable, and ready for EU markets.
           </p>
           <Link
-            to="/get-started"
+            to="/signup"
             className="bg-[#EDB544] text-white px-6 py-3 rounded-md font-medium text-sm"
           >
             Get Started

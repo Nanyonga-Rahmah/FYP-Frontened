@@ -68,6 +68,7 @@ function App() {
             <Route path="/view-batch" element={<ViewBatchPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
             <Route path="/manage-farmers" element={<VerificationPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
 
 
             {/* Extension Worker Routes */}
