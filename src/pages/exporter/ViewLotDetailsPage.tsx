@@ -2,13 +2,78 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "@/components/globals/exporter/Header";
 import Footer from "@/components/globals/Footer";
 import { Button } from "@/components/ui/button";
-import { useState} from "react";
+import { useState, useEffect } from "react";
 import { ConfirmDeliveryForm } from "@/components/exporter/modals/ConfirmDeliveryModal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import useAuth from "@/hooks/use-auth";
 import useUserProfile from "@/hooks/use-profile";
-// import { API_URL } from "@/lib/routes";
 import { useToast } from "@/components/ui/use-toast";
+import { API_URL } from "@/lib/routes";
+
+interface Farm {
+  name: string;
+  size: number;
+  location: string;
+  trees: number;
+  established: number;
+}
+
+interface Batch {
+  batchId: string;
+  varieties: string[];
+  weight: number;
+  location: string;
+  deliveredDate: string;
+}
+
+interface Consignment {
+  consignmentId: string;
+  destinationCountry: string;
+  destinationPort: string;
+  shippingMethod: string;
+  exportDate: string;
+  notes: string;
+}
+
+interface TimelineEvent {
+  type: string;
+  user: string;
+  userId: string;
+  date: string;
+}
+
+interface LotDetails {
+  lotId: string;
+  status: string;
+  submittedDate: string;
+  varieties: string[];
+  totalWeight: number;
+  processorName: string;
+  exporterFacility: string;
+  comments: string;
+  batches: Batch[];
+  batchCount: number;
+  farms: Farm[];
+}
+
+interface ExporterInfo {
+  receivedWeight: number;
+  dateReceived: string;
+  receiptNotes: string;
+  exporterName: string;
+  consignment: Consignment;
+}
+
+interface LotData {
+  lotDetails: LotDetails;
+  exporterInfo: ExporterInfo;
+  timelineEvents: TimelineEvent[];
+}
+
+interface ApiResponse {
+  success: boolean;
+  lot: LotData;
+}
 
 function ViewLotDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,13 +81,48 @@ function ViewLotDetailsPage() {
   const [activeTab, setActiveTab] = useState<"lot" | "exporter">("lot");
   const [confirmDeliveryOpen, setConfirmDeliveryOpen] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
+  const [lotData, setLotData] = useState<LotData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Auth and profile hooks
-  const { authToken } = useAuth();
+ const { authToken } = useAuth();
   const { profile } = useUserProfile(authToken);
   const { toast } = useToast();
 
-  // Handle successful delivery confirmation
+  useEffect(() => {
+    const fetchLotData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}exporter/lots/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data: ApiResponse = await response.json();
+        setLotData(data.lot);
+      } catch (error) {
+        console.error("Error fetching lot data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load lot data",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchLotData();
+    }
+  }, [id, refreshData, toast, API_URL]);
+
   const handleDeliverySuccess = () => {
     setRefreshData((prev) => !prev);
     toast({
@@ -31,13 +131,53 @@ function ViewLotDetailsPage() {
     });
   };
 
-  // Get initials for avatar
   const getInitials = (): string => {
     if (profile && profile.firstName && profile.lastName) {
       return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
     }
-    return "RA"; // Fallback to default initials
+    return "RA"; 
   };
+
+  const formatVarieties = (varieties: string[] | undefined): string => {
+    if (!varieties || varieties.length === 0) return "N/A";
+    return varieties.join(", ");
+  };
+
+  const getStatusBadgeClass = (status: string | undefined): string => {
+    if (!status) return "bg-gray-100 text-gray-700";
+
+    switch (status.toLowerCase()) {
+      case "submitted":
+        return "bg-blue-100 text-blue-700";
+      case "delivered":
+        return "bg-green-100 text-green-700";
+      case "exported":
+        return "bg-purple-100 text-purple-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (e) {
+      return dateString; 
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="min-h-screen flex flex-col items-center justify-center">
+        <p>Loading lot details...</p>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -68,7 +208,7 @@ function ViewLotDetailsPage() {
           </div>
           <div>
             <Button className="bg-[#E7B35A] text-white rounded-md px-4 py-2">
-              ABC Coffee Exporters Ltd
+              {lotData?.exporterInfo.exporterName || "Coffee Exporters Ltd"}
             </Button>
           </div>
         </div>
@@ -89,33 +229,37 @@ function ViewLotDetailsPage() {
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-3">
                 <span className="font-semibold text-lg text-[#0F2A38]">
-                  {id}
+                  {lotData?.lotDetails.lotId || id}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                  Submitted
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(lotData?.lotDetails.status)}`}
+                >
+                  {lotData?.lotDetails.status || "Unknown"}
                 </span>
               </div>
               <div className="flex flex-wrap gap-4 text-gray-600 text-sm mt-2">
                 <p>
                   <span className="font-medium text-[#0F2A38]">Variety:</span>{" "}
-                  Robusta, Arabica
+                  {formatVarieties(lotData?.lotDetails.varieties)}
                 </p>
                 <p>
                   <span className="font-medium text-[#0F2A38]">Submitted:</span>{" "}
-                  Nov 30, 2026
+                  {lotData?.lotDetails.submittedDate || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium text-[#0F2A38]">Processor:</span>{" "}
-                  Kyagalanyi Processors
+                  {lotData?.lotDetails.processorName || "N/A"}
                 </p>
               </div>
             </div>
-            <Button
-              className="bg-[#0F2A38] text-white rounded-md"
-              onClick={() => setConfirmDeliveryOpen(true)}
-            >
-              Mark Delivered
-            </Button>
+            {lotData?.lotDetails.status !== "exported" && (
+              <Button
+                className="bg-[#0F2A38] text-white rounded-md"
+                onClick={() => setConfirmDeliveryOpen(true)}
+              >
+                Mark Delivered
+              </Button>
+            )}
           </div>
 
           {/* Tabs */}
@@ -151,7 +295,8 @@ function ViewLotDetailsPage() {
                   {/* Lot summary */}
                   <div>
                     <h3 className="text-[#0F2A38] font-semibold mb-4">
-                      Lot summary (40 batches)
+                      Lot summary ({lotData?.lotDetails.batchCount || 0}{" "}
+                      batches)
                     </h3>
                     <div className="border border-gray-200 rounded-md overflow-hidden">
                       <table className="w-full text-sm text-gray-700">
@@ -165,20 +310,29 @@ function ViewLotDetailsPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="border-t">
-                            <td className="p-3">BH-001</td>
-                            <td className="p-3">Arabica</td>
-                            <td className="p-3">20 kg</td>
-                            <td className="p-3">Kasese</td>
-                            <td className="p-3">Nov 31, 2026</td>
-                          </tr>
-                          <tr className="border-t">
-                            <td className="p-3">BH-001</td>
-                            <td className="p-3">Arabica, Robusta</td>
-                            <td className="p-3">20 kg</td>
-                            <td className="p-3">Mubende</td>
-                            <td className="p-3">Nov 31, 2026</td>
-                          </tr>
+                          {lotData?.lotDetails.batches &&
+                          lotData.lotDetails.batches.length > 0 ? (
+                            lotData.lotDetails.batches.map((batch) => (
+                              <tr key={batch.batchId} className="border-t">
+                                <td className="p-3">{batch.batchId}</td>
+                                <td className="p-3">
+                                  {formatVarieties(batch.varieties)}
+                                </td>
+                                <td className="p-3">{batch.weight} kg</td>
+                                <td className="p-3">{batch.location}</td>
+                                <td className="p-3">{batch.deliveredDate}</td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr className="border-t">
+                              <td
+                                colSpan={5}
+                                className="p-3 text-center text-gray-500"
+                              >
+                                No batch data available
+                              </td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -191,7 +345,7 @@ function ViewLotDetailsPage() {
                       <span className="font-medium text-[#0F2A38]">
                         Total lot weight:
                       </span>
-                      <span>4000kg</span>
+                      <span>{lotData?.lotDetails.totalWeight || 0}kg</span>
                     </div>
 
                     {/* Processing unit */}
@@ -199,7 +353,9 @@ function ViewLotDetailsPage() {
                       <span className="font-medium text-[#0F2A38]">
                         Processing unit:
                       </span>
-                      <span>Coffee World Ltd</span>
+                      <span>
+                        {lotData?.lotDetails.exporterFacility || "N/A"}
+                      </span>
                     </div>
 
                     {/* Comments */}
@@ -207,7 +363,9 @@ function ViewLotDetailsPage() {
                       <span className="font-medium text-[#0F2A38]">
                         Comments:
                       </span>
-                      <span>Handle with care</span>
+                      <span className="text-right max-w-md">
+                        {lotData?.lotDetails.comments || "N/A"}
+                      </span>
                     </div>
                   </div>
 
@@ -217,36 +375,33 @@ function ViewLotDetailsPage() {
                       Farm details
                     </h3>
                     <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-md">
-                        <img
-                          src="/images/farm-area.png"
-                          alt="Farm"
-                          className="w-10 h-10"
-                        />
-                        <div>
-                          <p className="font-semibold text-[#0F2A38]">
-                            Sunrise Coffee Estate (40 Hectares)
-                          </p>
-                          <p className="text-gray-500 text-sm">
-                            Kabarole, Uganda
-                          </p>
+                      {lotData?.lotDetails.farms &&
+                      lotData.lotDetails.farms.length > 0 ? (
+                        lotData.lotDetails.farms.map((farm, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-4 p-4 border border-gray-200 rounded-md"
+                          >
+                            <img
+                              src="/images/farm-area.png"
+                              alt="Farm"
+                              className="w-10 h-10"
+                            />
+                            <div>
+                              <p className="font-semibold text-[#0F2A38]">
+                                {farm.name} ({farm.size} Hectares)
+                              </p>
+                              <p className="text-gray-500 text-sm">
+                                {farm.location}, Uganda
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-4 border border-gray-200 rounded-md text-gray-500">
+                          No farm details available
                         </div>
-                      </div>
-                      <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-md">
-                        <img
-                          src="/images/farm-area.png"
-                          alt="Farm"
-                          className="w-10 h-10"
-                        />
-                        <div>
-                          <p className="font-semibold text-[#0F2A38]">
-                            Sunrise Coffee Estate (40 Hectares)
-                          </p>
-                          <p className="text-gray-500 text-sm">
-                            Kabarole, Uganda
-                          </p>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </>
@@ -260,73 +415,96 @@ function ViewLotDetailsPage() {
                         Delivery summary
                       </h3>
                       <div className="flex flex-col gap-4">
-                        {" "}
-                        {/* vertical gap between fields */}
                         <div className="flex justify-between">
                           <span className="font-medium text-[#0F2A38]">
-                            Bags received:
+                            Weight received:
                           </span>
-                          <span>40 bags</span>
+                          <span>
+                            {lotData?.exporterInfo.receivedWeight || 0} kg
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium text-[#0F2A38]">
                             Date received:
                           </span>
-                          <span>Nov 30, 2026</span>
+                          <span>
+                            {lotData?.exporterInfo.dateReceived || "N/A"}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="font-medium text-[#0F2A38]">
                             Notes:
                           </span>
-                          <span>Received intact</span>
+                          <span>
+                            {lotData?.exporterInfo.receiptNotes || "N/A"}
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     {/* Export Details */}
-                    <div>
-                      <h3 className="text-[#0F2A38] font-semibold mb-4">
-                        Export details
-                      </h3>
-                      <div className="flex flex-col gap-4">
-                        {" "}
-                        {/* vertical gap between fields */}
-                        <div className="flex justify-between">
-                          <span className="font-medium text-[#0F2A38]">
-                            Exporter:
-                          </span>
-                          <span>Coffee World Ltd</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-[#0F2A38]">
-                            Destination country:
-                          </span>
-                          <span>Germany</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-[#0F2A38]">
-                            Shipping details:
-                          </span>
-                          <span>Maersk Line - Container #MAEU4712390</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-[#0F2A38]">
-                            Quality notes:
-                          </span>
-                          <span>
-                            Grade AA Arabica, Moisture: 11.5%, Screen 17/18
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-[#0F2A38]">
-                            Export date:
-                          </span>
-                          <span>May 3, 2027</span>
+                    {lotData?.exporterInfo.consignment && (
+                      <div>
+                        <h3 className="text-[#0F2A38] font-semibold mb-4">
+                          Export details
+                        </h3>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex justify-between">
+                            <span className="font-medium text-[#0F2A38]">
+                              Exporter:
+                            </span>
+                            <span>{lotData.exporterInfo.exporterName}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium text-[#0F2A38]">
+                              Destination country:
+                            </span>
+                            <span>
+                              {
+                                lotData.exporterInfo.consignment
+                                  .destinationCountry
+                              }
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium text-[#0F2A38]">
+                              Destination port:
+                            </span>
+                            <span>
+                              {lotData.exporterInfo.consignment.destinationPort}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium text-[#0F2A38]">
+                              Shipping method:
+                            </span>
+                            <span>
+                              {lotData.exporterInfo.consignment.shippingMethod}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium text-[#0F2A38]">
+                              Export date:
+                            </span>
+                            <span>
+                              {formatDate(
+                                lotData.exporterInfo.consignment.exportDate
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium text-[#0F2A38]">
+                              Notes:
+                            </span>
+                            <span>
+                              {lotData.exporterInfo.consignment.notes}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Attachments */}
+                    {/* Attachments - We can keep this static or implement later */}
                     <div>
                       <h3 className="text-[#0F2A38] font-semibold mb-4">
                         Attachments
@@ -337,7 +515,9 @@ function ViewLotDetailsPage() {
                           alt="File"
                           className="w-5 h-5"
                         />
-                        <span className="text-gray-600">coffee.jpg</span>
+                        <span className="text-gray-600">
+                          Export documentation
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -353,48 +533,60 @@ function ViewLotDetailsPage() {
               <h3 className="text-[#0F2A38] font-semibold mb-4">Timeline</h3>
               <div className="relative flex flex-col gap-6">
                 {/* Vertical Line */}
-                {activeTab === "exporter" && (
-                  <div className="absolute top-2 left-2 w-px h-full bg-gray-300"></div>
-                )}
+                {lotData?.timelineEvents &&
+                  lotData.timelineEvents.length > 1 && (
+                    <div className="absolute top-2 left-2 w-px h-full bg-gray-300"></div>
+                  )}
 
                 {/* Timeline Steps */}
-                <div className="relative flex items-center gap-3">
-                  <div className="relative z-10 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                    <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
-                  </div>
-                  <div className="text-sm text-gray-700">
-                    <p>Submitted by Jane Smith (user ID#456)</p>
-                    <p className="text-xs text-gray-400">2025-03-28 10:30:15</p>
-                  </div>
-                </div>
+                {lotData?.timelineEvents &&
+                lotData.timelineEvents.length > 0 ? (
+                  lotData.timelineEvents.map((event, index) => {
+                    let bgColor, dotColor;
 
-                {/* Other steps only if Exporter tab */}
-                {activeTab === "exporter" && (
-                  <>
-                    <div className="relative flex items-center gap-3">
-                      <div className="relative z-10 w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
-                      </div>
-                      <div className="text-sm text-gray-700">
-                        <p>Delivered by Jane Smith (user ID#456)</p>
-                        <p className="text-xs text-gray-400">
-                          2025-03-28 10:30:15
-                        </p>
-                      </div>
-                    </div>
+                    switch (event.type) {
+                      case "created":
+                        bgColor = "bg-green-100";
+                        dotColor = "bg-green-600";
+                        break;
+                      case "delivered":
+                        bgColor = "bg-blue-100";
+                        dotColor = "bg-blue-600";
+                        break;
+                      case "exported":
+                        bgColor = "bg-purple-100";
+                        dotColor = "bg-purple-600";
+                        break;
+                      default:
+                        bgColor = "bg-gray-100";
+                        dotColor = "bg-gray-600";
+                    }
 
-                    <div className="relative flex items-center gap-3">
-                      <div className="relative z-10 w-5 h-5 bg-purple-100 rounded-full flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 bg-purple-600 rounded-full"></div>
+                    return (
+                      <div
+                        key={index}
+                        className="relative flex items-center gap-3"
+                      >
+                        <div
+                          className={`relative z-10 w-5 h-5 ${bgColor} rounded-full flex items-center justify-center`}
+                        >
+                          <div
+                            className={`w-2.5 h-2.5 ${dotColor} rounded-full`}
+                          ></div>
+                        </div>
+                        <div className="text-sm text-gray-700">
+                          <p>{`${event.type.charAt(0).toUpperCase() + event.type.slice(1)} by ${event.user} (ID# ${event.userId.slice(-6)})`}</p>
+                          <p className="text-xs text-gray-400">
+                            {new Date(event.date).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-700">
-                        <p>Exported by Green Coffee (user ID#456)</p>
-                        <p className="text-xs text-gray-400">
-                          2025-03-28 10:30:15
-                        </p>
-                      </div>
-                    </div>
-                  </>
+                    );
+                  })
+                ) : (
+                  <div className="text-sm text-gray-500">
+                    No timeline events available
+                  </div>
                 )}
               </div>
             </div>
@@ -402,7 +594,7 @@ function ViewLotDetailsPage() {
         </div>
       </section>
 
-      {/* Confirm Delivery Modal - Fixed the TypeScript error by providing all required props */}
+      {/* Confirm Delivery Modal */}
       <ConfirmDeliveryForm
         open={confirmDeliveryOpen}
         onClose={() => setConfirmDeliveryOpen(false)}

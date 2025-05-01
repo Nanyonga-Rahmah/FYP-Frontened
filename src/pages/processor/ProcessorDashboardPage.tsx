@@ -6,81 +6,88 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocateFixed, Sprout } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 
-const actions = [
-  {
-    name: "Start Processing",
-    description: "Begin processing your batches.",
-    imageUrl: "/images/processing.png",
-  },
-  {
-    name: <SubmitBatch />,
-    description: "Confirm when batches are delivered.",
-    imageUrl: "/images/delivered.png",
-  },
-  {
-    name: <SubmitLot />,
-    description: "Share your processed batches for export.",
-    imageUrl: "/images/growth.png",
-  },
-
-  {
-    name: (
-      <Link to="/processor/view-farmers" className="text-black/80 hover:none">
-        View Farms
-      </Link>
-    ),
-    description: "See farmers who work with you",
-    imageUrl: "/images/view-farmers.png",
-  },
-  {
-    name: (
-      <Link to="/view-farms" className="text-black/80 hover:none">
-        Reports
-      </Link>
-    ),
-    description: "Download summary reports",
-    imageUrl: "/images/reports.png",
-  },
-  {
-    name: "Help Center",
-    description: "Resolve issues, learn EU compliance",
-    imageUrl: "/images/help-center.png",
-  },
-];
 function ProcessorDashboardPage() {
   const navigate = useNavigate();
+  const { authToken } = useAuth();
+  const { profile } = useUserProfile(authToken);
+
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "BO"; 
+  };
+
+  const actions = [
+    {
+      name: "Start Processing",
+      description: "Begin processing your batches.",
+      imageUrl: "/images/processing.png",
+    },
+    {
+      name: <SubmitBatch />,
+      description: "Confirm when batches are delivered.",
+      imageUrl: "/images/delivered.png",
+    },
+    {
+      name: <SubmitLot />,
+      description: "Share your processed batches for export.",
+      imageUrl: "/images/growth.png",
+    },
+    {
+      name: (
+        <Link to="/processor/view-farmers" className="text-black/80 hover:none">
+          View Farms
+        </Link>
+      ),
+      description: "See farmers who work with you",
+      imageUrl: "/images/view-farmers.png",
+    },
+    {
+      name: (
+        <Link to="/view-farms" className="text-black/80 hover:none">
+          Reports
+        </Link>
+      ),
+      description: "Download summary reports",
+      imageUrl: "/images/reports.png",
+    },
+    {
+      name: "Help Center",
+      description: "Resolve issues, learn EU compliance",
+      imageUrl: "/images/help-center.png",
+    },
+  ];
+
   return (
-    <section
-      className="min-h-screen"
-      //   style={{
-      //     background: "linear-gradient(to bottom, #112D3E 50%, #F6F9FF 50%)",
-      //   }}
-    >
-      {" "}
+    <section className="min-h-screen">
       <div className="bg-[#112D3E]">
         <Header />
-        <div className="px-20 py-10 h-[40vh] flex flex-col  ">
-          <div className="flex items-center justify-between ">
+        <div className="px-20 py-10 h-[40vh] flex flex-col">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Avatar>
-                {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
-                <AvatarFallback>BO</AvatarFallback>
+              <Avatar className="w-12 h-12">
+                <AvatarFallback className="bg-gray-400 text-white font-bold">
+                  {getInitials()}
+                </AvatarFallback>
               </Avatar>
-              <div className="flex">
-                <div>
-                  <span className="text-[#C0C9DDE5]">Greetings,</span>
-                  <br />
-                  <span className="font-semibold text-xl text-white">
-                    Brian Opio
-                  </span>
-                </div>
+              <div>
+                <span className="text-[#C0C9DDE5]">Greetings,</span>
+                <br />
+                <span className="font-semibold text-xl text-white">
+                  {profile
+                    ? `${profile.firstName} ${profile.lastName}`
+                    : "Brian Opio"}
+                </span>
               </div>
             </div>
 
             <div>
               <Button
-                className="bg-[#E7B35A] flex flex-col rounded-md px-2"
+                className="bg-[#E7B35A] flex flex-col rounded-md px-2 text-white"
                 onClick={() => {
                   navigate("/add-farm");
                 }}
@@ -131,7 +138,7 @@ function ProcessorDashboardPage() {
           </div>
 
           <div className="flex flex-col justify-end h-40 ">
-            <span className="font-semibold text-xl  text-white ">
+            <span className="font-semibold text-xl text-white ">
               Quick Actions
             </span>
           </div>
@@ -143,7 +150,7 @@ function ProcessorDashboardPage() {
             key={index}
             className="bg-white flex flex-col items-center rounded-[10px] max-w-[370px] max-h-[237px] justify-center py-3 shadow-sm"
           >
-            <div className="object-cover h-20 w-20  flex justify-center items-center  ">
+            <div className="object-cover h-20 w-20 flex justify-center items-center">
               <img src={action.imageUrl} alt={action.description} />
             </div>
             <span className="font-semibold text-xl text-[#222222]">

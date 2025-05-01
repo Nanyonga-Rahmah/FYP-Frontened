@@ -17,7 +17,6 @@ import { API_URL } from "@/lib/routes";
 import useAuth from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/use-toast";
 
-// Define Batch interface
 interface Batch {
   id: string;
   status: string;

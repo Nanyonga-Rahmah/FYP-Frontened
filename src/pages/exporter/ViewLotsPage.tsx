@@ -3,11 +3,11 @@ import Header from "@/components/globals/exporter/Header";
 import Footer from "@/components/globals/Footer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LocateFixed } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { CalendarIcon } from "lucide-react";
 import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 import { API_URL } from "@/lib/routes";
 import { ConfirmDeliveryForm } from "@/components/exporter/modals/ConfirmDeliveryModal";
 import { useToast } from "@/components/ui/use-toast";
@@ -28,10 +28,10 @@ function ViewLotsPage() {
   const [activeTab, setActiveTab] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const { authToken } = useAuth();
+  const { profile } = useUserProfile(authToken);
   const [confirmDeliveryOpen, setConfirmDeliveryOpen] = useState(false);
   const [selectedLotId, setSelectedLotId] = useState<string>("");
   const { toast } = useToast();
-  const [user] = useState({ firstName: "Rahmah", lastName: "Akello" });
 
   const fetchLots = async () => {
     try {
@@ -93,25 +93,6 @@ function ViewLotsPage() {
 
   useEffect(() => {
     fetchLots();
-
-    // Fetch user profile if you have an endpoint
-    // This is a placeholder for fetching the actual user data
-    const fetchUserProfile = async () => {
-      try {
-        // You would replace this with your actual API call
-        // const response = await fetch(`${API_URL}user/profile`, {
-        //   headers: {
-        //     Authorization: `Bearer ${authToken}`,
-        //   },
-        // });
-        // const data = await response.json();
-        // setUser(data);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-
-    fetchUserProfile();
   }, [authToken]);
 
   const handleTabChange = (tab: string) => {
@@ -150,6 +131,14 @@ function ViewLotsPage() {
     });
   };
 
+  // Get initials for avatar
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "RA"; // Fallback to default initials
+  };
+
   return (
     <section
       className="min-h-screen"
@@ -161,27 +150,24 @@ function ViewLotsPage() {
       <section className="px-20 py-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback>
-                {user.firstName.charAt(0)}
-                {user.lastName.charAt(0)}
+            <Avatar className="w-12 h-12">
+              <AvatarFallback className="bg-gray-400 text-white font-bold">
+                {getInitials()}
               </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5]">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                {user.firstName} {user.lastName}
+                {profile
+                  ? `${profile.firstName} ${profile.lastName}`
+                  : "Rahmah Akello"}
               </span>
             </div>
           </div>
           <div>
-            <Button
-              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
-              onClick={() => navigate("/add-farm")}
-            >
-              <LocateFixed />
-              <span>ABC Coffee Exporters</span>
+            <Button className="bg-[#E7B35A] text-white rounded-md px-4 py-2">
+              ABC Coffee Exporters Ltd
             </Button>
           </div>
         </div>
