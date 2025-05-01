@@ -10,6 +10,7 @@ import { CalendarIcon } from "lucide-react";
 import useAuth from "@/hooks/use-auth";
 import { API_URL } from "@/lib/routes";
 import { ConfirmDeliveryForm } from "@/components/exporter/modals/ConfirmDeliveryModal";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Lot {
   id: string;
@@ -23,61 +24,95 @@ function ViewLotsPage() {
   const navigate = useNavigate();
   const [lots, setLots] = useState<Lot[]>([]);
   const [filteredLots, setFilteredLots] = useState<Lot[]>([]);
-  const setLoading = useState(true)[1];
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const { authToken } = useAuth();
   const [confirmDeliveryOpen, setConfirmDeliveryOpen] = useState(false);
+  const [selectedLotId, setSelectedLotId] = useState<string>("");
+  const { toast } = useToast();
+  const [user] = useState({ firstName: "Rahmah", lastName: "Akello" });
+
+  const fetchLots = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}exporter/lots`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || "Failed to fetch lots");
+
+      // Check if the API is returning an array
+      const lotsArray = Array.isArray(data) ? data : [];
+
+      const mappedLots: Lot[] = lotsArray.map((lot: any) => ({
+        id: lot.lotId || lot.id,
+        type: `Mixed Batch (${lot.totalOutputWeight || "40"} kg)`,
+        processor:
+          lot.processorName ||
+          lot.processor ||
+          (lot.processorId?.firstName && lot.processorId?.lastName
+            ? `${lot.processorId.firstName} ${lot.processorId.lastName}`
+            : "Unknown"),
+        submittedDate: new Date(
+          lot.creationDate || lot.submittedDate
+        ).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        status:
+          lot.status === "created"
+            ? "Submitted"
+            : lot.status === "export_approved"
+              ? "Delivered"
+              : lot.status === "exported"
+                ? "Exported"
+                : "Submitted",
+      }));
+
+      setLots(mappedLots);
+      setFilteredLots(mappedLots);
+    } catch (err) {
+      console.error("Error fetching lots:", err);
+      toast({
+        title: "Error",
+        description: "Failed to fetch lots. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLots = async () => {
+    fetchLots();
+
+    // Fetch user profile if you have an endpoint
+    // This is a placeholder for fetching the actual user data
+    const fetchUserProfile = async () => {
       try {
-        setLoading(true);
-        const response = await fetch(`${API_URL}exporter/lots`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) throw new Error(data.error || "Failed to fetch lots");
-
-        const mappedLots: Lot[] = data.map((lot: any) => ({
-          id: lot.lotId || lot.id,
-          type: `Mixed Batch (${lot.totalOutputWeight} kg)`,
-          processor: lot.processorName || lot.processorId?.name || "Unknown",
-          submittedDate: new Date(lot.creationDate).toLocaleDateString(
-            "en-US",
-            {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            }
-          ),
-          status:
-            lot.status === "created"
-              ? "Submitted"
-              : lot.status === "export_approved"
-                ? "Delivered"
-                : lot.status === "exported"
-                  ? "Exported"
-                  : "Submitted",
-        }));
-
-        setLots(mappedLots);
-        setFilteredLots(mappedLots);
-      } catch (err) {
-        console.error("Error fetching lots:", err);
-      } finally {
-        setLoading(false);
+        // You would replace this with your actual API call
+        // const response = await fetch(`${API_URL}user/profile`, {
+        //   headers: {
+        //     Authorization: `Bearer ${authToken}`,
+        //   },
+        // });
+        // const data = await response.json();
+        // setUser(data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
       }
     };
 
-    fetchLots();
-  }, []);
+    fetchUserProfile();
+  }, [authToken]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -101,6 +136,20 @@ function ViewLotsPage() {
     );
   };
 
+  const handleConfirmDelivery = (lotId: string) => {
+    setSelectedLotId(lotId);
+    setConfirmDeliveryOpen(true);
+  };
+
+  const handleDeliverySuccess = () => {
+    // Refresh the lots data
+    fetchLots();
+    toast({
+      title: "Success",
+      description: "Lot marked as delivered successfully.",
+    });
+  };
+
   return (
     <section
       className="min-h-screen"
@@ -113,13 +162,16 @@ function ViewLotsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarFallback>RA</AvatarFallback>
+              <AvatarFallback>
+                {user.firstName.charAt(0)}
+                {user.lastName.charAt(0)}
+              </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5]">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                Rahmah Akello
+                {user.firstName} {user.lastName}
               </span>
             </div>
           </div>
@@ -142,11 +194,11 @@ function ViewLotsPage() {
                 placeholder="Search"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="bg-[#0F2A38]  text-white w-48 border border-gray-300 rounded-md px-3 py-2"
+                className="bg-[#0F2A38] text-white w-48 border border-gray-300 rounded-md px-3 py-2"
               />
               <Button
                 variant="outline"
-                className="bg-[#0F2A38]  text-white border border-gray-300 rounded-md flex items-center gap-2 px-4"
+                className="bg-[#0F2A38] text-white border border-gray-300 rounded-md flex items-center gap-2 px-4"
               >
                 <CalendarIcon className="w-4 h-4" />
                 11 Nov - 12 Nov
@@ -172,75 +224,85 @@ function ViewLotsPage() {
         </div>
 
         <div className="px-6 pt-10">
-          <div className="grid grid-cols-3 gap-6">
-            {filteredLots.map((lot, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 flex flex-col gap-4"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm text-black">
-                    {lot.id}
-                  </span>
-                  <span
-                    className={`px-3 py-1 text-white rounded-full text-xs font-semibold ${
-                      lot.status === "Submitted"
-                        ? "bg-[#43B75D]"
-                        : lot.status === "Delivered"
-                          ? "bg-[#1A8DF9]"
-                          : "bg-[#6F42C1C9]"
-                    }`}
-                  >
-                    {lot.status}
-                  </span>
-                </div>
-                <div className="text-sm flex flex-col gap-1">
-                  <p className="flex items-center gap-2 text-gray-700">
-                    <img
-                      src="/images/arabica.png"
-                      alt="Type"
-                      className="w-4 h-4"
-                    />
-                    {lot.type}
-                  </p>
-                  <p className="flex items-center gap-2 text-gray-700">
-                    <img
-                      src="/images/user.png"
-                      alt="Processor"
-                      className="w-4 h-4"
-                    />
-                    Processor: {lot.processor}
-                  </p>
-                  <p className="flex items-center gap-2 text-gray-700">
-                    <img
-                      src="/images/calendar.png"
-                      alt="Submitted Date"
-                      className="w-4 h-4"
-                    />
-                    Submitted: {lot.submittedDate}
-                  </p>
-                </div>
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <p className="text-white">Loading lots...</p>
+            </div>
+          ) : filteredLots.length === 0 ? (
+            <div className="flex justify-center py-10">
+              <p className="text-white">No lots found.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-6">
+              {filteredLots.map((lot, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 flex flex-col gap-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm text-black">
+                      {lot.id}
+                    </span>
+                    <span
+                      className={`px-3 py-1 text-white rounded-full text-xs font-semibold ${
+                        lot.status === "Submitted"
+                          ? "bg-[#43B75D]"
+                          : lot.status === "Delivered"
+                            ? "bg-[#1A8DF9]"
+                            : "bg-[#6F42C1C9]"
+                      }`}
+                    >
+                      {lot.status}
+                    </span>
+                  </div>
+                  <div className="text-sm flex flex-col gap-1">
+                    <p className="flex items-center gap-2 text-gray-700">
+                      <img
+                        src="/images/arabica.png"
+                        alt="Type"
+                        className="w-4 h-4"
+                      />
+                      {lot.type}
+                    </p>
+                    <p className="flex items-center gap-2 text-gray-700">
+                      <img
+                        src="/images/user.png"
+                        alt="Processor"
+                        className="w-4 h-4"
+                      />
+                      Processor: {lot.processor}
+                    </p>
+                    <p className="flex items-center gap-2 text-gray-700">
+                      <img
+                        src="/images/calendar.png"
+                        alt="Submitted Date"
+                        className="w-4 h-4"
+                      />
+                      Submitted: {lot.submittedDate}
+                    </p>
+                  </div>
 
-                {lot.status === "Submitted" ? (
-                  <Button
-                    variant="outline"
-                    className="w-full border border-gray-300 text-[#0F2A38]"
-                    onClick={() => setConfirmDeliveryOpen(true)}
-                  >
-                    Mark Delivered
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="w-full border border-gray-300 text-[#0F2A38]"
-                    onClick={() => navigate(`/view-lot-details/${lot.id}`)}
-                  >
-                    View Details
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
+                  {lot.status === "Submitted" ? (
+                    <Button
+                      variant="outline"
+                      className="w-full border border-gray-300 text-[#0F2A38]"
+                      onClick={() => handleConfirmDelivery(lot.id)}
+                    >
+                      Mark Delivered
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="w-full border border-gray-300 text-[#0F2A38]"
+                      onClick={() => navigate(`/view-lot-details/${lot.id}`)}
+                    >
+                      View Details
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -248,6 +310,8 @@ function ViewLotsPage() {
         <ConfirmDeliveryForm
           open={confirmDeliveryOpen}
           onClose={() => setConfirmDeliveryOpen(false)}
+          lotId={selectedLotId}
+          onSuccess={handleDeliverySuccess}
         />
 
         <Footer />

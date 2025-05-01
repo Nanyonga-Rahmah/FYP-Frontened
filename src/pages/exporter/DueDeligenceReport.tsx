@@ -1,198 +1,58 @@
-import { useRef, useEffect, useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
-import { QRCode } from "react-qrcode-logo";
+import { useRef } from "react";
+import { useLocation, useParams} from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { useReactToPrint } from "react-to-print";
+import { API_URL } from "@/lib/routes";
+import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
+import { useEffect, useState } from "react";
 
-// Types for Due Diligence Report API data
-interface ConsignmentOverview {
-  consignmentId: string;
-  totalWeight: number;
-  destinationCountry: string;
-  destinationPort: string;
-  exportDate: string;
-  shippingMethod: string;
-  notes: string;
-  qrCodeUrl: string;
-}
-
-interface ExporterInformation {
-  name: string;
-  email: string;
-}
-
-interface ProcessorInfo {
-  name: string;
-  email: string;
-}
-
-interface FarmerInfo {
-  name: string;
-  email: string;
-}
-
-interface FarmInfo {
-  farmName: string;
-  location: string;
-  coordinates: [number, number];
-  farmSize: number;
-  numberofTrees: number;
-  cultivationMethods: string[];
-  certifications: string[];
-  yearEstablished: string;
-}
-
-interface HarvestInfo {
-  coffeeVariety: string;
-  weight: number;
-  harvestPeriod: {
-    start: string;
-    end: string;
-  };
-  plantingPeriod: {
-    start: string;
-    end: string;
-  };
-  cultivationMethods: string[];
-  certifications: string[];
-  farm: FarmInfo;
-}
-
-interface ProcessingInfo {
-  dryingMethod: string;
-  grading: string;
-  outputWeight: number | null;
-  processor: ProcessorInfo;
-}
-
-interface ReceiptDetails {
-  receivedWeight: number;
-  dateReceived: string;
-  receiptNotes: string;
-}
-
-interface BlockchainInfo {
-  txHash: string;
-  status: string;
-}
-
-interface BatchInfo {
-  batchId: string;
-  totalWeight: number;
-  farmer: FarmerInfo;
-  harvests: HarvestInfo[];
-  processingDetails: ProcessingInfo;
-}
-
-interface LotInfo {
-  lotId: string;
-  totalOutputWeight: number;
-  exporterFacility: string;
-  receiptDetails: ReceiptDetails;
-  processor: ProcessorInfo;
-  batches: BatchInfo[];
-  blockchain: BlockchainInfo;
-}
-
-interface DueDiligenceReport {
-  consignmentOverview: ConsignmentOverview;
-  exporterInformation: ExporterInformation;
-  lots: LotInfo[];
-  blockchain: BlockchainInfo;
-  generatedAt: string;
-}
-
-interface DueDiligenceResponse {
-  success: boolean;
-  report: DueDiligenceReport;
-}
-
-// Original interface types for backward compatibility
-interface Batch {
-  batchId: string;
-  farmName: string;
-  location: string;
-  weight: string;
-  qr: string;
-  geo: string;
-}
-
-interface Farmer {
-  id: string;
-  name: string;
-  address: string;
-  email: string;
-  batchId: string;
-}
-
-interface Processor {
-  id: string;
-  name: string;
-  address: string;
-  email: string;
-  batchId: string;
-}
-
-interface BlockchainEntry {
-  batch: string;
-  txHash: string;
-  timestamp: string;
-}
-
-interface Consignment {
-  id: string;
-  exporter: string;
-  processor: string;
-  submittedDate: string;
-  hsCode: string;
-  tradeName: string;
-  exportVolume: string;
-  destination: string;
-  country: string;
-  exportDate: string;
-  batchesCount: number;
-  harvestPeriod: string;
-  farmCount: number;
-  attachment: string;
-  batches: Batch[];
-  farmers: Farmer[];
-  processors: Processor[];
-  blockchain: BlockchainEntry[];
-}
-
-interface LocationState {
-  consignment?: Consignment;
-  report?: DueDiligenceReport;
-}
+import {
+  DueDiligenceReport as DueDiligenceReportType,
+  DueDiligenceResponse,
+  BatchForPDF,
+  FarmerForPDF,
+  ProcessorForPDF,
+  BlockchainEntryForPDF,
+  ConsignmentLocationState,
+} from "@/lib/types";
 
 function DueDiligenceReport() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { state } = useLocation();
-  const locationState = state as LocationState;
+  const locationState = state as ConsignmentLocationState;
+  const { authToken } = useAuth();
+  const { profile } = useUserProfile(authToken);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [report, setReport] = useState<DueDiligenceReport | null>(null);
+  const [report, setReport] = useState<DueDiligenceReportType | null>(null);
 
-  // Use the consignment data either from location state or from API
   const legacyConsignment = locationState?.consignment;
   const apiReport = locationState?.report;
 
   useEffect(() => {
     const fetchDueDiligenceReport = async () => {
-      // If report already passed in location state, use it
       if (apiReport) {
         setReport(apiReport);
         setLoading(false);
         return;
       }
 
-      // Otherwise fetch from API if we have an ID
       if (id) {
         try {
           setLoading(true);
-          const response = await fetch(`/api/due-diligence/${id}`);
+          const response = await fetch(
+            `${API_URL}exporter/due-diligence/${id}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
 
           if (!response.ok) {
             throw new Error("Failed to fetch due diligence report");
@@ -206,7 +66,6 @@ function DueDiligenceReport() {
           setLoading(false);
         }
       } else {
-        // If we have neither a report nor an ID, check for legacy consignment data
         if (!legacyConsignment) {
           setError("No consignment data or ID available");
         }
@@ -215,7 +74,7 @@ function DueDiligenceReport() {
     };
 
     fetchDueDiligenceReport();
-  }, [id, apiReport, legacyConsignment]);
+  }, [id, apiReport, legacyConsignment, authToken]);
 
   const printRef = useRef<HTMLDivElement | null>(null);
 
@@ -225,7 +84,6 @@ function DueDiligenceReport() {
     removeAfterPrint: true,
   } as Parameters<typeof useReactToPrint>[0]);
 
-  // Format date function
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -234,12 +92,12 @@ function DueDiligenceReport() {
     });
   };
 
-  // Determine the consignment ID to use
   const consignmentId =
     report?.consignmentOverview.consignmentId || legacyConsignment?.id;
 
-  // Create and transform data to match the PDF format
-  const createFarmersFromReport = (report: DueDiligenceReport): Farmer[] => {
+  const createFarmersFromReport = (
+    report: DueDiligenceReportType
+  ): FarmerForPDF[] => {
     if (!report) return [];
 
     return report.lots.flatMap((lot) =>
@@ -254,8 +112,8 @@ function DueDiligenceReport() {
   };
 
   const createProcessorsFromReport = (
-    report: DueDiligenceReport
-  ): Processor[] => {
+    report: DueDiligenceReportType
+  ): ProcessorForPDF[] => {
     if (!report) return [];
 
     return report.lots.map((lot) => ({
@@ -267,7 +125,9 @@ function DueDiligenceReport() {
     }));
   };
 
-  const createBatchesFromReport = (report: DueDiligenceReport): Batch[] => {
+  const createBatchesFromReport = (
+    report: DueDiligenceReportType
+  ): BatchForPDF[] => {
     if (!report) return [];
 
     return report.lots.flatMap((lot) =>
@@ -285,20 +145,18 @@ function DueDiligenceReport() {
   };
 
   const createBlockchainEntriesFromReport = (
-    report: DueDiligenceReport
-  ): BlockchainEntry[] => {
+    report: DueDiligenceReportType
+  ): BlockchainEntryForPDF[] => {
     if (!report) return [];
 
-    const entries: BlockchainEntry[] = [];
+    const entries: BlockchainEntryForPDF[] = [];
 
-    // Add consignment blockchain entry
     entries.push({
       batch: "Consignment",
       txHash: report.blockchain.txHash,
       timestamp: formatDate(report.generatedAt),
     });
 
-    // Add lot blockchain entries
     report.lots.forEach((lot) => {
       entries.push({
         batch: lot.lotId,
@@ -310,7 +168,6 @@ function DueDiligenceReport() {
     return entries;
   };
 
-  // Handle loading and error states
   if (loading) {
     return (
       <div className="bg-gray-100 min-h-screen flex items-center justify-center">
@@ -338,7 +195,6 @@ function DueDiligenceReport() {
     );
   }
 
-  // Determine which data source to use
   const farmers = report
     ? createFarmersFromReport(report)
     : legacyConsignment?.farmers || [];
@@ -353,11 +209,15 @@ function DueDiligenceReport() {
     : legacyConsignment?.blockchain || [];
 
   const exporterName =
-    report?.exporterInformation.name ||
-    legacyConsignment?.exporter ||
-    "Coffee Exporter";
+    profile?.firstName && profile?.lastName
+      ? `${profile.firstName} ${profile.lastName}`
+      : report?.exporterInformation.name ||
+        legacyConsignment?.exporter ||
+        "Coffee Exporter";
   const exporterEmail =
-    report?.exporterInformation.email || "coffeeworld@gmail.com";
+    profile?.email ||
+    report?.exporterInformation.email ||
+    "coffeeworld@gmail.com";
   const destination =
     report?.consignmentOverview.destinationCountry ||
     legacyConsignment?.destination ||
@@ -398,7 +258,13 @@ function DueDiligenceReport() {
               for exported deforestation-free coffee
             </p>
           </div>
-          <QRCode value={`Consignment ID: ${consignmentId}`} size={56} />
+          <QRCodeSVG
+            value={`Consignment ID: ${consignmentId}`}
+            size={56}
+            bgColor="#FFFFFF"
+            fgColor="#000000"
+            level="H"
+          />
         </div>
         {/* Sections */}
         <Section title="A. Operator Information">
@@ -440,7 +306,13 @@ function DueDiligenceReport() {
             rows={batches.map((batch) => [
               batch.batchId,
               batch.geo,
-              <QRCode size={32} value={batch.qr} />,
+              <QRCodeSVG
+                value={batch.qr}
+                size={32}
+                bgColor="#FFFFFF"
+                fgColor="#000000"
+                level="H"
+              />,
             ])}
           />
         </Section>

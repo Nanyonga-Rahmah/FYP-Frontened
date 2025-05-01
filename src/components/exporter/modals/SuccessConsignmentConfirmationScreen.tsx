@@ -1,9 +1,14 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { QRCode } from "react-qrcode-logo"; // Assuming you will use react-qrcode-logo or another QR code generator
+import { QRCodeSVG } from "qrcode.react"; 
 import { format } from "date-fns";
 
 export function SuccessConsignmentConfirmationScreen({
@@ -20,15 +25,14 @@ export function SuccessConsignmentConfirmationScreen({
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-lg p-6 overflow-y-auto max-h-[90vh]">
-
-         {/* Custom Image for Success */}
-         <div className="flex justify-center mt-4 mb-2">
-            <img
-              src="/images/sucess-consignment.png"
-              alt="Success"
-              className="w-12 h-12" // Adjust the size of your image
-            />
-          </div>
+        {/* Custom Image for Success */}
+        <div className="flex justify-center mt-4 mb-2">
+          <img
+            src="/images/sucess-consignment.png"
+            alt="Success"
+            className="w-12 h-12" 
+          />
+        </div>
 
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-black">
@@ -36,7 +40,9 @@ export function SuccessConsignmentConfirmationScreen({
           </DialogTitle>
 
           <p className="text-sm text-gray-500 mt-1">
-            Consignment #<span className="font-semibold">{consignmentData?.id}</span> has been submitted successfully.
+            Consignment #
+            <span className="font-semibold">{consignmentData?.id}</span> has
+            been submitted successfully.
           </p>
         </DialogHeader>
 
@@ -52,13 +58,19 @@ export function SuccessConsignmentConfirmationScreen({
           {/* Export Volume */}
           <div className="flex justify-between">
             <span className="font-medium text-[#0F2A38]">Export Volume</span>
-            <span className="text-black">{consignmentData?.exportVolume || "-"} kg</span>
+            <span className="text-black">
+              {consignmentData?.exportVolume || "-"} kg
+            </span>
           </div>
 
           {/* Destination Country */}
           <div className="flex justify-between">
-            <span className="font-medium text-[#0F2A38]">Destination Country</span>
-            <span className="text-black">{consignmentData?.destinationCountry || "-"}</span>
+            <span className="font-medium text-[#0F2A38]">
+              Destination Country
+            </span>
+            <span className="text-black">
+              {consignmentData?.destinationCountry || "-"}
+            </span>
           </div>
 
           {/* Export Date */}
@@ -74,22 +86,40 @@ export function SuccessConsignmentConfirmationScreen({
           {/* Comments */}
           <div className="flex justify-between">
             <span className="font-medium text-[#0F2A38]">Comments</span>
-            <span className="text-black">{consignmentData?.comments || "-"}</span>
+            <span className="text-black">
+              {consignmentData?.comments || "-"}
+            </span>
           </div>
 
           <Separator />
 
-          {/* QR Code Section */}
           <div className="flex flex-col items-center">
-            <QRCode
-              value={consignmentData?.qrCodeValue || ""}  // QR code value based on consignment data
-              size={128} // Size of the QR code
-              logoImage="/images/logo.png" // Optional: If you want to add a logo in the center of the QR code
-              logoWidth={40} // Size of the logo inside the QR code
-              logoHeight={40} // Size of the logo inside the QR code
-              fgColor="#0F2A38" // QR Code foreground color
-              bgColor="#ffffff" // QR Code background color
-            />
+            <div className="relative">
+              <QRCodeSVG
+                value={
+                  consignmentData?.qrCodeValue || consignmentData?.id || ""
+                }
+                size={128}
+                bgColor="#FFFFFF"
+                fgColor="#0F2A38"
+                level="H"
+              />
+
+              {/* Logo overlay */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-white p-1 rounded-sm">
+                  <img
+                    src="/images/logo.png"
+                    alt="Logo"
+                    className="w-10 h-10"
+                    style={{
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
             <p className="text-center mt-2 font-medium text-[#0F2A38]">
               Scan to view consignment details
             </p>
@@ -102,10 +132,17 @@ export function SuccessConsignmentConfirmationScreen({
 
           {/* Action Buttons */}
           <div className="flex justify-between gap-4 mt-6 text-black">
-            <Button variant="outline" className="w-1/2 text-black" onClick={onClose}>
+            <Button
+              variant="outline"
+              className="w-1/2 text-black"
+              onClick={onClose}
+            >
               Close
             </Button>
-            <Button className="w-1/2 bg-[#0F2A38] text-white" onClick={onDownloadReport}>
+            <Button
+              className="w-1/2 bg-[#0F2A38] text-white"
+              onClick={onDownloadReport}
+            >
               Download Report
             </Button>
           </div>

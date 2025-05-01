@@ -7,72 +7,129 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-
 import { CalendarDays, Search, User, LocateFixed } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { Link } from "react-router-dom";
+import { API_URL } from "@/lib/routes";
+import useAuth from "@/hooks/use-auth";
+import { useToast } from "@/components/ui/use-toast";
 
-const batches = [
-  {
-    id: "BH-001",
-    status: "Submitted",
-    coffeeTypes: "Arabica, Robusta (100 bags)",
-    farmer: "Mary Nantongo",
-    date: "Nov 30, 2026",
-  },
-  {
-    id: "BH-001",
-    status: "Delivered",
-    coffeeTypes: "Arabica, Robusta (100 bags)",
-    farmer: "Mary Nantongo",
-    date: "Nov 30, 2026",
-  },
-  {
-    id: "BH-001",
-    status: "Submitted",
-    coffeeTypes: "Arabica, Robusta (100 bags)",
-    farmer: "Mary Nantongo",
-    date: "Nov 30, 2026",
-  },
-  {
-    id: "BH-001",
-    status: "Exported",
-    coffeeTypes: "Arabica, Robusta (100 bags)",
-    farmer: "Mary Nantongo",
-    date: "Nov 30, 2026",
-  },
-  {
-    id: "BH-001",
-    status: "Processed",
-    coffeeTypes: "Arabica, Robusta (100 bags)",
-    farmer: "Mary Nantongo",
-    date: "Nov 30, 2026",
-  },
-  {
-    id: "BH-001",
-    status: "Exported",
-    coffeeTypes: "Arabica, Robusta (100 bags)",
-    farmer: "Mary Nantongo",
-    date: "Nov 30, 2026",
-  },
-];
+// Define Batch interface
+interface Batch {
+  id: string;
+  status: string;
+  coffeeTypes: string;
+  farmer: string;
+  date: string;
+  totalWeight?: number;
+  dateReceived?: string | null;
+  receiptNotes?: string;
+  blockchainStatus?: string;
+}
 
 const statusColors: Record<string, string> = {
   Submitted: "bg-green-100 text-green-700",
   Delivered: "bg-blue-100 text-blue-700",
   Processed: "bg-orange-100 text-orange-700",
   Exported: "bg-purple-100 text-purple-700",
+  Received: "bg-blue-100 text-blue-700",
 };
 
- function BatchHistory() {
+function BatchHistory() {
   const [date, setDate] = useState<DateRange | undefined>();
-
   const [selectedTab, setSelectedTab] = useState("All");
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [filteredBatches, setFilteredBatches] = useState<Batch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { authToken } = useAuth();
+  const { toast } = useToast();
+  const [user] = useState({
+    firstName: "Mary",
+    lastName: "Nantongo",
+  });
 
-  const tabs = ["All", "Submitted", "Delivered", "Processed", "Exported"];
+  const tabs = ["All", "Submitted", "Received", "Processed", "Exported"];
+
+  useEffect(() => {
+    const fetchBatches = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}batches/processor/batch`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch batches");
+        }
+
+        const data = await response.json();
+        console.log("Batches data:", data);
+        setBatches(data);
+        setFilteredBatches(data);
+      } catch (error) {
+        console.error("Error fetching batches:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch batches. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchUserProfile = async () => {
+      try {
+        // Implement your actual API call here
+        // const response = await fetch(`${API_URL}user/profile`, {
+        //   headers: {
+        //     Authorization: `Bearer ${authToken}`,
+        //   },
+        // });
+        // const data = await response.json();
+        // setUser(data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchBatches();
+    fetchUserProfile();
+  }, [authToken, toast]);
+
+  useEffect(() => {
+    let filtered = batches;
+
+    if (selectedTab !== "All") {
+      filtered = filtered.filter((batch) => batch.status === selectedTab);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (batch) =>
+          batch.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          batch.farmer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          batch.coffeeTypes.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (date?.from && date?.to) {
+      filtered = filtered.filter((batch) => {
+        const batchDate = new Date(batch.date);
+        return batchDate >= date.from! && batchDate <= date.to!;
+      });
+    }
+
+    setFilteredBatches(filtered);
+  }, [selectedTab, searchTerm, date, batches]);
 
   const handleTabClick = (tab: string) => {
     setSelectedTab(tab);
@@ -90,13 +147,16 @@ const statusColors: Record<string, string> = {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 mb-4 md:mb-0">
             <Avatar className="w-12 h-12">
-              <AvatarFallback className="text-xl">MN</AvatarFallback>
+              <AvatarFallback className="text-xl">
+                {user.firstName.charAt(0)}
+                {user.lastName.charAt(0)}
+              </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5] text-sm">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                Mary Nantongo
+                {user.firstName} {user.lastName}
               </span>
             </div>
           </div>
@@ -116,12 +176,14 @@ const statusColors: Record<string, string> = {
           <h1 className="text-2xl font-semibold text-white">Batch History</h1>
 
           <div className="flex gap-2">
-            <div className="">
+            <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search"
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:outline-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div>
@@ -173,13 +235,20 @@ const statusColors: Record<string, string> = {
         </div>
 
         {/* Batch Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {batches
-            .filter((batch) => {
-              if (selectedTab === "All") return true;
-              return batch.status === selectedTab;
-            })
-            .map((batch, index) => (
+        {loading ? (
+          <div className="text-center text-white py-10">
+            <p>Loading batches...</p>
+          </div>
+        ) : filteredBatches.length === 0 ? (
+          <div className="text-center text-white py-10">
+            <p>
+              No batches found{searchTerm ? " for your search" : ""}
+              {selectedTab !== "All" ? ` with status "${selectedTab}"` : ""}.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredBatches.map((batch, index) => (
               <div
                 key={index}
                 className="border bg-[#FFFFFF] rounded-lg p-4 shadow-sm flex flex-col gap-4"
@@ -200,22 +269,30 @@ const statusColors: Record<string, string> = {
                     </div>
                   </div>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[batch.status]}`}
+                    className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[batch.status] || "bg-gray-100 text-gray-700"}`}
                   >
                     {batch.status}
                   </span>
                 </div>
 
                 <div className="mt-auto">
-                  {batch.status === "Delivered" ? (
-                    <Button
-                      variant="outline"
-                      className="w-full border-gray-300 text-gray-700 hover:bg-gray-100"
+                  {batch.status === "Received" ? (
+                    <Link
+                      to={`/processor/process-batch/${batch.id}`}
+                      className="w-full"
                     >
-                      Process Batch
-                    </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full border-gray-300 text-gray-700 hover:bg-gray-100"
+                      >
+                        Process Batch
+                      </Button>
+                    </Link>
                   ) : (
-                    <Link to={`/processor/view-batchDetails/${batch.id}`} className="w-full">
+                    <Link
+                      to={`/processor/view-batchDetails/${batch.id}`}
+                      className="w-full"
+                    >
                       <Button
                         variant="outline"
                         className="w-full border-gray-300 text-gray-700 hover:bg-gray-100"
@@ -227,7 +304,8 @@ const statusColors: Record<string, string> = {
                 </div>
               </div>
             ))}
-        </div>
+          </div>
+        )}
       </section>
       <section className="">
         <Footer />

@@ -2,16 +2,206 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CalendarDays, LocateFixed, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { QRCodeSVG } from "qrcode.react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/globals/Header";
 import Footer from "@/components/globals/Footer";
 import { Separator } from "@/components/ui/separator";
-import { MarkDelivered } from "@/components/Processor/MarkDelivered";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { MarkDeliveredForm } from "@/components/forms/processorforms/MarkdeliveredForm";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import { useParams } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
+import { API_URL } from "@/lib/routes";
+
+// TypeScript interfaces for batch data
+interface Timeline {
+  status: string;
+  person: string;
+  userId: string;
+  date: string;
+}
+
+interface HarvestPeriod {
+  start: string;
+  end: string;
+}
+
+interface Harvest {
+  id: string;
+  variety: string;
+  weight: number;
+  harvestPeriod: HarvestPeriod;
+}
+
+interface Farm {
+  name: string;
+  location: string;
+  size: number;
+  coordinates: number[];
+  yearEstablished: string;
+}
+
+interface ProcessingDetails {
+  method: string;
+  grading: string;
+  outputWeight: number | null;
+  processingNotes: string | null;
+  certification: string | null;
+}
+
+interface ProcessorInfo {
+  name: string;
+  receivedBags: number;
+  dateReceived: string;
+  receiptNotes: string;
+  processingDetails: ProcessingDetails;
+}
+
+interface ExporterInfo {
+  name: string;
+  exportDate: string;
+  destinationCountry: string;
+  permitNumber: string;
+  qualityNotes: string;
+}
+
+interface Document {
+  name: string;
+  url: string;
+  uploadDate: string;
+}
+
+interface BatchData {
+  id: string;
+  status: string;
+  farmerId: string;
+  farmerName: string;
+  submissionDate: string;
+  totalWeight: number;
+  numberOfBags: number;
+  qrCodeUrl: string;
+  qrCodeImageUrl?: string;
+  comments: string;
+  farmingMethods: string[];
+  processorInfo: ProcessorInfo | null;
+  exporterInfo: ExporterInfo | null;
+  harvests: Harvest[];
+  farms: Farm[];
+  documents: Document[];
+  timeline: Timeline[];
+}
+
+// interface ApiResponse {
+//   success: boolean;
+//   batch: BatchData;
+// }
 
 function BatchDetailsPage() {
   const [activeTab, setActiveTab] = useState("Batch details");
+  const [batchData, setBatchData] = useState<BatchData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const { batchId } = useParams<{ batchId: string }>();
+  const { toast } = useToast();
+  const { authToken } = useAuth();
+  const { profile, loading: profileLoading } = useUserProfile(authToken);
 
   const tabs = ["Batch details", "Processing info", "Exporter info"];
+
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  useEffect(() => {
+    const fetchBatchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${API_URL}batches/processor/batch/${batchId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch batch details");
+        }
+
+        const data = await response.json();
+        setBatchData(data.batch);
+        setError(null);
+      } catch (err) {
+        setError("Failed to load batch details");
+        console.error("Error fetching batch details:", err);
+        toast({
+          title: "Error",
+          description: "Failed to fetch batch details. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (batchId) {
+      fetchBatchData();
+    }
+  }, [batchId, authToken, toast]);
+
+  if (loading || profileLoading) {
+    return (
+      <section
+        className="min-h-screen flex flex-col"
+        style={{
+          background: "linear-gradient(to bottom, #112D3E 45%, #F6F9FF 45%)",
+        }}
+      >
+        <Header />
+        <div className="flex-grow flex justify-center items-center">
+          <p className="text-white">Loading batch details...</p>
+        </div>
+        <Footer />
+      </section>
+    );
+  }
+
+  if (error || !batchData) {
+    return (
+      <section
+        className="min-h-screen flex flex-col"
+        style={{
+          background: "linear-gradient(to bottom, #112D3E 45%, #F6F9FF 45%)",
+        }}
+      >
+        <Header />
+        <div className="flex-grow flex justify-center items-center">
+          <p className="text-red-500">{error || "Batch not found"}</p>
+        </div>
+        <Footer />
+      </section>
+    );
+  }
+
+  // Compute coffee varieties from harvests
+  const coffeeVarieties = Array.from(
+    new Set(batchData.harvests.map((harvest) => harvest.variety))
+  ).join(", ");
 
   return (
     <section
@@ -26,13 +216,17 @@ function BatchDetailsPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12">
-              <AvatarFallback className="text-xl">BO</AvatarFallback>
+              <AvatarFallback className="text-xl">
+                {profile
+                  ? profile.firstName.charAt(0) + profile.lastName.charAt(0)
+                  : "U"}
+              </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5] text-sm">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                Brian Opio
+                {profile ? `${profile.firstName} ${profile.lastName}` : "User"}
               </span>
             </div>
           </div>
@@ -63,24 +257,57 @@ function BatchDetailsPage() {
               <div className="flex items-center justify-between gap-2 ">
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-semibold text-gray-900">
-                    BH-001
+                    {batchData.id}
                   </h2>
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
-                    Submitted
+                  <span
+                    className={`text-xs ${
+                      batchData.status === "Submitted"
+                        ? "bg-green-100 text-green-700"
+                        : batchData.status === "Received"
+                          ? "bg-blue-100 text-blue-700"
+                          : batchData.status === "Processed"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-purple-100 text-purple-700"
+                    } px-2 py-1 rounded-full font-medium`}
+                  >
+                    {batchData.status}
                   </span>
                 </div>
 
-                <MarkDelivered />
+                {batchData.status === "Submitted" && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="text-white bg-[#112D3E]"
+                      >
+                        Mark Delivered
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle className="text-black text-2xl font-semibold">
+                          Confirm Delivery
+                        </DialogTitle>
+                        <DialogDescription>
+                          Ensure you received this farmer's batch. This action
+                          cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <MarkDeliveredForm batchId={batchData.id} />
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-4 text-gray-600 text-sm">
-                <div>📄 Variety: Robusta, Arabica</div>
+                <div>📄 Variety: {coffeeVarieties}</div>
                 <div>
                   <CalendarDays className="inline-block h-4 w-4 mr-1" />
-                  Submitted: Nov 30, 2026
+                  Submitted: {formatDate(batchData.submissionDate)}
                 </div>
                 <div>
                   <User className="inline-block h-4 w-4 mr-1" />
-                  Farmer: Jane Smith
+                  Farmer: {batchData.farmerName}
                 </div>
               </div>
             </div>
@@ -111,7 +338,7 @@ function BatchDetailsPage() {
                 {/* Harvest Summary */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">
-                    Harvests summary (40 bags)
+                    Harvests summary ({batchData.numberOfBags} bags)
                   </h3>
                   <div className="border rounded-lg overflow-hidden">
                     <table className="w-full text-sm">
@@ -126,67 +353,71 @@ function BatchDetailsPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-t">
-                          <td className="py-2 px-4">HRV-001</td>
-                          <td className="py-2 px-4">Arabica</td>
-                          <td className="py-2 px-4">20 bags</td>
-                          <td className="py-2 px-4">
-                            Nov 30, 2025 - Nov 31, 2026
-                          </td>
-                        </tr>
-                        <tr className="border-t">
-                          <td className="py-2 px-4">HRV-002</td>
-                          <td className="py-2 px-4">Arabica, Robusta</td>
-                          <td className="py-2 px-4">20 bags</td>
-                          <td className="py-2 px-4">
-                            Nov 30, 2025 - Nov 31, 2026
-                          </td>
-                        </tr>
+                        {batchData.harvests.map((harvest) => (
+                          <tr key={harvest.id} className="border-t">
+                            <td className="py-2 px-4">
+                              {harvest.id.slice(-6)}
+                            </td>
+                            <td className="py-2 px-4">{harvest.variety}</td>
+                            <td className="py-2 px-4">{harvest.weight} kg</td>
+                            <td className="py-2 px-4">
+                              {formatDate(harvest.harvestPeriod.start)} -{" "}
+                              {formatDate(harvest.harvestPeriod.end)}
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
                 </div>
 
                 {/* Batch Info */}
-                <div className="space-y-2 text-gray-700 text-sm">
+                <div className="mt-4 space-y-2 text-gray-700 text-sm">
                   <div className="flex justify-between">
                     <span>Total bags</span>
-                    <span className="font-semibold">40 bags</span>
+                    <span className="font-semibold">
+                      {batchData.numberOfBags} bags
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Farming methods</span>
-                    <span className="font-semibold">Mulching, Weeding</span>
+                    <span className="font-semibold">
+                      {batchData.farmingMethods.join(", ")}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Processing units</span>
                     <span className="text-right space-y-1">
-                      <div className="font-semibold">Coffee World Ltd</div>
-                      <div className="font-semibold">Job Coffee Ltd</div>
+                      <div className="font-semibold">
+                        {batchData.processorInfo?.name || "Not assigned"}
+                      </div>
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Comments</span>
-                    <span className="font-semibold">Handle with care</span>
+                    <span className="font-semibold">
+                      {batchData.comments || "No comments"}
+                    </span>
                   </div>
                 </div>
 
                 {/* Farm Details */}
-                <div>
+                <div className="mt-4">
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Farm details
                   </h3>
                   <div className="space-y-2">
-                    {[1, 2].map((_, idx) => (
+                    {batchData.farms.map((farm, idx) => (
                       <div
                         key={idx}
                         className="border p-3 rounded-lg flex items-center justify-between text-sm text-gray-700"
                       >
                         <div>
                           <div className="font-semibold">
-                            Sunrise Coffee Estate (40 Hectares)
+                            {farm.name} ({farm.size} Hectares)
                           </div>
                           <div className="text-gray-500 text-xs">
-                            📍 Kabarole, Uganda
+                            📍 {farm.location}
                           </div>
                         </div>
                       </div>
@@ -203,16 +434,32 @@ function BatchDetailsPage() {
               {/* Right Side - Timeline */}
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 mb-2">Timeline</h3>
-                <div className="border p-4 rounded-lg text-sm text-gray-700">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                      Submitted
-                    </span>
-                    <span>by Jane Smith (User ID#456)</span>
-                  </div>
-                  <div className="mt-2 text-gray-500 text-xs">
-                    2025-03-28 10:30:15
-                  </div>
+                <div className="space-y-4 text-sm text-gray-700">
+                  {batchData.timeline.map((item, index) => (
+                    <div key={index} className="border p-4 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`${
+                            item.status === "Submitted"
+                              ? "bg-green-100 text-green-700"
+                              : item.status === "Received"
+                                ? "bg-blue-100 text-blue-700"
+                                : item.status === "Processed"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-purple-100 text-purple-700"
+                          } px-2 py-1 rounded-full text-xs`}
+                        >
+                          {item.status}
+                        </span>
+                        <span>
+                          by {item.person} (User ID#{item.userId})
+                        </span>
+                      </div>
+                      <div className="mt-2 text-gray-500 text-xs">
+                        {new Date(item.date).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -229,69 +476,117 @@ function BatchDetailsPage() {
                   </h3>
                   <div className="flex justify-between">
                     <span>Bags received</span>
-                    <span className="font-semibold">40 bags</span>
+                    <span className="font-semibold">
+                      {batchData.processorInfo?.receivedBags || "Not received"}{" "}
+                      bags
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Date received</span>
-                    <span className="font-semibold">Nov 30, 2026</span>
+                    <span className="font-semibold">
+                      {batchData.processorInfo?.dateReceived
+                        ? formatDate(batchData.processorInfo.dateReceived)
+                        : "Not received"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Notes</span>
-                    <span className="font-semibold">Received intact</span>
+                    <span className="font-semibold">
+                      {batchData.processorInfo?.receiptNotes || "No notes"}
+                    </span>
                   </div>
                 </div>
 
                 {/* Processing Details */}
-                <div className="space-y-2 text-gray-700 text-sm">
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    Processing details
-                  </h3>
-                  <div className="flex justify-between">
-                    <span>Processing method</span>
-                    <span className="font-semibold">Drying</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Processing period</span>
-                    <span className="font-semibold">
-                      Nov 30, 2026 - Dec 12, 2026
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Input bags</span>
-                    <span className="font-semibold">40 bags</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Output weight</span>
-                    <span className="font-semibold">150 kg</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Grading level</span>
-                    <span className="font-semibold">AA</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Exporter facility</span>
-                    <div className="text-right space-y-1">
-                      <div className="font-semibold">Coffee World Ltd</div>
-                      <div className="font-semibold">Job Coffee Ltd</div>
+                {batchData.processorInfo && (
+                  <div className="space-y-2 text-gray-700 text-sm">
+                    <h3 className="font-semibold text-gray-900 mb-2">
+                      Processing details
+                    </h3>
+                    <div className="flex justify-between">
+                      <span>Processing method</span>
+                      <span className="font-semibold">
+                        {batchData.processorInfo?.processingDetails.method ||
+                          "Not specified"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Processing period</span>
+                      <span className="font-semibold">
+                        {batchData.processorInfo?.dateReceived
+                          ? formatDate(batchData.processorInfo.dateReceived)
+                          : ""}{" "}
+                        -
+                        {" " +
+                          new Date().toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Input bags</span>
+                      <span className="font-semibold">
+                        {batchData.processorInfo?.receivedBags || 0} bags
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Output weight</span>
+                      <span className="font-semibold">
+                        {batchData.totalWeight} kg
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Grading level</span>
+                      <span className="font-semibold">
+                        {batchData.processorInfo?.processingDetails.grading ||
+                          "Not graded"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Processor</span>
+                      <div className="text-right">
+                        <div className="font-semibold">
+                          {batchData.processorInfo?.name}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Notes</span>
+                      <span className="font-semibold">
+                        {batchData.processorInfo?.processingDetails
+                          .processingNotes || "No processing notes"}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Notes</span>
-                    <span className="font-semibold">Graded, no defects</span>
-                  </div>
-                </div>
+                )}
 
                 {/* Attachments */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Attachments
                   </h3>
-                  <div className="border rounded-lg p-2 flex items-center text-gray-700 text-sm">
-                    📎 Coffee.jpg
-                  </div>
-                  <div className="flex flex-col items-center space-y-2">
+                  {batchData.documents.length > 0 ? (
+                    batchData.documents.map((doc, index) => (
+                      <div
+                        key={index}
+                        className="border rounded-lg p-2 flex items-center text-gray-700 text-sm"
+                      >
+                        📎 {doc.name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-gray-500 text-sm">
+                      No attachments available
+                    </div>
+                  )}
+                  <div className="flex flex-col items-center space-y-2 mt-4">
                     <QRCodeSVG
-                      value="https://www.coffichain.com/batch/BH-001"
+                      value={
+                        batchData.qrCodeUrl ||
+                        `https://www.coffichain.com/batch/${batchData.id}`
+                      }
                       size={128}
                       bgColor="#FFFFFF"
                       fgColor="#000000"
@@ -299,16 +594,22 @@ function BatchDetailsPage() {
                     />
                     <div className="text-sm">
                       <div>
-                        Batch: <span className="font-semibold">BH-001</span>
+                        Batch:{" "}
+                        <span className="font-semibold">{batchData.id}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span>Link:</span>
                         <a
-                          href="https://www.coffichain.com/batch/BH-001"
+                          href={
+                            batchData.qrCodeUrl ||
+                            `https://www.coffichain.com/batch/${batchData.id}`
+                          }
                           target="_blank"
+                          rel="noopener noreferrer"
                           className="text-blue-600 underline"
                         >
-                          https://www.coffichain.com/batch/BH-001
+                          {batchData.qrCodeUrl ||
+                            `https://www.coffichain.com/batch/${batchData.id}`}
                         </a>
                       </div>
                     </div>
@@ -328,42 +629,35 @@ function BatchDetailsPage() {
               <div className="flex-1 space-y-6">
                 <h3 className="font-semibold text-gray-900 mb-2">Timeline</h3>
                 <div className="flex flex-col gap-4 text-sm text-gray-700">
-                  {/* Each timeline entry */}
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                        Submitted
+                  {/* Timeline entries */}
+                  {batchData.timeline.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`${
+                            item.status === "Submitted"
+                              ? "bg-green-100 text-green-700"
+                              : item.status === "Received"
+                                ? "bg-blue-100 text-blue-700"
+                                : item.status === "Processed"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-purple-100 text-purple-700"
+                          } px-2 py-1 rounded-full text-xs`}
+                        >
+                          {item.status}
+                        </span>
+                        <span>
+                          {item.status} by {item.person} (user ID#{item.userId})
+                        </span>
+                      </div>
+                      <span className="text-gray-500 text-xs">
+                        {new Date(item.date).toLocaleString()}
                       </span>
-                      <span>Submitted by Jane Smith (user ID#456)</span>
                     </div>
-                    <span className="text-gray-500 text-xs">
-                      2025-03-28 10:30:15
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">
-                        Delivered
-                      </span>
-                      <span>Delivered by Jane Smith (user ID#456)</span>
-                    </div>
-                    <span className="text-gray-500 text-xs">
-                      2025-03-28 10:30:15
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs">
-                        Processed
-                      </span>
-                      <span>Processed by Kyagalanyi unit (user ID#456)</span>
-                    </div>
-                    <span className="text-gray-500 text-xs">
-                      2025-03-28 10:30:15
-                    </span>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -380,21 +674,29 @@ function BatchDetailsPage() {
                   </h3>
                   <div className="flex justify-between">
                     <span>Weight received</span>
-                    <span className="font-semibold">400 kg</span>
+                    <span className="font-semibold">
+                      {batchData.totalWeight} kg
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Date received</span>
-                    <span className="font-semibold">Nov 30, 2026</span>
+                    <span className="font-semibold">
+                      {batchData.processorInfo?.dateReceived
+                        ? formatDate(batchData.processorInfo.dateReceived)
+                        : "Not received"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Processor</span>
                     <span className="font-semibold">
-                      Green Coffee Processors
+                      {batchData.processorInfo?.name || "Not assigned"}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Notes</span>
-                    <span className="font-semibold">Received intact</span>
+                    <span className="font-semibold">
+                      {batchData.processorInfo?.receiptNotes || "No notes"}
+                    </span>
                   </div>
                 </div>
 
@@ -403,36 +705,74 @@ function BatchDetailsPage() {
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Export details
                   </h3>
-                  <div className="flex justify-between">
-                    <span>Destination country</span>
-                    <span className="font-semibold">USA</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>UCDA Export Permit Number</span>
-                    <span className="font-semibold">EXP-009</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Export Date</span>
-                    <span className="font-semibold">Nov 30, 2026</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Exporter</span>
-                    <span className="font-semibold">
-                      Green Coffee Processors
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Quality notes</span>
-                    <span className="font-semibold">No defect, certified</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Shipping details</span>
-                    <span className="font-semibold">No defect, certified</span>
-                  </div>
+                  {batchData.exporterInfo ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Destination country</span>
+                        <span className="font-semibold">
+                          {batchData.exporterInfo.destinationCountry}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>UCDA Export Permit Number</span>
+                        <span className="font-semibold">
+                          {batchData.exporterInfo.permitNumber}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Export Date</span>
+                        <span className="font-semibold">
+                          {formatDate(batchData.exporterInfo.exportDate)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Exporter</span>
+                        <span className="font-semibold">
+                          {batchData.exporterInfo.name}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Quality notes</span>
+                        <span className="font-semibold">
+                          {batchData.exporterInfo.qualityNotes}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Destination country</span>
+                        <span className="font-semibold">USA</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>UCDA Export Permit Number</span>
+                        <span className="font-semibold">
+                          EXP-{batchData.id.slice(-3)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Export Date</span>
+                        <span className="font-semibold">Pending</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Exporter</span>
+                        <span className="font-semibold">
+                          ABC Coffee Exporters Ltd
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Quality notes</span>
+                        <span className="font-semibold">
+                          {batchData.processorInfo?.processingDetails.grading ||
+                            "Pending grading"}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Exporter Details */}
-                <div>
+                <div className="mt-4">
                   <h3 className="font-semibold text-gray-900 mb-2">
                     Exporter details
                   </h3>
@@ -459,53 +799,34 @@ function BatchDetailsPage() {
                 <h3 className="font-semibold text-gray-900 mb-2">Timeline</h3>
                 <div className="flex flex-col gap-4 text-sm text-gray-700">
                   {/* Timeline Entries */}
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                        Submitted
+                  {batchData.timeline.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`${
+                            item.status === "Submitted"
+                              ? "bg-green-100 text-green-700"
+                              : item.status === "Received"
+                                ? "bg-blue-100 text-blue-700"
+                                : item.status === "Processed"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-purple-100 text-purple-700"
+                          } px-2 py-1 rounded-full text-xs`}
+                        >
+                          {item.status}
+                        </span>
+                        <span>
+                          {item.status} by {item.person} (user ID#{item.userId})
+                        </span>
+                      </div>
+                      <span className="text-gray-500 text-xs">
+                        {new Date(item.date).toLocaleString()}
                       </span>
-                      <span>Submitted by Jane Smith (user ID#456)</span>
                     </div>
-                    <span className="text-gray-500 text-xs">
-                      2025-03-28 10:30:15
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">
-                        Delivered
-                      </span>
-                      <span>Delivered by Jane Smith (user ID#456)</span>
-                    </div>
-                    <span className="text-gray-500 text-xs">
-                      2025-03-28 10:30:15
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs">
-                        Processed
-                      </span>
-                      <span>Processed by Kyagalanyi unit (user ID#456)</span>
-                    </div>
-                    <span className="text-gray-500 text-xs">
-                      2025-03-28 10:30:15
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
-                        Exported
-                      </span>
-                      <span>Exported by Green Coffee (user ID#456)</span>
-                    </div>
-                    <span className="text-gray-500 text-xs">
-                      2025-03-28 10:30:15
-                    </span>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -517,6 +838,5 @@ function BatchDetailsPage() {
     </section>
   );
 }
-
 
 export default BatchDetailsPage;

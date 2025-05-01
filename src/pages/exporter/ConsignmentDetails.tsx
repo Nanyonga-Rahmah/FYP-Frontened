@@ -4,244 +4,17 @@ import Header from "@/components/globals/exporter/Header";
 import Footer from "@/components/globals/Footer";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { QRCode } from "react-qrcode-logo";
+import { QRCodeSVG } from "qrcode.react";
 import { API_URL } from "@/lib/routes";
 import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 
-// Define types for the API response data
-interface Farm {
-  _id: string;
-  numberofTrees: number;
-  farmName: string;
-  location: string;
-  latitude: number;
-  longitude: number;
-  farmSize: number;
-  cultivationMethods: string[];
-  certifications: string[];
-  yearEstablished: string;
-}
-
-interface Harvest {
-  harvestPeriod: {
-    start: string;
-    end: string;
-  };
-  plantingPeriod: {
-    start: string;
-    end: string;
-  };
-  _id: string;
-  coffeeVariety: string;
-  weight: number;
-  farm: Farm;
-  cultivationMethods: string[];
-  certifications: string[];
-}
-
-interface ProcessingDetails {
-  processingStartDate: string | null;
-  processingEndDate: string | null;
-  outputWeight: number | null;
-  processingNotes: string | null;
-  dryingMethod: string;
-  grading: string;
-  certification: string | null;
-  processedCoffeeImages: string[];
-}
-
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-interface Batch {
-  processingDetails: ProcessingDetails;
-  _id: string;
-  batchId: string;
-  farmerId: User;
-  harvestIds: Harvest[];
-  totalWeight: number;
-  submissionDate: string;
-  dataHash: string;
-  processorId: User;
-  numberOfBagsReceived: number;
-  dateReceived: string;
-  receiptNotes: string;
-  exporterId: User | null;
-  exportApproval: string | null;
-  rejectionReason: string | null;
-  documents: any[];
-  status: string;
-  blockchainTxHash: string;
-  processorBlockchainTxHash: string | null;
-  blockchainStatus: string;
-  processorBlockchainStatus: string | null;
-  qrCodeUrl: string;
-  isDeleted: boolean;
-  consignmentId: string | null;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface Lot {
-  _id: string;
-  lotId: string;
-  processorId: User;
-  batchIds: Batch[];
-  totalOutputWeight: number;
-  exporterFacility: string;
-  comments: string;
-  dataHash: string;
-  blockchainTxHash: string;
-  blockchainStatus: string;
-  status: string;
-  qrCodeUrl: string;
-  qrCodeImageUrl: string;
-  isDeleted: boolean;
-  creationDate: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  dateReceived: string;
-  exporterId: User;
-  receiptNotes: string;
-  receivedWeight: number;
-  consignmentId: string;
-}
-
-interface Consignment {
-  _id: string;
-  consignmentId: string;
-  exporterId: User;
-  lotIds: Lot[];
-  totalWeight: number;
-  destinationCountry: string;
-  destinationPort: string;
-  exportDate: string;
-  shippingMethod: string;
-  notes: string;
-  dataHash: string;
-  blockchainTxHash: string;
-  blockchainStatus: string;
-  qrCodeUrl: string;
-  qrCodeImageUrl: string;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface ConsignmentResponse {
-  success: boolean;
-  consignment: Consignment;
-}
-
-// Types for Due Diligence Report
-interface ConsignmentOverview {
-  consignmentId: string;
-  totalWeight: number;
-  destinationCountry: string;
-  destinationPort: string;
-  exportDate: string;
-  shippingMethod: string;
-  notes: string;
-  qrCodeUrl: string;
-}
-
-interface ExporterInformation {
-  name: string;
-  email: string;
-}
-
-interface ProcessorInfo {
-  name: string;
-  email: string;
-}
-
-interface FarmerInfo {
-  name: string;
-  email: string;
-}
-
-interface FarmInfo {
-  farmName: string;
-  location: string;
-  coordinates: [number, number];
-  farmSize: number;
-  numberofTrees: number;
-  cultivationMethods: string[];
-  certifications: string[];
-  yearEstablished: string;
-}
-
-interface HarvestInfo {
-  coffeeVariety: string;
-  weight: number;
-  harvestPeriod: {
-    start: string;
-    end: string;
-  };
-  plantingPeriod: {
-    start: string;
-    end: string;
-  };
-  cultivationMethods: string[];
-  certifications: string[];
-  farm: FarmInfo;
-}
-
-interface ProcessingInfo {
-  dryingMethod: string;
-  grading: string;
-  outputWeight: number | null;
-  processor: ProcessorInfo;
-}
-
-interface ReceiptDetails {
-  receivedWeight: number;
-  dateReceived: string;
-  receiptNotes: string;
-}
-
-interface BlockchainInfo {
-  txHash: string;
-  status: string;
-}
-
-interface BatchInfo {
-  batchId: string;
-  totalWeight: number;
-  farmer: FarmerInfo;
-  harvests: HarvestInfo[];
-  processingDetails: ProcessingInfo;
-}
-
-interface LotInfo {
-  lotId: string;
-  totalOutputWeight: number;
-  exporterFacility: string;
-  receiptDetails: ReceiptDetails;
-  processor: ProcessorInfo;
-  batches: BatchInfo[];
-  blockchain: BlockchainInfo;
-}
-
-interface DueDiligenceReport {
-  consignmentOverview: ConsignmentOverview;
-  exporterInformation: ExporterInformation;
-  lots: LotInfo[];
-  blockchain: BlockchainInfo;
-  generatedAt: string;
-}
-
-interface DueDiligenceResponse {
-  success: boolean;
-  report: DueDiligenceReport;
-}
+import {
+  Consignment,
+  ConsignmentResponse,
+  DueDiligenceReport,
+  DueDiligenceResponse,
+} from "@/lib/types";
 
 function ConsignmentDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -255,6 +28,8 @@ function ConsignmentDetailsPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { authToken } = useAuth();
+  // Use the useUserProfile hook for profile data
+  const { profile, loading: profileLoading } = useUserProfile(authToken);
 
   useEffect(() => {
     const fetchConsignmentData = async () => {
@@ -279,7 +54,8 @@ function ConsignmentDetailsPage() {
         setConsignment(consignmentData.consignment);
 
         const dueDiligenceResponse = await fetch(
-          `${API_URL}exporter/due-diligence/${id}`,{
+          `${API_URL}exporter/due-diligence/${id}`,
+          {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -304,7 +80,7 @@ function ConsignmentDetailsPage() {
     if (id) {
       fetchConsignmentData();
     }
-  }, [id]);
+  }, [id, authToken]);
 
   // Format date function
   const formatDate = (dateString: string): string => {
@@ -320,7 +96,7 @@ function ConsignmentDetailsPage() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`;
   };
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <section
         className="min-h-screen flex flex-col"
@@ -369,17 +145,20 @@ function ConsignmentDetailsPage() {
         <div className="flex items-center gap-3 mb-6">
           <Avatar>
             <AvatarFallback>
-              {getInitials(
-                consignment.exporterId.firstName,
-                consignment.exporterId.lastName
-              )}
+              {profile
+                ? getInitials(profile.firstName, profile.lastName)
+                : getInitials(
+                    consignment.exporterId.firstName,
+                    consignment.exporterId.lastName
+                  )}
             </AvatarFallback>
           </Avatar>
           <div>
             <p className="text-[#C0C9DDE5]">Greetings,</p>
             <p className="font-semibold text-xl text-white">
-              {consignment.exporterId.firstName}{" "}
-              {consignment.exporterId.lastName}
+              {profile
+                ? `${profile.firstName} ${profile.lastName}`
+                : `${consignment.exporterId.firstName} ${consignment.exporterId.lastName}`}
             </p>
           </div>
         </div>
@@ -678,7 +457,13 @@ function ConsignmentDetailsPage() {
                                     {batch.totalWeight} kg
                                   </td>
                                   <td className="p-3">
-                                    <QRCode value={batch.batchId} size={40} />
+                                    <QRCodeSVG
+                                      value={batch.batchId}
+                                      size={40}
+                                      bgColor="#FFFFFF"
+                                      fgColor="#000000"
+                                      level="H"
+                                    />
                                   </td>
                                 </tr>
                               ))

@@ -9,11 +9,8 @@ import { MarkDeliveredForm } from "../forms/processorforms/MarkdeliveredForm";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { Button } from "../ui/button";
 
-// interface EditFarmProps {
-//   farmId?: string;
-// }
 
-export function MarkDelivered() {
+export function MarkDelivered({ batchId }: { batchId: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -31,7 +28,7 @@ export function MarkDelivered() {
             undone.
           </DialogDescription>
         </DialogHeader>
-        <MarkDeliveredForm />
+        <MarkDeliveredForm batchId={batchId} />
       </DialogContent>
     </Dialog>
   );
