@@ -388,21 +388,21 @@ function LotDetailsPage() {
                       </thead>
                       <tbody>
                         {lot.batchIds.map((batch) => (
-                          <tr key={batch._id} className="border-t">
-                            <td className="py-2 px-4">{batch.batchId}</td>
-                            <td className="py-2 px-4">
+                          <tr key={batch._id} className="border-t text-black">
+                            <td className="py-2 px-4 text-black">{batch.batchId}</td>
+                            <td className="py-2 px-4 text-black">
                               {batch.harvestIds
                                 .map((h) => h.coffeeVariety)
                                 .join(", ")}
                             </td>
-                            <td className="py-2 px-4">
+                            <td className="py-2 px-4 text-black">
                               {batch.totalWeight} kg
                             </td>
-                            <td className="py-2 px-4">
+                            <td className="py-2 px-4 text-black">
                               {batch.farmerId.firstName}{" "}
                               {batch.farmerId.lastName}
                             </td>
-                            <td className="py-2 px-4">
+                            <td className="py-2 px-4 text-black">
                               {formatDate(batch.dateReceived)}
                             </td>
                           </tr>

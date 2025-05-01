@@ -70,7 +70,7 @@ function ProcessorDashboardPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="w-12 h-12">
-                <AvatarFallback className="bg-gray-400 text-white font-bold">
+                <AvatarFallback className="bg-gray-400 text-white font-bold capitalize">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>

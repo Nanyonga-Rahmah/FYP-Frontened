@@ -36,14 +36,22 @@ const LotDetailsPage = lazy(
 );
 
 // Exporter Pages
-const ExporterDashboardPage = lazy(() => import("./pages/exporter/DashboardPage"));
+const ExporterDashboardPage = lazy(
+  () => import("./pages/exporter/DashboardPage")
+);
 const ViewLotsPage = lazy(() => import("./pages/exporter/ViewLotsPage"));
-const ViewLotDetailsPage = lazy(() => import("./pages/exporter/ViewLotDetailsPage"));
+const ViewLotDetailsPage = lazy(
+  () => import("./pages/exporter/ViewLotDetailsPage")
+);
 const ConsignmentPage = lazy(() => import("./pages/exporter/ConsignmentPage"));
-const ViewConsignmentDetailsPage = lazy(() => import("./pages/exporter/ConsignmentDetails"));
-const DueDiligenceReport = lazy(() => import("./pages/exporter/DueDeligenceReport"));
+const ViewConsignmentDetailsPage = lazy(
+  () => import("./pages/exporter/ConsignmentDetails")
+);
+const DueDiligenceReport = lazy(
+  () => import("./pages/exporter/DueDeligenceReport")
+);
 
-
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 
 function App() {
   return (
@@ -66,30 +74,54 @@ function App() {
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
             <Route path="/manage-farmers" element={<VerificationPage />} />
 
-
             {/* Extension Worker Pages */}
-            <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
+            <Route
+              path="/ew-dashboard"
+              element={<ExtensionWorkerDashboard />}
+            />
             <Route path="/approve-kyc" element={<ApproveKYCPage />} />
             <Route path="/approve-farms" element={<ApproveFarmPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
 
             {/* Processor Pages */}
-            <Route path="/processor-dashboard" element={<ProcessorDashboardPage />} />
+            <Route
+              path="/processor-dashboard"
+              element={<ProcessorDashboardPage />}
+            />
             <Route path="/processor/view-batchs" element={<BatchHistory />} />
-            <Route path="/processor/view-batchDetails/:batchId" element={<BatchDetailsPage />} />
-            <Route path="/processor/view-farmers" element={<ViewFarmersPage />} />
+            <Route
+              path="/processor/view-batchDetails/:batchId"
+              element={<BatchDetailsPage />}
+            />
+            <Route
+              path="/processor/view-farmers"
+              element={<ViewFarmersPage />}
+            />
             <Route path="/processor/view-lots" element={<LotHistoryPage />} />
-            <Route path="/processor/view-lots/:lotId" element={<LotDetailsPage />} />
+            <Route
+              path="/processor/view-lots/:lotId"
+              element={<LotDetailsPage />}
+            />
 
             {/* Exporter Pages */}
-            <Route path="/exporter-dashboard" element={<ExporterDashboardPage />} />
+            <Route
+              path="/exporter-dashboard"
+              element={<ExporterDashboardPage />}
+            />
             <Route path="/view-lots" element={<ViewLotsPage />} />
-            <Route path="/view-lot-details/:id" element={<ViewLotDetailsPage />} />
+            <Route
+              path="/view-lot-details/:id"
+              element={<ViewLotDetailsPage />}
+            />
             <Route path="/view-consignment" element={<ConsignmentPage />} />
-            <Route path="/view-consignment-details/:id" element={<ViewConsignmentDetailsPage />} />
-            <Route path="/due-diligence-report/:consignmentId" element={<DueDiligenceReport />} />
-
-
+            <Route
+              path="/view-consignment-details/:id"
+              element={<ViewConsignmentDetailsPage />}
+            />
+            <Route
+              path="/due-diligence-report/:consignmentId"
+              element={<DueDiligenceReport />}
+            />
           </Routes>
         </Suspense>
       </HashRouter>

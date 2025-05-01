@@ -257,7 +257,7 @@ export function SubmitLotForm({
                 Comments (Optional)
               </FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} className="text-black" />
               </FormControl>
 
               <FormMessage />

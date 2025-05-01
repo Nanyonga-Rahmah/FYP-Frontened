@@ -35,6 +35,8 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { ChevronDown } from "lucide-react";
+import useAuth from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
   farm: z.string().min(1, { message: "Farm is required." }),
@@ -60,8 +62,11 @@ const FormSchema = z.object({
 });
 
 export function AddHarvestForm() {
+  const { authToken } = useAuth();
+
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [submit, setIsSubmitting] = useState(false);
   const [farms, setFarms] = useState<{ _id: string; farmName: string }[]>([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
   const cultivationMethods = [
@@ -74,11 +79,13 @@ export function AddHarvestForm() {
   const coffeeVarieties = ["Robusta", "Arabica"];
 
   useEffect(() => {
-    fetchMyFarms()
+    if (!authToken) return;
+
+    fetchMyFarms(authToken)
       .then(setFarms)
       .catch((err) => console.error("Failed to load farms:", err))
       .finally(() => setLoadingFarms(false));
-  }, []);
+  }, [authToken]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -118,9 +125,12 @@ export function AddHarvestForm() {
     selectedFiles.forEach((file) => formData.append("documents", file));
 
     try {
+      setIsSubmitting(true);
       const response = await fetch(HarvestCreate, {
         method: "POST",
-        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
         body: formData,
       });
 
@@ -131,10 +141,22 @@ export function AddHarvestForm() {
 
       const result = await response.json();
       console.log("Saved harvest:", result);
+      toast({
+        variant: "success",
+        title: "Successful",
+        description: `Successfully Added Harvest`,
+      });
+
       navigate("/view-harvests");
     } catch (error: any) {
       console.error("Submit error:", error);
-      alert(error.message);
+      toast({
+        variant: "destructive",
+        title: "Failure",
+        description: `${error.message}`,
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   }
   return (
@@ -211,9 +233,9 @@ export function AddHarvestForm() {
                         </div>
                       ) : (
                         <div className="flex justify-between items-center w-full">
-                        <span>Select Varieties</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </div>
+                          <span>Select Varieties</span>
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -350,9 +372,7 @@ export function AddHarvestForm() {
                           >
                             {method}
                             {selectedMethods.includes(method) && (
-                              <span className=" text-green-600">
-                                Selected
-                              </span>
+                              <span className=" text-green-600">Selected</span>
                             )}
                           </CommandItem>
                         ))}
@@ -398,8 +418,12 @@ export function AddHarvestForm() {
           )}
         />
 
-        <Button type="submit" className="col-span-2 py-2 mt-2">
-          Save Harvest
+        <Button
+          type="submit"
+          className="col-span-2 py-2 mt-2"
+          disabled={submit}
+        >
+          {submit ? "Submitting" : " Save Harvest"}
         </Button>
       </form>
     </Form>

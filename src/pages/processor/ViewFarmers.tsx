@@ -209,14 +209,14 @@ function ViewFarmersPage(): JSX.Element {
                     <td className="py-1 px-4">{farmer.name}</td>
                     <td className="py-1 px-4">
                       <div className="flex flex-col">
-                        <span>{farmer.phone}</span>
+                      <span className="text-xs text-gray-500">{farmer.phone}</span>
                         <span className="text-xs text-gray-500">
                           {farmer.email}
                         </span>
                       </div>
                     </td>
-                    <td className="py-1 px-4">{farmer.location}</td>
-                    <td className="py-1 px-4">
+                    <td className="py-1 px-4 text-gray-500">{farmer.location}</td>
+                    <td className="py-1 px-4 text-gray-500">
                       {farmer.membershipNumber || "N/A"}
                     </td>
                     <td className="py-1 px-4">
