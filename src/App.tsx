@@ -45,6 +45,8 @@ const DueDiligenceReport = lazy(() => import("./pages/exporter/DueDeligenceRepor
 
 // Regulator Pages
 const QRScanTraceabilityPage =lazy(() => import("./pages/regulator/QRScanTraceabilityPage"));
+const RegulatorLandingPage =lazy(() => import("./pages/regulator/LandingPage"));
+
 
 function App() {
   return (
@@ -55,7 +57,7 @@ function App() {
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             {/* <Route path="/" element={<SignUpPage />} /> */}
-            <Route path="/" element={<QRScanTraceabilityPage />} />
+            <Route path="/" element={<RegulatorLandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -68,13 +70,13 @@ function App() {
             <Route path="/manage-farmers" element={<VerificationPage />} />
 
 
-            {/* Extension Worker Pages */}
+            {/* Extension Worker Routes */}
             <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
             <Route path="/approve-kyc" element={<ApproveKYCPage />} />
             <Route path="/approve-farms" element={<ApproveFarmPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
 
-            {/* Processor Pages */}
+            {/* Processor Routes */}
             <Route path="/processor-dashboard" element={<ProcessorDashboardPage />} />
             <Route path="/processor/view-batchs" element={<BatchHistory />} />
             <Route path="/processor/view-batchDetails/:batchId" element={<BatchDetailsPage />} />
@@ -82,13 +84,17 @@ function App() {
             <Route path="/processor/view-lots" element={<LotHistoryPage />} />
             <Route path="/processor/view-lots/:lotId" element={<LotDetailsPage />} />
 
-            {/* Exporter Pages */}
+            {/* Exporter Routes */}
             <Route path="/exporter-dashboard" element={<ExporterDashboardPage />} />
             <Route path="/view-lots" element={<ViewLotsPage />} />
             <Route path="/view-lot-details/:id" element={<ViewLotDetailsPage />} />
             <Route path="/view-consignment" element={<ConsignmentPage />} />
             <Route path="/view-consignment-details/:id" element={<ViewConsignmentDetailsPage />} />
             <Route path="/due-diligence-report/:consignmentId" element={<DueDiligenceReport />} />
+
+            {/* Regulator Routes */}
+            <Route path="/regulator-landing" element={<RegulatorLandingPage />} />
+            <Route path="/traceability-report" element={<QRScanTraceabilityPage />} />
 
 
           </Routes>
