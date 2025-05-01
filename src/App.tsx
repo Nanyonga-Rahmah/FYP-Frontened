@@ -51,7 +51,6 @@ const DueDiligenceReport = lazy(
   () => import("./pages/exporter/DueDeligenceReport")
 );
 
-const LandingPage = lazy(() => import("./pages/LandingPage"));
 
 function App() {
   return (

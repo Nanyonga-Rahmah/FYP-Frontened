@@ -37,16 +37,21 @@ import {
 import { ChevronDown } from "lucide-react";
 import useAuth from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import DateRangePicker from "@/components/Farmers/DateRangePicker";
 
 const FormSchema = z.object({
   farm: z.string().min(1, { message: "Farm is required." }),
-  coffeeVariety: z
-    .array(z.string())
-    .min(1, { message: "Select at least one variety" }),
+  coffeeVariety: z.string().min(1, { message: "Select at least one variety" }),
   weight: z.string().min(1, { message: "Number of bags is required." }),
-  plantingPeriod: z.string().min(1, { message: "Start date required." }),
+  plantingPeriod: z.object({
+    start: z.date({ required_error: "Start date required." }),
+    end: z.date({ required_error: "End date required." }),
+  }),
 
-  harvestingPeroid: z.string().min(1, { message: "Start date required." }),
+  harvestPeriod: z.object({
+    start: z.date({ required_error: "Start date required." }),
+    end: z.date({ required_error: "End date required." }),
+  }),
 
   cultivationMethod: z
     .array(z.string())
@@ -91,11 +96,17 @@ export function AddHarvestForm() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       farm: "",
-      coffeeVariety: [],
+      coffeeVariety: "",
       weight: "",
-      plantingPeriod: "",
+      plantingPeriod: {
+        start: new Date(),
+        end: new Date(),
+      },
 
-      harvestingPeroid: "",
+      harvestPeriod: {
+        start: new Date(),
+        end: new Date(),
+      },
 
       cultivationMethod: [],
       documents: [],
@@ -114,13 +125,21 @@ export function AddHarvestForm() {
       farmId: data.farm,
       coffeeVariety: data.coffeeVariety,
       weight: data.weight,
-      plantingPeriod: data.plantingPeriod,
-      harvestPeriod: data.harvestingPeroid,
+      plantingPeriod: {
+        start: data.plantingPeriod.start.toISOString(),
+        end: data.plantingPeriod.end.toISOString(),
+      },
+      harvestPeriod: {
+        start: data.harvestPeriod.start.toISOString(),
+        end: data.harvestPeriod.end.toISOString(),
+      },
       cultivationMethods: [data.cultivationMethod],
     };
     const formData = new FormData();
 
     formData.append("data", JSON.stringify(harvestData));
+
+    console.log(harvestData)
 
     selectedFiles.forEach((file) => formData.append("documents", file));
 
@@ -201,70 +220,28 @@ export function AddHarvestForm() {
         <FormField
           control={form.control}
           name="coffeeVariety"
-          render={({ field }) => {
-            const selectedVarieties: string[] = field.value || [];
-
-            const toggleVariety = (variety: string) => {
-              if (selectedVarieties.includes(variety)) {
-                field.onChange(selectedVarieties.filter((v) => v !== variety));
-              } else {
-                field.onChange([...selectedVarieties, variety]);
-              }
-            };
-
-            return (
-              <FormItem className="col-span-1">
-                <FormLabel className="font-normal text-[#222222] text-sm">
-                  Coffee Variety
-                </FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start">
-                      {selectedVarieties.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {selectedVarieties.map((v) => (
-                            <span
-                              key={v}
-                              className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs"
-                            >
-                              {v}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="flex justify-between items-center w-full">
-                          <span>Select Varieties</span>
-                          <ChevronDown className="w-4 h-4" />
-                        </div>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-
-                  <PopoverContent className="w-[300px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search varieties..." />
-                      <CommandList>
-                        {coffeeVarieties.map((v, index) => (
-                          <CommandItem
-                            key={index}
-                            onSelect={() => toggleVariety(v)}
-                          >
-                            {v}
-                            {selectedVarieties.includes(v) && (
-                              <span className="ml-auto text-green-600">
-                                Selected
-                              </span>
-                            )}
-                          </CommandItem>
-                        ))}
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          render={({ field }) => (
+            <FormItem className="col-span-1">
+              <FormLabel className="font-normal text-[#222222] text-sm">
+                Coffee Variety
+              </FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a variety" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {coffeeVarieties.map((v, index) => (
+                      <SelectItem key={index} value={v}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
         <FormField
@@ -296,7 +273,10 @@ export function AddHarvestForm() {
                 Planting period
               </FormLabel>
               <FormControl>
-                <Input type="date" {...field} className="h-9" />
+                <DateRangePicker
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -305,14 +285,17 @@ export function AddHarvestForm() {
 
         <FormField
           control={form.control}
-          name="harvestingPeroid"
+          name="harvestPeriod"
           render={({ field }) => (
             <FormItem className="col-span-2">
               <FormLabel className="font-normal text-[#222222] text-sm">
                 Harvesting Period
               </FormLabel>
               <FormControl>
-                <Input type="date" {...field} className="h-9" />
+                <DateRangePicker
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
