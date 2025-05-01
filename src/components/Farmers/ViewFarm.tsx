@@ -15,6 +15,7 @@ import { viewOneFarm } from "@/lib/routes";
 import { Stage, Layer, Line } from "react-konva";
 import { ScrollArea } from "../ui/scroll-area";
 import { checkBadgeStatus } from "@/pages/ViewHarvets";
+import useAuth from "@/hooks/use-auth";
 
 interface Document {
   _id: string;
@@ -32,7 +33,7 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
   const [farm, setFarm] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+const { authToken } = useAuth();
   const fetchFarmDetails = async () => {
     if (!farmId) return;
 
@@ -41,9 +42,10 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
 
     try {
       const response = await fetch(`${viewOneFarm}${farmId}`, {
-        credentials: "include",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -80,7 +82,6 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
     width: number,
     height: number
   ): number[] => {
-    // Get bounds
     const lats = coords.map((c) => c[1]);
     const lngs = coords.map((c) => c[0]);
 

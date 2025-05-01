@@ -3,12 +3,14 @@ import { PopoverDemo } from "@/components/globals/ActionPopover";
 import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LocateFixed, MapPin } from "lucide-react";
+import { LocateFixed, MapPin, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AllFarms } from "@/lib/routes";
 import { Layer, Line, Stage } from "react-konva";
 import { checkBadgeStatus } from "./ViewHarvets";
+import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 
 interface Farmer {
   _id: string;
@@ -60,21 +62,23 @@ function ViewFarmsPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const { authToken } = useAuth();
+  const { profile, loading: profileLoading } = useUserProfile(authToken);
+  
   useEffect(() => {
     const fetchFarms = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await fetch(AllFarms, {
-          credentials: "include",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
           },
         });
 
-        console.log(response);
-        if (!response.ok) {
+        console.log(response);        if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: Farm[] = await response.json();
@@ -87,7 +91,7 @@ function ViewFarmsPage() {
       }
     };
     fetchFarms();
-  }, []);
+  }, [authToken]);
 
   console.log("--->", farms);
 
@@ -112,6 +116,13 @@ function ViewFarmsPage() {
     });
   };
 
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "MN"; 
+  };
+
   return (
     <section
       className="h-screen"
@@ -123,15 +134,29 @@ function ViewFarmsPage() {
       <section className="px-20 py-10">
         <div className="flex items-center justify-between ">
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback>MN</AvatarFallback>
+            <Avatar className="w-12 h-12">
+              {profileLoading ? (
+                <AvatarFallback className="bg-gray-400 text-white font-bold">
+                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                </AvatarFallback>
+              ) : (
+                <AvatarFallback className="bg-gray-400 text-white font-bold">
+                  {getInitials()}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div className="flex">
               <div>
                 <span className="text-[#C0C9DDE5]">Greetings,</span>
                 <br />
                 <span className="font-semibold text-xl text-white">
-                  Mary Nantongo
+                  {profileLoading ? (
+                    <span className="inline-block w-32 h-6 bg-gray-300 animate-pulse rounded"></span>
+                  ) : profile ? (
+                    `${profile.firstName} ${profile.lastName}`
+                  ) : (
+                    "Mary Nantongo"
+                  )}
                 </span>
               </div>
             </div>
@@ -139,7 +164,7 @@ function ViewFarmsPage() {
 
           <div>
             <Button
-              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
+              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2 text-white"
               onClick={() => navigate("/add-farm")}
             >
               <LocateFixed />

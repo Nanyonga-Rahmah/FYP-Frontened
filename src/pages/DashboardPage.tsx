@@ -3,14 +3,18 @@ import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LocateFixed } from "lucide-react";
+import { LocateFixed, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 
 const actions = [
   {
-    name:( <Link to="/view-harvests" className="text-black/80 hover:none">
-      Record Harvest
-    </Link>),
+    name: (
+      <Link to="/view-harvests" className="text-black/80 hover:none">
+        Record Harvest
+      </Link>
+    ),
     description: "Add details about your harvest.",
     imageUrl: "/images/record-harvest.png",
   },
@@ -24,7 +28,6 @@ const actions = [
     description: "Download summary reports.",
     imageUrl: "/images/reports.png",
   },
-
   {
     name: (
       <Link to="/view-batch" className="text-black/80 hover:none">
@@ -49,8 +52,20 @@ const actions = [
     imageUrl: "/images/help-center.png",
   },
 ];
+
+
 function DashboardPage() {
   const navigate = useNavigate();
+  const { authToken } = useAuth();
+  const { profile, loading: isLoading } = useUserProfile(authToken);
+
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "MN";
+  };
+
   return (
     <section
       className="min-h-screen"
@@ -63,16 +78,29 @@ function DashboardPage() {
       <section className="px-20 py-10">
         <div className="flex items-center justify-between ">
           <div className="flex items-center gap-3">
-            <Avatar>
-              {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
-              <AvatarFallback>MN</AvatarFallback>
+            <Avatar className="w-12 h-12">
+              {isLoading ? (
+                <AvatarFallback className="bg-gray-400 text-white font-bold">
+                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                </AvatarFallback>
+              ) : (
+                <AvatarFallback className="bg-gray-400 text-white font-bold">
+                  {getInitials()}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div className="flex">
               <div>
                 <span className="text-[#C0C9DDE5]">Greetings,</span>
                 <br />
                 <span className="font-semibold text-xl text-white">
-                  Mary Nantongo
+                  {isLoading ? (
+                    <span className="inline-block w-32 h-6 bg-gray-300 animate-pulse rounded"></span>
+                  ) : profile ? (
+                    `${profile.firstName} ${profile.lastName}`
+                  ) : (
+                    "Mary Nantongo"
+                  )}
                 </span>
               </div>
             </div>
@@ -80,7 +108,7 @@ function DashboardPage() {
 
           <div>
             <Button
-              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
+              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2 text-white"
               onClick={() => {
                 navigate("/add-farm");
               }}
@@ -102,7 +130,7 @@ function DashboardPage() {
                 key={index}
                 className="bg-white flex flex-col items-center rounded-[10px] max-w-[370px] max-h-[237px] justify-center py-3 shadow-sm"
               >
-                <div className="object-cover h-20 w-20  flex justify-center items-center  ">
+                <div className="object-cover h-20 w-20 flex justify-center items-center">
                   <img src={action.imageUrl} alt={action.description} />
                 </div>
                 <span className="font-semibold text-xl text-[#222222]">
@@ -122,5 +150,4 @@ function DashboardPage() {
     </section>
   );
 }
-
 export default DashboardPage;
