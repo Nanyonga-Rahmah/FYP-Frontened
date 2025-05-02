@@ -15,6 +15,11 @@ const SignUpSchema = z.object({
   password: z.string(),
   nationalIdNumber: z.string().optional(),
   cooperativeMembershipNumber: z.string().optional(),
+  cooperativeLocation: z.string().optional(), // Added the missing field
+  // Optional fields that might be needed based on KYCForms
+  companyName: z.string().optional(),
+  facilityName: z.string().optional(),
+  licenseNumber: z.string().optional(),
 });
 
 type SignUpData = z.infer<typeof SignUpSchema>;
@@ -77,16 +82,9 @@ function SignUpPage() {
           </div>
 
           <KYCForms
-              handlePrevious={() => setCurrentStep(1)}
-              signUpData={signUpData!}
-            />
-          
-          {/* <div className="bg-red-800 ">
-            <KYCForms
-              handlePrevious={() => setCurrentStep(1)}
-              signUpData={signUpData!}
-            />
-          </div> */}
+            handlePrevious={() => setCurrentStep(1)}
+            signUpData={signUpData!}
+          />
         </div>
       )}
     </div>
