@@ -44,13 +44,20 @@ const ViewLotDetailsPage = lazy(
   () => import("./pages/exporter/ViewLotDetailsPage")
 );
 const ConsignmentPage = lazy(() => import("./pages/exporter/ConsignmentPage"));
-const ViewConsignmentDetailsPage = lazy(() => import("./pages/exporter/ConsignmentDetails"));
-const DueDiligenceReport = lazy(() => import("./pages/exporter/DueDeligenceReport"));
+const ViewConsignmentDetailsPage = lazy(
+  () => import("./pages/exporter/ConsignmentDetails")
+);
+const DueDiligenceReport = lazy(
+  () => import("./pages/exporter/DueDeligenceReport")
+);
 
 // Regulator Pages
-const QRScanTraceabilityPage =lazy(() => import("./pages/regulator/QRScanTraceabilityPage"));
-const RegulatorLandingPage =lazy(() => import("./pages/regulator/LandingPage"));
-
+const QRScanTraceabilityPage = lazy(
+  () => import("./pages/regulator/QRScanTraceabilityPage")
+);
+const RegulatorLandingPage = lazy(
+  () => import("./pages/regulator/LandingPage")
+);
 
 function App() {
   return (
@@ -60,8 +67,8 @@ function App() {
       <HashRouter>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            <Route path="/" element={<SignUpPage />} />
-            {/* <Route path="/" element={<RegulatorLandingPage />} /> */}
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/" element={<RegulatorLandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -74,15 +81,20 @@ function App() {
             <Route path="/manage-farmers" element={<VerificationPage />} />
             <Route path="/signup" element={<SignUpPage />} />
 
-
             {/* Extension Worker Routes */}
-            <Route path="/ew-dashboard" element={<ExtensionWorkerDashboard />} />
+            <Route
+              path="/ew-dashboard"
+              element={<ExtensionWorkerDashboard />}
+            />
             <Route path="/approve-kyc" element={<ApproveKYCPage />} />
             <Route path="/approve-farms" element={<ApproveFarmPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
 
             {/* Processor Routes */}
-            <Route path="/processor-dashboard" element={<ProcessorDashboardPage />} />
+            <Route
+              path="/processor-dashboard"
+              element={<ProcessorDashboardPage />}
+            />
             <Route path="/processor/view-batchs" element={<BatchHistory />} />
             <Route
               path="/processor/view-batchDetails/:batchId"
@@ -99,21 +111,34 @@ function App() {
             />
 
             {/* Exporter Routes */}
-            <Route path="/exporter-dashboard" element={<ExporterDashboardPage />} />
+            <Route
+              path="/exporter-dashboard"
+              element={<ExporterDashboardPage />}
+            />
             <Route path="/view-lots" element={<ViewLotsPage />} />
             <Route
               path="/view-lot-details/:id"
               element={<ViewLotDetailsPage />}
             />
             <Route path="/view-consignment" element={<ConsignmentPage />} />
-            <Route path="/view-consignment-details/:id" element={<ViewConsignmentDetailsPage />} />
-            <Route path="/due-diligence-report/:consignmentId" element={<DueDiligenceReport />} />
+            <Route
+              path="/view-consignment-details/:id"
+              element={<ViewConsignmentDetailsPage />}
+            />
+            <Route
+              path="/due-diligence-report/:consignmentId"
+              element={<DueDiligenceReport />}
+            />
 
             {/* Regulator Routes */}
-            <Route path="/regulator-landing" element={<RegulatorLandingPage />} />
-            <Route path="/traceability-report/:batchId" element={<QRScanTraceabilityPage />} />
-
-
+            <Route
+              path="/regulator-landing"
+              element={<RegulatorLandingPage />}
+            />
+            <Route
+              path="/traceability-report/:batchId"
+              element={<QRScanTraceabilityPage />}
+            />
           </Routes>
         </Suspense>
       </HashRouter>
