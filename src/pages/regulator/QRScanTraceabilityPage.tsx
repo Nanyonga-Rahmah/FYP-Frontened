@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Header from "@/components/globals/regulator/Header";
 import Footer from "@/components/globals/Footer";
 import { GoogleMap, LoadScript, Marker, Polygon } from "@react-google-maps/api";
+import { API } from "@/lib/routes";
 
 interface TraceabilityReport {
   batchIdentification: {
@@ -145,7 +146,7 @@ const QRScanTraceabilityPage: React.FC = () => {
           throw new Error("Batch ID is missing");
         }
 
-        const apiUrl = "http://localhost:3001";
+        const apiUrl = API;
         console.log(`Fetching from ${apiUrl}/traceability/${batchId}/qrcode`);
 
         const response = await fetch(
