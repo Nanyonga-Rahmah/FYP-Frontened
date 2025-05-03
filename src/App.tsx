@@ -95,7 +95,7 @@ function App() {
 
             {/* Regulator Routes */}
             <Route path="/regulator-landing" element={<RegulatorLandingPage />} />
-            <Route path="/traceability-report" element={<QRScanTraceabilityPage />} />
+            <Route path="/traceability-report/:batchId" element={<QRScanTraceabilityPage />} />
 
 
           </Routes>

@@ -35,6 +35,8 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { ChevronDown } from "lucide-react";
+import useAuth from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
   farm: z.string().min(1, { message: "Farm is required." }),
@@ -42,10 +44,29 @@ const FormSchema = z.object({
     .array(z.string())
     .min(1, { message: "Select at least one variety" }),
   weight: z.string().min(1, { message: "Number of bags is required." }),
-  plantingPeriod: z.string().min(1, { message: "Start date required." }),
-
-  harvestingPeroid: z.string().min(1, { message: "Start date required." }),
-
+  plantingPeriod: z
+    .object({
+      start: z.string().min(1, { message: "Planting start date required." }),
+      end: z.string().min(1, { message: "Planting end date required." }),
+    })
+    .refine(
+      (data) =>
+        !data.start || !data.end || new Date(data.start) <= new Date(data.end),
+      { message: "Planting end date must be after start date.", path: ["end"] }
+    ),
+  harvestingPeriod: z
+    .object({
+      start: z.string().min(1, { message: "Harvesting start date required." }),
+      end: z.string().min(1, { message: "Harvesting end date required." }),
+    })
+    .refine(
+      (data) =>
+        !data.start || !data.end || new Date(data.start) <= new Date(data.end),
+      {
+        message: "Harvesting end date must be after start date.",
+        path: ["end"],
+      }
+    ),
   cultivationMethod: z
     .array(z.string())
     .min(1, { message: "Select at least one method" }),
@@ -72,12 +93,18 @@ export function AddHarvestForm() {
     "Shade Management",
   ];
   const coffeeVarieties = ["Robusta", "Arabica"];
+  const { authToken } = useAuth();
 
   useEffect(() => {
-    fetchMyFarms()
-      .then(setFarms)
-      .catch((err) => console.error("Failed to load farms:", err))
-      .finally(() => setLoadingFarms(false));
+    if (authToken) {
+      fetchMyFarms(authToken)
+        .then(setFarms)
+        .catch((err) => console.error("Failed to load farms:", err))
+        .finally(() => setLoadingFarms(false));
+    } else {
+      console.error("Auth token is null. Cannot fetch farms.");
+      setLoadingFarms(false);
+    }
   }, []);
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -86,10 +113,8 @@ export function AddHarvestForm() {
       farm: "",
       coffeeVariety: [],
       weight: "",
-      plantingPeriod: "",
-
-      harvestingPeroid: "",
-
+      plantingPeriod: { start: "", end: "" },
+      harvestingPeriod: { start: "", end: "" },
       cultivationMethod: [],
       documents: [],
     },
@@ -107,9 +132,15 @@ export function AddHarvestForm() {
       farmId: data.farm,
       coffeeVariety: data.coffeeVariety,
       weight: data.weight,
-      plantingPeriod: data.plantingPeriod,
-      harvestPeriod: data.harvestingPeroid,
-      cultivationMethods: [data.cultivationMethod],
+      plantingPeriod: {
+        start: data.plantingPeriod.start,
+        end: data.plantingPeriod.end,
+      },
+      harvestPeriod: {
+        start: data.harvestingPeriod.start,
+        end: data.harvestingPeriod.end,
+      },
+      cultivationMethods: data.cultivationMethod,
     };
     const formData = new FormData();
 
@@ -117,26 +148,45 @@ export function AddHarvestForm() {
 
     selectedFiles.forEach((file) => formData.append("documents", file));
 
+    console.log("FormData contents:");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
     try {
       const response = await fetch(HarvestCreate, {
         method: "POST",
-        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
         body: formData,
       });
 
       if (!response.ok) {
         const errData = await response.json();
+        console.log("API error response:", errData);
         throw new Error(errData.error || "Failed to save harvest");
       }
 
       const result = await response.json();
+      toast({
+        variant: "default",
+        title: "Success",
+        description: `${result.message}`,
+      });
+
       console.log("Saved harvest:", result);
       navigate("/view-harvests");
     } catch (error: any) {
       console.error("Submit error:", error);
-      alert(error.message);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to save harvest",
+      });
     }
   }
+
   return (
     <Form {...form}>
       <form
@@ -211,9 +261,9 @@ export function AddHarvestForm() {
                         </div>
                       ) : (
                         <div className="flex justify-between items-center w-full">
-                        <span>Select Varieties</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </div>
+                          <span>Select Varieties</span>
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -267,11 +317,11 @@ export function AddHarvestForm() {
 
         <FormField
           control={form.control}
-          name="plantingPeriod"
+          name="plantingPeriod.start"
           render={({ field }) => (
-            <FormItem className="col-span-2">
+            <FormItem className="col-span-1">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Planting period
+                Planting Start
               </FormLabel>
               <FormControl>
                 <Input type="date" {...field} className="h-9" />
@@ -283,11 +333,43 @@ export function AddHarvestForm() {
 
         <FormField
           control={form.control}
-          name="harvestingPeroid"
+          name="plantingPeriod.end"
           render={({ field }) => (
-            <FormItem className="col-span-2">
+            <FormItem className="col-span-1">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Harvesting Period
+                Planting End
+              </FormLabel>
+              <FormControl>
+                <Input type="date" {...field} className="h-9" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="harvestingPeriod.start"
+          render={({ field }) => (
+            <FormItem className="col-span-1">
+              <FormLabel className="font-normal text-[#222222] text-sm">
+                Harvesting Start
+              </FormLabel>
+              <FormControl>
+                <Input type="date" {...field} className="h-9" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="harvestingPeriod.end"
+          render={({ field }) => (
+            <FormItem className="col-span-1">
+              <FormLabel className="font-normal text-[#222222] text-sm">
+                Harvesting End
               </FormLabel>
               <FormControl>
                 <Input type="date" {...field} className="h-9" />
@@ -350,9 +432,7 @@ export function AddHarvestForm() {
                           >
                             {method}
                             {selectedMethods.includes(method) && (
-                              <span className=" text-green-600">
-                                Selected
-                              </span>
+                              <span className="text-green-600">Selected</span>
                             )}
                           </CommandItem>
                         ))}
