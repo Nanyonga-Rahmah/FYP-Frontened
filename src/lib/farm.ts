@@ -1,15 +1,12 @@
-import { AllFarms } from "./routes";
+import { FarmerFarms } from "./routes";
 
 export const fetchMyFarms = async (authToken: string) => {
-  const response = await fetch(AllFarms, {
+  const response = await fetch(FarmerFarms, {
     method: "GET",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
-
   if (!response.ok) throw new Error("Failed to load farms");
-
   return await response.json();
 };

@@ -1,6 +1,8 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,40 +22,45 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useState } from "react";
-import { subCounties, USER_ROLES } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { subCounties, USER_ROLES } from "@/lib/constants";
 
 const FormSchema = z.object({
   firstName: z.string().min(2, { message: "First name is required." }),
   lastName: z.string().min(2, { message: "Last name is required." }),
-  fullName: z.string().min(2, { message: "Field is required" }),
-  processingFacilityName: z.string().min(2, { message: "Field is required" }),
-  lincenseNumber: z.string().min(2, { message: "Role is required" }),
-  location: z.string().min(2, { message: "Field is required" }),
-
-  role: z.string().min(2, { message: "Role is required." }),
-  email: z.string().min(2, { message: "Email is required." }).email(),
   phone: z
     .string()
     .min(10, "Phone number must be at least 10 digits")
     .max(10, "Phone number must be 10 digits"),
+  email: z.string().min(2, { message: "Email is required." }).email(),
   password: z.string().min(2, { message: "Password is required." }),
-  nationalIdNumber: z.string().optional(),
+  role: z.string().min(2, { message: "Role is required." }),
+  cooperativeLocation: z.string().min(2, { message: "Location is required" }),
+  nationalIdNumber: z
+    .string()
+    .min(2, { message: "National ID Number is required" }),
   cooperativeMembershipNumber: z.string().optional(),
+  companyName: z.string().optional(),
+  facilityName: z.string().optional(),
+  licenseNumber: z.string().optional(),
 });
 
+type FormData = z.infer<typeof FormSchema>;
+
 interface SignUpProps {
-  onNext: (data: z.infer<typeof FormSchema>) => void;
+  onNext: (data: FormData) => void;
 }
 
-export function SignUpForm({ onNext }: SignUpProps) {
-  const [passwordVisible, setPasswordVisible] = useState(false);
+export function SignUpForm({ onNext }: SignUpProps): JSX.Element {
+  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+  const [selectedRole, setSelectedRole] = useState<string>("");
 
   const rawUserData = localStorage.getItem("UserData");
-  const userData = rawUserData ? JSON.parse(rawUserData) : {};
+  const userData: Partial<FormData> = rawUserData
+    ? JSON.parse(rawUserData)
+    : {};
 
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       firstName: userData.firstName || "",
@@ -63,17 +70,25 @@ export function SignUpForm({ onNext }: SignUpProps) {
       email: userData.email || "",
       nationalIdNumber: userData.nationalIdNumber || "",
       cooperativeMembershipNumber: userData.cooperativeMembershipNumber || "",
+      companyName: userData.companyName || "",
+      facilityName: userData.facilityName || "",
+      licenseNumber: userData.licenseNumber || "",
       role: userData.role || "",
+      cooperativeLocation: userData.cooperativeLocation || "",
     },
+    mode: "onChange",
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  const handleRoleChange = (value: string): void => {
+    setSelectedRole(value);
+    form.setValue("role", value);
+  };
+
+  function onSubmit(data: FormData): void {
     localStorage.setItem("UserData", JSON.stringify(data));
 
     onNext(data);
   }
-
-  const selectedRole = form.watch("role");
 
   return (
     <ScrollArea className="h-[500px]">
@@ -89,7 +104,13 @@ export function SignUpForm({ onNext }: SignUpProps) {
               name="role"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      handleRoleChange(value);
+                    }}
+                    value={field.value}
+                  >
                     <SelectTrigger className="my-2 shadow-none">
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
@@ -112,59 +133,36 @@ export function SignUpForm({ onNext }: SignUpProps) {
             />
           </div>
 
-          {selectedRole === "producer" ? (
-            <>
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem className="col-span-2 text-left">
-                    <FormLabel className="text-[#222222]">Full Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="John Doe"
-                        {...field}
-                        className="py-2.5"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          ) : (
-            <>
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem className="text-left">
-                    <FormLabel className="text-[#222222]">First Name</FormLabel>
+          {/* First and Last Name - always required */}
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem className="text-left">
+                <FormLabel className="text-[#222222]">First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John" {...field} className="py-2.5" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                    <FormControl>
-                      <Input placeholder="John" {...field} className="py-2.5" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem className="text-left">
+                <FormLabel className="text-[#222222]">Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Doe" {...field} className="py-2.5" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem className="text-left">
-                    <FormLabel className="text-[#222222]">Last Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Doe" {...field} className="py-2.5" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          )}
-
+          {/* Phone and Email - always required */}
           <FormField
             control={form.control}
             name="phone"
@@ -201,113 +199,129 @@ export function SignUpForm({ onNext }: SignUpProps) {
             )}
           />
 
-          {selectedRole === "producer" ? (
-            <>
-              <FormField
-                control={form.control}
-                name="processingFacilityName"
-                render={({ field }) => (
-                  <FormItem className="text-left col-span-2">
-                    <FormLabel className="text-[#222222]">
-                      Processing facility name
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="" {...field} className="py-2" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* National ID Number - always required */}
+          <FormField
+            control={form.control}
+            name="nationalIdNumber"
+            render={({ field }) => (
+              <FormItem className="col-span-2 text-left">
+                <FormLabel className="text-[#222222]">
+                  National ID Number
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="CF123456789"
+                    {...field}
+                    className="py-2.5"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="lincenseNumber"
-                render={({ field }) => (
-                  <FormItem className="text-left col-span-2">
-                    <FormLabel className="text-[#222222]">
-                      UCDA License Number
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="" {...field} className="py-2" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="col-span-2">
-                <p className="font-normal text-[#222222] text-sm">Location</p>
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="my-2 shadow-none">
-                          <SelectValue placeholder="Select Sub-County" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <ScrollArea className="h-36">
-                            {subCounties.map((sub) => (
-                              <SelectItem key={sub} value={sub}>
-                                {sub}
-                              </SelectItem>
-                             
-                            ))}
-                             </ScrollArea>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <FormField
-                control={form.control}
-                name="nationalIdNumber"
-                render={({ field }) => (
-                  <FormItem className="col-span-2 text-left">
-                    <FormLabel className="text-[#222222]">
-                      National ID Number
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="CF123456789"
-                        {...field}
-                        className="py-2.5"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="cooperativeMembershipNumber"
-                render={({ field }) => (
-                  <FormItem className="col-span-2 text-left">
-                    <FormLabel className="text-[#222222]">
-                      Cooperative Membership Number
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="" {...field} className="py-2.5" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
+          {/* Role-specific fields */}
+          {selectedRole === "farmer" && (
+            <FormField
+              control={form.control}
+              name="cooperativeMembershipNumber"
+              render={({ field }) => (
+                <FormItem className="col-span-2 text-left">
+                  <FormLabel className="text-[#222222]">
+                    Cooperative Membership Number
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} className="py-2.5" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
 
+          {selectedRole === "processor" && (
+            <FormField
+              control={form.control}
+              name="facilityName" 
+              render={({ field }) => (
+                <FormItem className="text-left col-span-2">
+                  <FormLabel className="text-[#222222]">
+                    Processing Facility Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} className="py-2" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {selectedRole === "exporter" && (
+            <FormField
+              control={form.control}
+              name="companyName"
+              render={({ field }) => (
+                <FormItem className="text-left col-span-2">
+                  <FormLabel className="text-[#222222]">Company Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} className="py-2" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {(selectedRole === "processor" || selectedRole === "exporter") && (
+            <FormField
+              control={form.control}
+              name="licenseNumber"
+              render={({ field }) => (
+                <FormItem className="text-left col-span-2">
+                  <FormLabel className="text-[#222222]">
+                    UCDA License Number
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} className="py-2" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Location field for all roles */}
+          <div className="col-span-2">
+            <p className="font-normal text-[#222222] text-sm">Location</p>
+            <FormField
+              control={form.control}
+              name="cooperativeLocation"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="my-2 shadow-none">
+                      <SelectValue placeholder="Select Sub-County" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <ScrollArea className="h-36">
+                          {subCounties.map((sub) => (
+                            <SelectItem key={sub} value={sub}>
+                              {sub}
+                            </SelectItem>
+                          ))}
+                        </ScrollArea>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Password field */}
           <FormField
             control={form.control}
             name="password"
@@ -322,7 +336,10 @@ export function SignUpForm({ onNext }: SignUpProps) {
                       className="h-12 border-none focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
                       {...field}
                     />
-                    <p onClick={() => setPasswordVisible(!passwordVisible)}>
+                    <div
+                      onClick={() => setPasswordVisible(!passwordVisible)}
+                      className="cursor-pointer"
+                    >
                       {passwordVisible ? (
                         <EyeIcon
                           className="w-[14px]"
@@ -334,7 +351,7 @@ export function SignUpForm({ onNext }: SignUpProps) {
                           color="rgba(88, 89, 98, 1)"
                         />
                       )}
-                    </p>
+                    </div>
                   </div>
                 </FormControl>
                 <FormMessage />

@@ -156,15 +156,23 @@ export function AddHarvestForm() {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
+        
         body: formData,
       });
 
       if (!response.ok) {
         const errData = await response.json();
+        console.log("API error response:", errData);
         throw new Error(errData.error || "Failed to save harvest");
       }
 
       const result = await response.json();
+      toast({
+        variant: "default",
+        title: "Success",
+        description: `${result.message}`,
+      });
+
       console.log("Saved harvest:", result);
       toast({
         variant: "success",
@@ -184,6 +192,7 @@ export function AddHarvestForm() {
       setIsSubmitting(false);
     }
   }
+
   return (
     <Form {...form}>
       <form
@@ -277,7 +286,7 @@ export function AddHarvestForm() {
           control={form.control}
           name="plantingPeriod"
           render={({ field }) => (
-            <FormItem className="col-span-2">
+            <FormItem className="col-span-1">
               <FormLabel className="font-normal text-[#222222] text-sm">
                 Planting period
               </FormLabel>
@@ -296,7 +305,7 @@ export function AddHarvestForm() {
           control={form.control}
           name="harvestPeriod"
           render={({ field }) => (
-            <FormItem className="col-span-2">
+            <FormItem className="col-span-1">
               <FormLabel className="font-normal text-[#222222] text-sm">
                 Harvesting Period
               </FormLabel>
@@ -310,6 +319,10 @@ export function AddHarvestForm() {
             </FormItem>
           )}
         />
+
+        
+
+       
 
         <FormField
           control={form.control}

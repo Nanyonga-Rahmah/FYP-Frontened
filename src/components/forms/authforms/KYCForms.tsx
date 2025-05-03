@@ -12,30 +12,13 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown, ImageIcon } from "lucide-react";
-import { cooperatives } from "@/lib/constants";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
-import { Register } from "@/lib/routes";
-
-import { useNavigate } from "react-router-dom";
+import { ImageIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { API_URL } from "@/lib/routes";
 
-// Define the schema for KYC data
-const formSchema = z.object({
+const KycSchema = z.object({
   nationalIdPhoto: z.instanceof(File, {
     message: "National ID photo is required",
   }),
@@ -43,76 +26,77 @@ const formSchema = z.object({
     .array(z.instanceof(File))
     .min(2, { message: "At least one passport photo is required" }),
 
-  cooperativeLocation: z
-    .string()
-    .min(1, { message: "Cooperative location is required" }),
 });
+
+type KycFormData = z.infer<typeof KycSchema>;
+
+interface SignUpFormData {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  password: string;
+  role: string;
+  nationalIdNumber: string;
+  cooperativeLocation: string;
+  cooperativeMembershipNumber?: string;
+  companyName?: string;
+  facilityName?: string;
+  licenseNumber?: string;
+}
 
 interface KYCProps {
   handlePrevious: () => void;
-  signUpData: z.infer<typeof SignUpFormSchema>;
+  signUpData: Partial<SignUpFormData>;
 }
 
-const SignUpFormSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  role: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  password: z.string(),
-  nationalIdNumber: z.string().optional(),
-  cooperativeMembershipNumber: z.string().optional(),
-});
-
-export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
+export default function KYCForms({
+  handlePrevious,
+  signUpData,
+}: KYCProps): JSX.Element {
   const [preview, setPreview] = useState<{
     nationalIdPhoto: string | null;
     passportSizePhoto: string | null;
-  }>({ nationalIdPhoto: null, passportSizePhoto: null });
-  const [open, setOpen] = useState(false);
-  const [selectedCooperative, setSelectedCooperative] = useState("");
-  const [submitting, setIsSubmitting] = useState(false);
+  }>({
+    nationalIdPhoto: null,
+    passportSizePhoto: null,
+  });
+
+  const [submitting, setIsSubmitting] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<KycFormData>({
+    resolver: zodResolver(KycSchema),
     defaultValues: {
       nationalIdPhoto: undefined,
       passportSizePhoto: undefined,
-      cooperativeLocation: "",
     },
   });
 
   function handleImageChange(
     event: React.ChangeEvent<HTMLInputElement>,
-    fieldName: keyof z.infer<typeof formSchema>
-  ) {
+    fieldName: keyof KycFormData
+  ): void {
     const file = event.target.files?.[0];
     if (!file) return;
 
     form.setValue(fieldName, file);
+
     setPreview((prev) => ({
       ...prev,
       [fieldName]: URL.createObjectURL(file),
     }));
   }
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: KycFormData): Promise<void> => {
     const formData = new FormData();
 
-    formData.append("firstName", signUpData.firstName);
-    formData.append("lastName", signUpData.lastName);
-    formData.append("email", signUpData.email);
-    formData.append("phone", signUpData.phone);
-    formData.append("password", signUpData.password);
-    formData.append("role", signUpData.role);
-    formData.append(
-      "cooperativeMembershipNumber",
-      signUpData.cooperativeMembershipNumber || ""
-    );
-    formData.append("nationalIdNumber", signUpData.nationalIdNumber || "");
+    Object.entries(signUpData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        formData.append(key, value);
+      }
+    });
 
-    formData.append("cooperativeLocation", values.cooperativeLocation);
     formData.append("nationalIdPhoto", values.nationalIdPhoto);
     values.passportSizePhoto.forEach((file: File) => {
       formData.append("passportSizePhoto", file);
@@ -124,21 +108,19 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(Register, {
+      const response = await fetch(`${API_URL}auth/register`, {
         method: "POST",
         body: formData,
       });
 
-      console.log("---->", response);
-
       const data = await response.json();
-      console.log(data);
 
-      if (response.status === 201) {
+      if (response.ok) {
         toast({
           variant: "success",
-          title: "Successful",
-          description: `${data.message}`,
+          title: "Registration Successful",
+          description:
+            "Your account has been created and is pending verification.",
         });
 
         setTimeout(() => {
@@ -147,15 +129,15 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
       } else {
         toast({
           variant: "destructive",
-          title: "Failure",
-          description: `${data.message}`,
+          title: "Registration Failed",
+          description: data.message || "Something went wrong",
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
-        title: "Failure",
-        description: `Registration failed. Please try again. || ${error.response?.data?.message}`,
+        title: "Error",
+        description: "Registration failed. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -163,25 +145,27 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
   };
 
   return (
-    <ScrollArea className="h-[500px] ">
+    <ScrollArea className="h-[500px]">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* National ID Photo */}
           <FormField
             control={form.control}
             name="nationalIdPhoto"
             render={() => (
               <FormItem>
-                <FormLabel className="text-[#222222]">ID Photo</FormLabel>
+                <FormLabel className="text-[#222222]">
+                  National ID Photo
+                </FormLabel>
                 <FormControl>
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
                     <label
                       htmlFor="national-id-upload"
-                      className="text-sm flex flex-col items-center gap-2 justify-center"
+                      className="text-sm flex flex-col items-center gap-2 justify-center cursor-pointer"
                     >
                       <ImageIcon />
                       <span className="text-primary">
-                        <span className="underline">Choose File </span> to
-                        Upload
+                        <span className="underline">Choose File</span> to Upload
                       </span>
                     </label>
                     <Input
@@ -208,6 +192,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
             )}
           />
 
+          {/* Passport Photo */}
           <FormField
             control={form.control}
             name="passportSizePhoto"
@@ -220,12 +205,11 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
                     <label
                       htmlFor="passport-upload"
-                      className="text-sm flex flex-col justify-center gap-2 items-center"
+                      className="text-sm flex flex-col justify-center gap-2 items-center cursor-pointer"
                     >
                       <ImageIcon />
                       <span className="text-primary">
-                        <span className="underline">Choose File </span> to
-                        Upload
+                        <span className="underline">Choose File</span> to Upload
                       </span>
                     </label>
                     <Input
@@ -252,75 +236,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="cooperativeLocation"
-            render={({ field }) => (
-              <FormItem className="col-span-2 flex flex-col text-left">
-                <FormLabel className="text-[#222222]">
-                  Cooperative/Location
-                </FormLabel>
-                <FormControl>
-                  <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={open}
-                        className="justify-between text-black/90 outline-none  focus:ring-0"
-                      >
-                        {selectedCooperative
-                          ? cooperatives.find(
-                              (cooperative) =>
-                                cooperative.value === selectedCooperative
-                            )?.label
-                          : "Select cooperative..."}
-                        <ChevronsUpDown className="opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Select Cooperative/Sub-County"
-                          className="h-10 text-[#222222]"
-                        />
-                        <CommandList>
-                          <CommandEmpty className="text-[#222222]">
-                            No cooperative found.
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {cooperatives.map((cooperative) => (
-                              <CommandItem
-                                key={cooperative.value}
-                                value={cooperative.value}
-                                onSelect={() => {
-                                  setSelectedCooperative(cooperative.value);
-                                  field.onChange(cooperative.value);
-                                  setOpen(false);
-                                }}
-                              >
-                                {cooperative.label}
-                                <Check
-                                  className={
-                                    selectedCooperative === cooperative.value
-                                      ? "opacity-100 ml-auto"
-                                      : "opacity-0 ml-auto"
-                                  }
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex justify-between items-center gap-56">
+          <div className="flex justify-between items-center mt-6">
             <Button
               variant="outline"
               onClick={handlePrevious}
@@ -328,7 +244,7 @@ export default function KYCForms({ handlePrevious, signUpData }: KYCProps) {
             >
               Back
             </Button>
-            <Button type="submit" className="grow" disabled={submitting}>
+            <Button type="submit" className="px-6" disabled={submitting}>
               {submitting ? "Submitting..." : "Submit"}
             </Button>
           </div>
