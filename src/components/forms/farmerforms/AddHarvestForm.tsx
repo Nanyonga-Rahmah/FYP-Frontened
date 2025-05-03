@@ -42,15 +42,18 @@ import DateRangePicker from "@/components/Farmers/DateRangePicker";
 const FormSchema = z.object({
   farm: z.string().min(1, { message: "Farm is required." }),
   coffeeVariety: z.string().min(1, { message: "Select at least one variety" }),
-  weight: z.string().min(1, { message: "Number of bags is required." }),
+  weight: z
+    .number({ invalid_type_error: "Enter a valid number of bags." })
+    .positive({ message: "Weight must be greater than 0." }),
+
   plantingPeriod: z.object({
-    start: z.date({ required_error: "Start date required." }),
-    end: z.date({ required_error: "End date required." }),
+    start: z.string().min(1, { message: "Start date required." }),
+    end: z.string().min(1, { message: "End date required." }),
   }),
 
   harvestPeriod: z.object({
-    start: z.date({ required_error: "Start date required." }),
-    end: z.date({ required_error: "End date required." }),
+    start: z.string().min(1, { message: "Start date required." }),
+    end: z.string().min(1, { message: "End date required." }),
   }),
 
   cultivationMethod: z
@@ -97,15 +100,15 @@ export function AddHarvestForm() {
     defaultValues: {
       farm: "",
       coffeeVariety: "",
-      weight: "",
+      weight: undefined,
       plantingPeriod: {
-        start: new Date(),
-        end: new Date(),
+        start: "",
+        end: "",
       },
 
       harvestPeriod: {
-        start: new Date(),
-        end: new Date(),
+        start: "",
+        end: "",
       },
 
       cultivationMethod: [],
@@ -126,12 +129,12 @@ export function AddHarvestForm() {
       coffeeVariety: data.coffeeVariety,
       weight: data.weight,
       plantingPeriod: {
-        start: data.plantingPeriod.start.toISOString(),
-        end: data.plantingPeriod.end.toISOString(),
+        start: data.plantingPeriod.start,
+        end: data.plantingPeriod.end,
       },
       harvestPeriod: {
-        start: data.harvestPeriod.start.toISOString(),
-        end: data.harvestPeriod.end.toISOString(),
+        start: data.harvestPeriod.start,
+        end: data.harvestPeriod.end,
       },
       cultivationMethods: [data.cultivationMethod],
     };
@@ -139,9 +142,12 @@ export function AddHarvestForm() {
 
     formData.append("data", JSON.stringify(harvestData));
 
-    console.log(harvestData)
+    
 
     selectedFiles.forEach((file) => formData.append("documents", file));
+
+
+    console.log(formData)
 
     try {
       setIsSubmitting(true);
@@ -254,9 +260,12 @@ export function AddHarvestForm() {
               </FormLabel>
               <FormControl>
                 <Input
+                  type="number"
+                  min={1}
                   placeholder="Enter number of bags"
                   {...field}
                   className="h-9"
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                 />
               </FormControl>
               <FormMessage />

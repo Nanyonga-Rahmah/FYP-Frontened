@@ -20,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import useAuth from "@/hooks/use-auth";
 import useUserProfile from "@/hooks/use-profile";
 import { API_URL } from "@/lib/routes";
+import { ProcessingForm } from "@/components/forms/processorforms/ProcessBatchForm";
 
 // TypeScript interfaces for batch data
 interface Timeline {
@@ -358,8 +359,12 @@ function BatchDetailsPage() {
                             <td className="py-2 px-4 text-black">
                               {harvest.id.slice(-6)}
                             </td>
-                            <td className="py-2 px-4 text-black">{harvest.variety}</td>
-                            <td className="py-2 px-4 text-black">{harvest.weight} kg</td>
+                            <td className="py-2 px-4 text-black">
+                              {harvest.variety}
+                            </td>
+                            <td className="py-2 px-4 text-black">
+                              {harvest.weight} kg
+                            </td>
                             <td className="py-2 px-4 text-black">
                               {formatDate(harvest.harvestPeriod.start)} -{" "}
                               {formatDate(harvest.harvestPeriod.end)}
@@ -496,6 +501,8 @@ function BatchDetailsPage() {
                     </span>
                   </div>
                 </div>
+
+                {batchData.status === "Submitted" && <ProcessingForm />}
 
                 {/* Processing Details */}
                 {batchData.processorInfo && (

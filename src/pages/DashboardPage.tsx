@@ -7,6 +7,7 @@ import { LocateFixed, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/use-auth";
 import useUserProfile from "@/hooks/use-profile";
+import { getInitials } from "@/lib/constants";
 
 const actions = [
   {
@@ -59,12 +60,7 @@ function DashboardPage() {
   const { authToken } = useAuth();
   const { profile, loading: isLoading } = useUserProfile(authToken);
 
-  const getInitials = (): string => {
-    if (profile && profile.firstName && profile.lastName) {
-      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
-    }
-    return "MN";
-  };
+ 
 
   return (
     <section
@@ -84,8 +80,8 @@ function DashboardPage() {
                   <Loader2 className="h-5 w-5 animate-spin text-white" />
                 </AvatarFallback>
               ) : (
-                <AvatarFallback className="bg-gray-400 text-white font-bold">
-                  {getInitials()}
+                <AvatarFallback className="bg-gray-400 text-white font-bold capitalize">
+                  {getInitials(profile)}
                 </AvatarFallback>
               )}
             </Avatar>

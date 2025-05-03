@@ -180,20 +180,14 @@ function ViewHarvestsPage() {
                       key={harvest._id}
                       className="bg-white flex flex-col max-w-[370px] max-h-[237px] rounded-[10px] py-1 px-3 shadow-sm"
                     >
-                      <div className="flex justify-end">
-                        <PopoverDemo
-                          farmId={harvest._id}
-                          status={displayStatus}
-                        />
-                      </div>
                       <div className="flex flex-col py-2.5">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center justify-between ">
                           <span className="font-semibold text-xl text-black">
                             {getHarvestDisplayId(harvest._id, index)}
                           </span>
 
                           <span
-                            className={`px-2 py-1 text-xs rounded-3xl ${checkBadgeStatus(displayStatus)}`}
+                            className={`px-2 py-1 text-xs rounded-3xl capitalize ${checkBadgeStatus(displayStatus)}`}
                           >
                             {displayStatus}
                           </span>
@@ -206,18 +200,30 @@ function ViewHarvestsPage() {
                           </span>
                         </div>
 
-                        <span className="font-normal text-sm flex items-center gap-1 text-[#5C6474]">
-                          <MapPin size={10} />
-                          {harvest.farm.location} ({harvest.farm.farmSize}{" "}
-                          Acres)
-                        </span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col gap-1 ">
+                            <span className="font-normal text-sm flex items-center gap-1 text-[#5C6474]">
+                              <MapPin size={10} />
+                              {harvest.farm.location} ({harvest.farm.farmSize}{" "}
+                              Acres)
+                            </span>
 
-                        <div className="flex items-center gap-1">
-                          <Calendar1 size={15} />
-                          <span className="text-[#838383]">Harvested:</span>
-                          <span className="text-[#202020]">
-                            {formatDate(harvest.harvestPeriod.start)}
-                          </span>
+                            <div className="flex items-center gap-1">
+                              <Calendar1 size={15} />
+                              <span className="text-[#838383]">Harvested:</span>
+                              <span className="text-[#202020]">
+                                {formatDate(harvest.harvestPeriod.start)} -{" "}
+                                {formatDate(harvest.harvestPeriod.end)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end">
+                            <PopoverDemo
+                              farmId={harvest._id}
+                              status={displayStatus}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

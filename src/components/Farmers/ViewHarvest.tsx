@@ -9,8 +9,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { checkBadgeStatus } from "@/pages/ViewHarvets";
-import { Calendar1, FileText, MapPin, Sprout } from "lucide-react";
-import { format } from "date-fns";
+import {  FileText } from "lucide-react";
+// import { format } from "date-fns";
 import { AllHarvests } from "@/lib/routes";
 import useAuth from "@/hooks/use-auth";
 import { ScrollArea } from "../ui/scroll-area";
@@ -66,21 +66,21 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
     }
   }, [open, harvestId]);
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "MMM dd, yyyy");
-    } catch (e) {
-      return "Date unavailable";
-    }
-  };
+  // const formatDate = (dateString: string) => {
+  //   try {
+  //     return format(new Date(dateString), "MMM dd, yyyy");
+  //   } catch (e) {
+  //     return "Date unavailable";
+  //   }
+  // };
 
-  const formatDateTime = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "MMM dd, yyyy, h:mmaaa");
-    } catch (e) {
-      return "Date unavailable";
-    }
-  };
+  // const formatDateTime = (dateString: string) => {
+  //   try {
+  //     return format(new Date(dateString), "MMM dd, yyyy, h:mmaaa");
+  //   } catch (e) {
+  //     return "Date unavailable";
+  //   }
+  // };
 
   const getHarvestDisplayId = (id: string) => {
     if (!id) return "HRV-001";
@@ -114,6 +114,8 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
     return harvest.status;
   };
 
+  console.log("Harvest details:", displayHarvest);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -129,14 +131,7 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-5 text-black text-2xl font-semibold">
-                {getHarvestDisplayId(harvest?._id)}
-                <span
-                  className={`px-2 py-1 text-xs rounded-3xl ${checkBadgeStatus(getStatus())} `}
-                >
-                  {getStatus()}
-                </span>
-              </DialogTitle>
+              <DialogTitle className="flex items-center gap-5 text-black text-2xl font-semibold"></DialogTitle>
             </DialogHeader>
             <ScrollArea className="h-[400px] ">
               <div className=" border-yellow-400 rounded-md p-4 mb-6 bg-yellow-50 text-sm">
@@ -155,9 +150,13 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
               {/* Harvest info */}
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-lg">HRV-001</p>
-                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs">
-                    Approved
+                  <p className="font-semibold text-lg text-black">
+                    {getHarvestDisplayId(harvest?._id)}
+                  </p>
+                  <span
+                    className={`${checkBadgeStatus(getStatus())} capitalize text-white px-3 py-1 rounded-full text-xs`}
+                  >
+                    {displayHarvest?.status}
                   </span>
                 </div>
 
@@ -169,7 +168,7 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
                   </p>
 
                   <p className="text-gray-500">Coffee variety</p>
-                  <p>Arabica, Robusta</p>
+                  <p>{displayHarvest?.variety}</p>
 
                   <p className="text-gray-500">Number of bags</p>
                   <p>200</p>
