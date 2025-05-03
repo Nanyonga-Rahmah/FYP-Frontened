@@ -22,9 +22,10 @@ const KycSchema = z.object({
   nationalIdPhoto: z.instanceof(File, {
     message: "National ID photo is required",
   }),
-  passportSizePhoto: z.instanceof(File, {
-    message: "Passport photo is required",
-  }),
+  passportSizePhoto: z
+    .array(z.instanceof(File))
+    .min(2, { message: "At least one passport photo is required" }),
+
 });
 
 type KycFormData = z.infer<typeof KycSchema>;
@@ -97,7 +98,12 @@ export default function KYCForms({
     });
 
     formData.append("nationalIdPhoto", values.nationalIdPhoto);
-    formData.append("passportSizePhoto", values.passportSizePhoto);
+    values.passportSizePhoto.forEach((file: File) => {
+      formData.append("passportSizePhoto", file);
+    });
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ":", pair[1]);
+    }
 
     try {
       setIsSubmitting(true);
@@ -166,12 +172,14 @@ export default function KYCForms({
                       id="national-id-upload"
                       type="file"
                       name="nationalIdPhoto"
+                      multiple
                       accept="image/*"
                       onChange={(e) => handleImageChange(e, "nationalIdPhoto")}
                       className="hidden"
                     />
                   </div>
                 </FormControl>
+
                 <FormMessage />
                 {preview.nationalIdPhoto && (
                   <img

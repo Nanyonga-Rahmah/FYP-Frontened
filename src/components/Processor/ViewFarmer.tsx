@@ -84,7 +84,7 @@ export function FarmerDetailsModal({
         <Button
           variant="ghost"
           size="sm"
-          className="w-full text-left justify-start"
+          className="w-full text-left justify-start text-white"
           onClick={() => setOpen(true)}
         >
           View Farmer

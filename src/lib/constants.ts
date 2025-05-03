@@ -31,3 +31,10 @@ export const cooperatives = [
     "Goma", "Mukono Central", 
     
   ];
+
+  export  const getInitials = (profile:any): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "MN";
+  };

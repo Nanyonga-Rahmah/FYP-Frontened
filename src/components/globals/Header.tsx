@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { Bell, Search } from "lucide-react";
+import { PopoverDemo } from "./ActionsPopOver";
 
 function Header() {
   const navigate = useNavigate();
@@ -106,9 +107,8 @@ function Header() {
         )}
 
         {/* Always show Avatar */}
-        <Avatar className="h-7 w-7 text-sm">
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <PopoverDemo/>
+      
       </div>
     </header>
   );

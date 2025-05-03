@@ -9,10 +9,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { checkBadgeStatus } from "@/pages/ViewHarvets";
-import { Calendar1, FileText, MapPin, Sprout } from "lucide-react";
-import { format } from "date-fns";
+import {  FileText } from "lucide-react";
+// import { format } from "date-fns";
 import { AllHarvests } from "@/lib/routes";
 import useAuth from "@/hooks/use-auth";
+import { ScrollArea } from "../ui/scroll-area";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ViewHarvestProps {
   harvestId?: string;
@@ -59,21 +66,21 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
     }
   }, [open, harvestId]);
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "MMM dd, yyyy");
-    } catch (e) {
-      return "Date unavailable";
-    }
-  };
+  // const formatDate = (dateString: string) => {
+  //   try {
+  //     return format(new Date(dateString), "MMM dd, yyyy");
+  //   } catch (e) {
+  //     return "Date unavailable";
+  //   }
+  // };
 
-  const formatDateTime = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "MMM dd, yyyy, h:mmaaa");
-    } catch (e) {
-      return "Date unavailable";
-    }
-  };
+  // const formatDateTime = (dateString: string) => {
+  //   try {
+  //     return format(new Date(dateString), "MMM dd, yyyy, h:mmaaa");
+  //   } catch (e) {
+  //     return "Date unavailable";
+  //   }
+  // };
 
   const getHarvestDisplayId = (id: string) => {
     if (!id) return "HRV-001";
@@ -107,6 +114,8 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
     return harvest.status;
   };
 
+  console.log("Harvest details:", displayHarvest);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -114,7 +123,7 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
           View
         </span>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="">
         {loading ? (
           <div className="py-8 text-center">Loading harvest details...</div>
         ) : error ? (
@@ -122,122 +131,108 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-5 text-black text-2xl font-semibold">
-                {getHarvestDisplayId(harvest?._id)}
-                <span
-                  className={`px-2 py-1 text-xs rounded-3xl ${checkBadgeStatus(getStatus())} `}
-                >
-                  {getStatus()}
-                </span>
-              </DialogTitle>
+              <DialogTitle className="flex items-center gap-5 text-black text-2xl font-semibold"></DialogTitle>
             </DialogHeader>
-
-            <div className="flex gap-20">
-              <span className="flex items-center gap-1">
-                <span>
-                  <Sprout size={16} />
-                </span>
-                Variety:{" "}
-                <span>{harvest?.coffeeVariety || displayHarvest.variety}</span>
-              </span>
-              <span>
-                Weight:{" "}
-                <span>{harvest?.weight || displayHarvest.weight}kg</span>
-              </span>
-            </div>
-            <hr />
-
-            <div className="flex items-center gap-20">
-              <div>
-                <span className="text-[#838383]">Cultivation methods</span>
-                <p>
-                  {harvest?.cultivationMethods?.join(", ") ||
-                    displayHarvest.cultivationMethod}
-                </p>
+            <ScrollArea className="h-[400px] ">
+              <div className=" border-yellow-400 rounded-md p-4 mb-6 bg-yellow-50 text-sm">
+                <div className="grid grid-cols-2 gap-y-2">
+                  <p className="text-gray-500">Location</p>
+                  <p>123 Main St, Kampala, Uganda</p>
+                  <p className="text-gray-500">Coordinates</p>
+                  <p>(0.3424, 32.4543)</p>
+                  <p className="text-gray-500">Perimeter</p>
+                  <p className="text-blue-600">1200m</p>
+                  <p className="text-gray-500">Area</p>
+                  <p className="text-blue-600">5 Acre</p>
+                </div>
               </div>
 
-              <div>
-                <span className="text-[#838383]">Certifications</span>
-                <p>
-                  {harvest?.certifications?.join(", ") ||
-                    displayHarvest.certification}
-                </p>
+              {/* Harvest info */}
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-lg text-black">
+                    {getHarvestDisplayId(harvest?._id)}
+                  </p>
+                  <span
+                    className={`${checkBadgeStatus(getStatus())} capitalize text-white px-3 py-1 rounded-full text-xs`}
+                  >
+                    {displayHarvest?.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-y-3 text-gray-700">
+                  <p className="text-gray-500">Farm</p>
+                  <p>
+                    Mirembe Maria Coffee Farm{" "}
+                    <span className="text-gray-400">Farm #123</span>
+                  </p>
+
+                  <p className="text-gray-500">Coffee variety</p>
+                  <p>{displayHarvest?.variety}</p>
+
+                  <p className="text-gray-500">Number of bags</p>
+                  <p>200</p>
+
+                  <p className="text-gray-500">Date of planting</p>
+                  <p>Nov 30, 2026</p>
+
+                  <p className="text-gray-500">Harvest period</p>
+                  <p>Nov 30, 2026 - Jan 30, 2027</p>
+
+                  <p className="text-gray-500">Date added</p>
+                  <p>Nov 30, 2027, 11:00PM</p>
+
+                  <p className="text-gray-500">Farming methods</p>
+                  <p>Weeding, Mulching</p>
+                </div>
               </div>
-            </div>
 
-            <hr />
+              {/* Image */}
+              <div className="mt-6">
+                <p className="text-sm font-medium mb-2">Images of harvest</p>
+                <div className="border rounded-md p-3 flex items-center gap-2 text-sm text-gray-700 bg-gray-50">
+                  <FileText className="w-5 h-5" />
+                  <span>Coffee.jpg</span>
+                </div>
+              </div>
 
-            <div className="flex items-center gap-1">
-              <span>
-                <MapPin size={15} />
-              </span>
-              <span>Location:</span>
-              <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
-                {harvest?.farm?.location || displayHarvest.location}
-              </span>
-              <span>({harvest?.farm?.farmSize || displayHarvest.size})</span>
-            </div>
-
-            <hr />
-
-            <div className="flex items-center gap-1">
-              <span>
-                <Calendar1 size={15} />
-              </span>
-              <span className="text-[#838383]">Harvested:</span>
-              <span className="text-[#202020]">
-                {harvest?.harvestPeriod
-                  ? formatDate(harvest.harvestPeriod.start)
-                  : displayHarvest.harvestDate}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <span>
-                <Calendar1 size={15} />
-              </span>
-              <span className="text-[#838383]">Recorded:</span>
-              <span className="text-[#202020]">
-                {harvest?.createdAt
-                  ? formatDateTime(harvest.createdAt)
-                  : displayHarvest.recordedDate}
-              </span>
-            </div>
-
-            <hr />
-
-            <div>
-              <span className="text-[#222222]">Attachments</span>
-              <span>(photos,documents)</span>
-
-              <div className="flex gap-3 my-2">
-                {(harvest?.documents || displayHarvest.documents).map(
-                  (document: string, index: number) => (
-                    <div
-                      className="border rounded-xl flex flex-col items-center p-3 gap-1"
-                      key={index}
-                    >
-                      <span>
-                        <FileText size={30} className="transform rotate-180" />
+              {/* Audit logs */}
+              <Accordion type="single" collapsible className="mt-6 w-full">
+                <AccordionItem value="auditLogs">
+                  <AccordionTrigger className="font-semibold text-sm">
+                    Audit Logs
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-2 text-sm mt-2">
+                    <p>
+                      <span className="text-green-600 font-semibold">
+                        ● Harvest HRV-001 added
+                      </span>{" "}
+                      by Jane Smith
+                      <span className="ml-2 text-gray-500">
+                        2025-03-28 10:30:15
                       </span>
-                      <span className="text-[#5C6474]">
-                        {typeof document === "string"
-                          ? document.split("/").pop() || `Document ${index + 1}`
-                          : displayHarvest.documents[index]}
+                    </p>
+                    <p>
+                      <span className="text-green-600 font-semibold">
+                        ● Farm #789 approved
+                      </span>{" "}
+                      by John Doe
+                      <span className="ml-2 text-gray-500">
+                        2025-03-28 11:30:05
                       </span>
-                    </div>
-                  )
-                )}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </ScrollArea>
+
+            {/* Documents */}
+            <DialogFooter className="mt-6 justify-between">
+              <Button variant="outline">Close</Button>
+              <div className="flex gap-2">
+                <Button variant="destructive">Delete</Button>
+                <Button>Edit</Button>
               </div>
-            </div>
-            <DialogFooter className="justify-end">
-              <Button
-                variant={"outline"}
-                className="border-[#D9D9D9] text-[#222222] px-5"
-                onClick={() => setOpen(false)}
-              >
-                Close
-              </Button>
             </DialogFooter>
           </>
         )}

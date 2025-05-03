@@ -37,36 +37,25 @@ import {
 import { ChevronDown } from "lucide-react";
 import useAuth from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
+import DateRangePicker from "@/components/Farmers/DateRangePicker";
 
 const FormSchema = z.object({
   farm: z.string().min(1, { message: "Farm is required." }),
-  coffeeVariety: z
-    .array(z.string())
-    .min(1, { message: "Select at least one variety" }),
-  weight: z.string().min(1, { message: "Number of bags is required." }),
-  plantingPeriod: z
-    .object({
-      start: z.string().min(1, { message: "Planting start date required." }),
-      end: z.string().min(1, { message: "Planting end date required." }),
-    })
-    .refine(
-      (data) =>
-        !data.start || !data.end || new Date(data.start) <= new Date(data.end),
-      { message: "Planting end date must be after start date.", path: ["end"] }
-    ),
-  harvestingPeriod: z
-    .object({
-      start: z.string().min(1, { message: "Harvesting start date required." }),
-      end: z.string().min(1, { message: "Harvesting end date required." }),
-    })
-    .refine(
-      (data) =>
-        !data.start || !data.end || new Date(data.start) <= new Date(data.end),
-      {
-        message: "Harvesting end date must be after start date.",
-        path: ["end"],
-      }
-    ),
+  coffeeVariety: z.string().min(1, { message: "Select at least one variety" }),
+  weight: z
+    .number({ invalid_type_error: "Enter a valid number of bags." })
+    .positive({ message: "Weight must be greater than 0." }),
+
+  plantingPeriod: z.object({
+    start: z.string().min(1, { message: "Start date required." }),
+    end: z.string().min(1, { message: "End date required." }),
+  }),
+
+  harvestPeriod: z.object({
+    start: z.string().min(1, { message: "Start date required." }),
+    end: z.string().min(1, { message: "End date required." }),
+  }),
+
   cultivationMethod: z
     .array(z.string())
     .min(1, { message: "Select at least one method" }),
@@ -81,8 +70,11 @@ const FormSchema = z.object({
 });
 
 export function AddHarvestForm() {
+  const { authToken } = useAuth();
+
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [submit, setIsSubmitting] = useState(false);
   const [farms, setFarms] = useState<{ _id: string; farmName: string }[]>([]);
   const [loadingFarms, setLoadingFarms] = useState(true);
   const cultivationMethods = [
@@ -93,28 +85,32 @@ export function AddHarvestForm() {
     "Shade Management",
   ];
   const coffeeVarieties = ["Robusta", "Arabica"];
-  const { authToken } = useAuth();
 
   useEffect(() => {
-    if (authToken) {
-      fetchMyFarms(authToken)
-        .then(setFarms)
-        .catch((err) => console.error("Failed to load farms:", err))
-        .finally(() => setLoadingFarms(false));
-    } else {
-      console.error("Auth token is null. Cannot fetch farms.");
-      setLoadingFarms(false);
-    }
-  }, []);
+    if (!authToken) return;
+
+    fetchMyFarms(authToken)
+      .then(setFarms)
+      .catch((err) => console.error("Failed to load farms:", err))
+      .finally(() => setLoadingFarms(false));
+  }, [authToken]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       farm: "",
-      coffeeVariety: [],
-      weight: "",
-      plantingPeriod: { start: "", end: "" },
-      harvestingPeriod: { start: "", end: "" },
+      coffeeVariety: "",
+      weight: undefined,
+      plantingPeriod: {
+        start: "",
+        end: "",
+      },
+
+      harvestPeriod: {
+        start: "",
+        end: "",
+      },
+
       cultivationMethod: [],
       documents: [],
     },
@@ -137,28 +133,30 @@ export function AddHarvestForm() {
         end: data.plantingPeriod.end,
       },
       harvestPeriod: {
-        start: data.harvestingPeriod.start,
-        end: data.harvestingPeriod.end,
+        start: data.harvestPeriod.start,
+        end: data.harvestPeriod.end,
       },
-      cultivationMethods: data.cultivationMethod,
+      cultivationMethods: [data.cultivationMethod],
     };
     const formData = new FormData();
 
     formData.append("data", JSON.stringify(harvestData));
 
+    
+
     selectedFiles.forEach((file) => formData.append("documents", file));
 
-    console.log("FormData contents:");
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
+
+    console.log(formData)
 
     try {
+      setIsSubmitting(true);
       const response = await fetch(HarvestCreate, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
+        
         body: formData,
       });
 
@@ -176,14 +174,22 @@ export function AddHarvestForm() {
       });
 
       console.log("Saved harvest:", result);
+      toast({
+        variant: "success",
+        title: "Successful",
+        description: `Successfully Added Harvest`,
+      });
+
       navigate("/view-harvests");
     } catch (error: any) {
       console.error("Submit error:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to save harvest",
+        title: "Failure",
+        description: `${error.message}`,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -229,70 +235,28 @@ export function AddHarvestForm() {
         <FormField
           control={form.control}
           name="coffeeVariety"
-          render={({ field }) => {
-            const selectedVarieties: string[] = field.value || [];
-
-            const toggleVariety = (variety: string) => {
-              if (selectedVarieties.includes(variety)) {
-                field.onChange(selectedVarieties.filter((v) => v !== variety));
-              } else {
-                field.onChange([...selectedVarieties, variety]);
-              }
-            };
-
-            return (
-              <FormItem className="col-span-1">
-                <FormLabel className="font-normal text-[#222222] text-sm">
-                  Coffee Variety
-                </FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start">
-                      {selectedVarieties.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {selectedVarieties.map((v) => (
-                            <span
-                              key={v}
-                              className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs"
-                            >
-                              {v}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="flex justify-between items-center w-full">
-                          <span>Select Varieties</span>
-                          <ChevronDown className="w-4 h-4" />
-                        </div>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-
-                  <PopoverContent className="w-[300px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search varieties..." />
-                      <CommandList>
-                        {coffeeVarieties.map((v, index) => (
-                          <CommandItem
-                            key={index}
-                            onSelect={() => toggleVariety(v)}
-                          >
-                            {v}
-                            {selectedVarieties.includes(v) && (
-                              <span className="ml-auto text-green-600">
-                                Selected
-                              </span>
-                            )}
-                          </CommandItem>
-                        ))}
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          render={({ field }) => (
+            <FormItem className="col-span-1">
+              <FormLabel className="font-normal text-[#222222] text-sm">
+                Coffee Variety
+              </FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a variety" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {coffeeVarieties.map((v, index) => (
+                      <SelectItem key={index} value={v}>
+                        {v}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
         <FormField
@@ -305,9 +269,12 @@ export function AddHarvestForm() {
               </FormLabel>
               <FormControl>
                 <Input
+                  type="number"
+                  min={1}
                   placeholder="Enter number of bags"
                   {...field}
                   className="h-9"
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                 />
               </FormControl>
               <FormMessage />
@@ -317,14 +284,17 @@ export function AddHarvestForm() {
 
         <FormField
           control={form.control}
-          name="plantingPeriod.start"
+          name="plantingPeriod"
           render={({ field }) => (
             <FormItem className="col-span-1">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Planting Start
+                Planting period
               </FormLabel>
               <FormControl>
-                <Input type="date" {...field} className="h-9" />
+                <DateRangePicker
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -333,51 +303,26 @@ export function AddHarvestForm() {
 
         <FormField
           control={form.control}
-          name="plantingPeriod.end"
+          name="harvestPeriod"
           render={({ field }) => (
             <FormItem className="col-span-1">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Planting End
+                Harvesting Period
               </FormLabel>
               <FormControl>
-                <Input type="date" {...field} className="h-9" />
+                <DateRangePicker
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="harvestingPeriod.start"
-          render={({ field }) => (
-            <FormItem className="col-span-1">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Harvesting Start
-              </FormLabel>
-              <FormControl>
-                <Input type="date" {...field} className="h-9" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        
 
-        <FormField
-          control={form.control}
-          name="harvestingPeriod.end"
-          render={({ field }) => (
-            <FormItem className="col-span-1">
-              <FormLabel className="font-normal text-[#222222] text-sm">
-                Harvesting End
-              </FormLabel>
-              <FormControl>
-                <Input type="date" {...field} className="h-9" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+       
 
         <FormField
           control={form.control}
@@ -432,7 +377,7 @@ export function AddHarvestForm() {
                           >
                             {method}
                             {selectedMethods.includes(method) && (
-                              <span className="text-green-600">Selected</span>
+                              <span className=" text-green-600">Selected</span>
                             )}
                           </CommandItem>
                         ))}
@@ -478,8 +423,12 @@ export function AddHarvestForm() {
           )}
         />
 
-        <Button type="submit" className="col-span-2 py-2 mt-2">
-          Save Harvest
+        <Button
+          type="submit"
+          className="col-span-2 py-2 mt-2"
+          disabled={submit}
+        >
+          {submit ? "Submitting" : " Save Harvest"}
         </Button>
       </form>
     </Form>
