@@ -44,6 +44,7 @@ const ViewLotDetailsPage = lazy(
   () => import("./pages/exporter/ViewLotDetailsPage")
 );
 const ConsignmentPage = lazy(() => import("./pages/exporter/ConsignmentPage"));
+const ExporterReportPage = lazy(() => import("./pages/exporter/ExporterReportPage"));
 const ViewConsignmentDetailsPage = lazy(
   () => import("./pages/exporter/ConsignmentDetails")
 );
@@ -68,7 +69,7 @@ function App() {
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/" element={<RegulatorLandingPage />} />
+            <Route path="/" element={<ExporterDashboardPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -124,6 +125,10 @@ function App() {
             <Route
               path="/view-consignment-details/:id"
               element={<ViewConsignmentDetailsPage />}
+            />
+                        <Route
+              path="/view-reports"
+              element={<ExporterReportPage />}
             />
             <Route
               path="/due-diligence-report/:consignmentId"
