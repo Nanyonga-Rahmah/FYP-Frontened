@@ -1,175 +1,226 @@
 import React from "react";
+import { useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { useReactToPrint } from "react-to-print";
 
 function DeforestationAssessmentReport() {
-  const Section = ({
-    title,
-    children,
-  }: {
-    title: string;
-    children: React.ReactNode;
-  }) => (
-    <section className="mb-6">
-      <h2 className="text-[#0F2A38] font-semibold text-[13px] mb-1">
-        {title}
-      </h2>
-      <div>{children}</div>
-    </section>
-  );
+  const printRef = useRef<HTMLDivElement | null>(null);
 
-  const StatusBadge = ({ label, type }: { label: string; type: "green" | "red" | "yellow" }) => {
-    const colors = {
-      green: "bg-green-500",
-      red: "bg-red-500",
-      yellow: "bg-yellow-400",
-    };
-
-    return (
-      <span
-        className={`px-2 py-0.5 text-white text-[10px] rounded-full font-medium ${colors[type]}`}
-      >
-        {label}
-      </span>
-    );
-  };
-
-  const StatusTable = () => {
-    const rows = [
-      {
-        name: "Mary’s Farm",
-        geolocation: "1.234567, 32.567890\n1.234567, 32.567890",
-        address: "Kampala",
-        status: "Deforestation-free",
-        statusType: "green",
-        date: "Nov 30, 2026",
-      },
-      {
-        name: "Mary’s Farm",
-        geolocation: "1.234567, 32.567890\n1.234567, 32.567890",
-        address: "Kampala",
-        status: "Deforestation-free",
-        statusType: "green",
-        date: "Nov 30, 2026",
-      },
-      {
-        name: "Mary’s Farm",
-        geolocation: "1.234567, 32.567890\n1.234567, 32.567890",
-        address: "Kampala",
-        status: "Affected",
-        statusType: "red",
-        date: "Nov 30, 2026",
-      },
-    ];
-
-    return (
-      <table className="w-full border border-gray-300 text-[10px] mt-2 rounded-sm">
-        <thead className="bg-gray-100 text-[#0F2A38]">
-          <tr>
-            <th className="border px-2 py-1">Farm name</th>
-            <th className="border px-2 py-1">Farm geolocation</th>
-            <th className="border px-2 py-1">Address</th>
-            <th className="border px-2 py-1">Deforestation status</th>
-            <th className="border px-2 py-1">Last checked</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr key={i}>
-              <td className="border px-2 py-1">{r.name}</td>
-              <td className="border px-2 py-1 whitespace-pre-wrap">
-                {r.geolocation}
-              </td>
-              <td className="border px-2 py-1">{r.address}</td>
-              <td className="border px-2 py-1">
-                <StatusBadge label={r.status} type={r.statusType as any} />
-              </td>
-              <td className="border px-2 py-1">{r.date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
-
-  const RiskTable = () => {
-    const rows = [
-      {
-        name: "Mary’s Farm",
-        address: "Kampala",
-        risk: "High risk",
-        riskType: "green",
-        reason: "Close to an area of deforestation",
-      },
-      {
-        name: "Mary’s Farm",
-        address: "Kampala",
-        risk: "Low risk",
-        riskType: "red",
-        reason: "No recent deforestation nearby",
-      },
-      {
-        name: "Mary’s Farm",
-        address: "Kampala",
-        risk: "Mid risk",
-        riskType: "yellow",
-        reason: "Close to an area of deforestation",
-      },
-    ];
-
-    return (
-      <table className="w-full border border-gray-300 text-[10px] mt-2 rounded-sm">
-        <thead className="bg-gray-100 text-[#0F2A38]">
-          <tr>
-            <th className="border px-2 py-1">Farm name</th>
-            <th className="border px-2 py-1">Address</th>
-            <th className="border px-2 py-1">Deforestation risk level</th>
-            <th className="border px-2 py-1">Risk factors</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr key={i}>
-              <td className="border px-2 py-1">{r.name}</td>
-              <td className="border px-2 py-1">{r.address}</td>
-              <td className="border px-2 py-1">
-                <StatusBadge label={r.risk} type={r.riskType as any} />
-              </td>
-              <td className="border px-2 py-1">{r.reason}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+    documentTitle: "Deforestation_Assessment_Report",
+    removeAfterPrint: true,
+  } as Parameters<typeof useReactToPrint>[0]);
 
   return (
-    <div
-      id="deforestation-report-pdf"
-      className="w-[595px] h-[900px] px-10 py-12 bg-white text-[#0F2A38] text-sm font-sans"
-    >
-      <Section title="C. Deforestation status">
-        <div className="flex justify-between text-[11px] mb-1">
-          <p>Country of production</p>
-          <p className="font-semibold">Uganda</p>
-        </div>
-        <div className="flex justify-between text-[11px] mb-2">
-          <p>Farms</p>
-          <p className="font-semibold">80</p>
-        </div>
-        {StatusTable()}
-      </Section>
+    <div className="bg-gray-100 min-h-screen py-4">
+      <div
+        id="deforestation-report-pdf"
+        ref={printRef}
+        className="bg-white w-[595px] h-[900px] mx-auto py-4 px-6 overflow-auto shadow  text-[10px] text-[#212121] font-sans"
+      >
 
-      <Section title="D. Deforestation risk">
-        {RiskTable()}
-        <p className="italic text-gray-600 text-[9px] mt-2">
-          Data is stored on blockchain. Immutable records, 5-year retention, per EUDR Article 12.
+        {/* Header */}
+        <div className="text-center my-6">
+          <h1 className="text-[22px] font-bold text-[#0F2A38] uppercase tracking-wide">
+            Deforestation Assessment Report
+          </h1>
+          <p className="text-[14px] text-gray-700">
+            for consignment CONS-248-X89
+          </p>
+        </div>
+
+        {/* A. Operator Info */}
+        <Section title="A. Operator Info">
+          <FlexRow label="User ID" value="UI89" />
+          <FlexRow label="Name" value="Coffee World Exporters Ltd" />
+          <FlexRow label="Address" value="Nakawa, Kampala, Uganda" />
+          <FlexRow label="Email" value="coffeewld@gmail.com" />
+          <FlexRow label="UCDA Export permit number" value="UCDA/EXP/0653/2025" />
+        </Section>
+
+
+        {/* B. Consignment Overview */}
+        <Section title="B. Consignment Overview">
+          <FlexRow label="Consignment ID" value="CONS-248-X89" />
+          <FlexRow label="Product type" value="Green Coffee beans" />
+          <FlexRow label="HS Code" value="0901.11 – Coffee, not roasted, not decaffeinated" />
+          <FlexRow label="Trade Name" value="Uganda Robusta, Screen 16" />
+          <FlexRow label="Export Volume" value="4000kg" />
+          <FlexRow label="Country of production" value="Uganda" />
+          <FlexRow label="Destination country" value="Rotterdam, Netherlands" />
+          <FlexRow label="Export date" value="May 3, 2027" />
+          <FlexRow label="Batches" value="4000" />
+          <FlexRow label="Shipping details" value="Container #ABC123, Via Mombasa, Vessel: MSC Eagle" />
+        </Section>
+
+        {/* C. Deforestation Status */}
+        <Section title="C. Deforestation status">
+          <FlexRow label="Country of production" value="Uganda" />
+          <FlexRow label="Farms" value="80" />
+          <StyledTable
+            headers={[
+              "Farm name",
+              "Farm geolocation",
+              "Address",
+              "Deforestation status",
+              "Last checked",
+            ]}
+            rows={[
+              [
+                "Mary’s Farm",
+                "1.234567, 32.567890\n1.234567, 32.567890",
+                "Kampala",
+                <Pill text="Deforestation-free" color="green" />,
+                "Nov 30, 2026",
+              ],
+              [
+                "Mary’s Farm",
+                "1.234567, 32.567890\n1.234567, 32.567890",
+                "Kampala",
+                <Pill text="Deforestation-free" color="green" />,
+                "Nov 30, 2026",
+              ],
+              [
+                "Mary’s Farm",
+                "1.234567, 32.567890\n1.234567, 32.567890",
+                "Kampala",
+                <Pill text="Affected" color="red" />,
+                "Nov 30, 2026",
+              ],
+            ]}
+          />
+        </Section>
+
+        {/* D. Deforestation Risk */}
+        <Section title="D. Deforestation risk">
+          <StyledTable
+            headers={[
+              "Farm name",
+              "Address",
+              "Deforestation risk level",
+              "Risk factors",
+            ]}
+            rows={[
+              [
+                "Mary’s Farm",
+                "Kampala",
+                <Pill text="High risk" color="green" />,
+                "Close to an area of deforestation",
+              ],
+              [
+                "Mary’s Farm",
+                "Kampala",
+                <Pill text="Low risk" color="red" />,
+                "No recent deforestation nearby",
+              ],
+              [
+                "Mary’s Farm",
+                "Kampala",
+                <Pill text="Mid risk" color="yellow" />,
+                "Close to an area of deforestation",
+              ],
+            ]}
+          />
+          <p className="text-[9px] italic text-gray-600 mt-2">
+            Data is stored on blockchain. Immutable records, 5-year retention,
+            per EUDR Article 12.
+          </p>
+        </Section>
+
+        {/* Footer */}
+        <p className="text-center text-[8px] italic text-gray-500 mt-4">
+          Generated by Coffichain Traceability Solution
         </p>
-      </Section>
+      </div>
 
-      <p className="text-center text-[9px] italic text-gray-500 mt-6">
-        Generated by Coffichain Traceability Solution
-      </p>
+      <div className="flex justify-center mt-4 print:hidden">
+        <Button className="bg-[#0F2A38] text-white" onClick={handlePrint}>
+          Download as PDF
+        </Button>
+      </div>
     </div>
   );
 }
 
 export default DeforestationAssessmentReport;
+
+// Components
+
+const Section = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <section className="mb-4">
+    <h2 className="font-bold text-[#0F2A38] text-[13px] mb-1">{title}</h2>
+    <div>{children}</div>
+  </section>
+);
+
+const InfoGrid = ({ data }: { data: Record<string, string> }) => (
+  <div className="grid grid-cols-2 gap-y-1 mb-2">
+    {Object.entries(data).map(([label, value], i) => (
+      <React.Fragment key={i}>
+        <p>{label}</p>
+        <p className="font-medium">{value}</p>
+      </React.Fragment>
+    ))}
+  </div>
+);
+
+const FlexRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex justify-between my-1">
+    <span className="font-semibold">{label}</span>
+    <span className="text-right">{value}</span>
+  </div>
+);
+
+const Pill = ({ text, color }: { text: string; color: string }) => {
+  const colorMap: Record<string, string> = {
+    green: "bg-green-500 text-white",
+    red: "bg-red-500 text-white",
+    yellow: "bg-yellow-400 text-black",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center justify-center px-2 pb-2 text-[9px] rounded-full text-xs font-semibold ${colorMap[color]}`}
+    >
+      {text}
+    </span>
+  );
+};
+
+const StyledTable = ({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: (string | JSX.Element)[][];
+}) => (
+  <table className="w-full border border-gray-300 rounded text-[10px] mt-2">
+    <thead className="bg-gray-100">
+      <tr>
+        {headers.map((header, i) => (
+          <th key={i} className="border px-2 py-1 text-left">
+            {header}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row, i) => (
+        <tr key={i}>
+          {row.map((cell, j) => (
+            <td key={j} className="border px-2 py-1 whitespace-pre-wrap">
+              {cell}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
