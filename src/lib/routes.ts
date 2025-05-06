@@ -9,7 +9,7 @@ export const AllHarvests = `${import.meta.env.VITE_BACKEND_URL}/harvests`;
 export const AllUsers = `${import.meta.env.VITE_BACKEND_URL}/kyc/`;
 export const FarmAdmin = `${import.meta.env.VITE_BACKEND_URL}/farm/admin/`;
 export const API_URL = `${import.meta.env.VITE_BACKEND_URL}/`;
-export const API = `${import.meta.env.VITE_BACKEND}/`;
+export const API = `${import.meta.env.VITE_BACKEND}`;
 export const deleteFarm = `${import.meta.env.VITE_BACKEND_URL}/farm/delete/`;
 
 

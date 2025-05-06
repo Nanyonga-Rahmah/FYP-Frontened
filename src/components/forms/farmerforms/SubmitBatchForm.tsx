@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState, useEffect } from "react";
-
 import {
   Popover,
   PopoverContent,
@@ -128,7 +127,6 @@ export function SubmitBatchForm({
       const totalWeight = harvests
         .filter((harvest) => selectedHarvestIds.includes(harvest._id))
         .reduce((sum, harvest) => sum + harvest.weight, 0);
-
       form.setValue("weight", totalWeight.toString(), { shouldValidate: true });
     } else {
       form.setValue("weight", "", { shouldValidate: true });
@@ -155,7 +153,6 @@ export function SubmitBatchForm({
         }
 
         const processorsData = await processorsResponse.json();
-
         if (processorsData.users && Array.isArray(processorsData.users)) {
           setProcessors(processorsData.users);
         } else {
@@ -176,7 +173,6 @@ export function SubmitBatchForm({
         }
 
         const harvestsData = await harvestsResponse.json();
-
         const filteredHarvests = Array.isArray(harvestsData)
           ? harvestsData.filter((h) => h.status === "approved")
           : harvestsData.harvests
@@ -184,7 +180,6 @@ export function SubmitBatchForm({
                 (h: { status: string }) => h.status === "approved"
               )
             : [];
-
         setHarvests(filteredHarvests);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -211,23 +206,24 @@ export function SubmitBatchForm({
   async function onSubmit(data: FormData): Promise<void> {
     setIsSubmitting(true);
     console.log("🔵 Starting batch submission...");
-    console.log("📝 Raw form values:", data);
+    console.log("📝 Form values:", data);
 
     try {
       const formData = new FormData();
-
       formData.append("harvestIds", JSON.stringify(data.harvestIds));
       formData.append("processorId", data.processorId);
       formData.append("weight", data.weight);
-
       if (data.comments) {
         formData.append("comments", data.comments);
       }
-
       if (selectedFiles.length > 0) {
         selectedFiles.forEach((file) => {
           formData.append("documents", file);
         });
+      }
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`FormData entry: ${key} = ${value}`);
       }
 
       const previewResponse = await fetch(`${API_URL}batches/preview`, {
@@ -244,25 +240,23 @@ export function SubmitBatchForm({
       }
 
       const previewResult = await previewResponse.json();
-
       if (!previewResult.success) {
         throw new Error(previewResult.error || "Failed to generate preview");
       }
 
-      console.log(
-        previewResult.previewData
-      );
+      console.log("📊 Preview result:", previewResult.previewData);
 
       const finalBatchData = {
         ...data,
         documents: previewResult.previewData.documents || [],
         previewData: previewResult.previewData,
-        rawFiles: selectedFiles
+        rawFiles: selectedFiles,
       };
 
       console.log("📦 Final batch data:", finalBatchData);
-
       setBatchData(finalBatchData);
+      form.reset(); // Clear the form
+      setSelectedFiles([]); // Clear selected files
       handleNext();
     } catch (error) {
       console.error("🚨 Error:", error);
@@ -276,6 +270,7 @@ export function SubmitBatchForm({
       setIsSubmitting(false);
     }
   }
+
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",

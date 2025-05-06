@@ -100,11 +100,6 @@ interface BatchData {
   timeline: Timeline[];
 }
 
-// interface ApiResponse {
-//   success: boolean;
-//   batch: BatchData;
-// }
-
 function BatchDetailsPage() {
   const [activeTab, setActiveTab] = useState("Batch details");
   const [batchData, setBatchData] = useState<BatchData | null>(null);
@@ -199,7 +194,6 @@ function BatchDetailsPage() {
     );
   }
 
-  // Compute coffee varieties from harvests
   const coffeeVarieties = Array.from(
     new Set(batchData.harvests.map((harvest) => harvest.variety))
   ).join(", ");
@@ -254,8 +248,8 @@ function BatchDetailsPage() {
         <div className="bg-white rounded-lg shadow-md p-6 flex flex-col gap-6">
           {/* Batch Header */}
           <div className="flex justify-between items-start">
-            <div className="flex flex-col gap-2 ">
-              <div className="flex items-center justify-between gap-2 ">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-semibold text-gray-900">
                     {batchData.id}
@@ -502,7 +496,15 @@ function BatchDetailsPage() {
                   </div>
                 </div>
 
-                {batchData.status === "Submitted" && <ProcessingForm />}
+                {/* Conditional Processing Form or Message */}
+                {batchData.status === "Submitted" && (
+                  <p className="text-gray-500 mt-4">
+                    Batch must be received before processing can start.
+                  </p>
+                )}
+                {batchData.status === "Received" && (
+                  <ProcessingForm batchId={batchData.id} />
+                )}
 
                 {/* Processing Details */}
                 {batchData.processorInfo && (
@@ -636,7 +638,6 @@ function BatchDetailsPage() {
               <div className="flex-1 space-y-6">
                 <h3 className="font-semibold text-gray-900 mb-2">Timeline</h3>
                 <div className="flex flex-col gap-4 text-sm text-gray-700">
-                  {/* Timeline entries */}
                   {batchData.timeline.map((item, index) => (
                     <div
                       key={index}
@@ -747,33 +748,36 @@ function BatchDetailsPage() {
                     </>
                   ) : (
                     <>
-                      <div className="flex justify-between">
-                        <span>Destination country</span>
-                        <span className="font-semibold">USA</span>
+                      <div className="space-y-2 text-gray-700 text-sm">
+                        <h3 className="font-semibold text-gray-900 mb-2">
+                          Export details (Pending)
+                        </h3>
+                        <div className="flex justify-between">
+                          <span>Destination country</span>
+                          <span className="font-semibold">
+                            To be determined
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>UCDA Export Permit Number</span>
+                          <span className="font-semibold">
+                            Pending issuance
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Export Date</span>
+                          <span className="font-semibold">Pending</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Exporter</span>
+                          <span className="font-semibold">To be assigned</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Quality notes</span>
+                          <span className="font-semibold">Pending grading</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>UCDA Export Permit Number</span>
-                        <span className="font-semibold">
-                          EXP-{batchData.id.slice(-3)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Export Date</span>
-                        <span className="font-semibold">Pending</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Exporter</span>
-                        <span className="font-semibold">
-                          ABC Coffee Exporters Ltd
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Quality notes</span>
-                        <span className="font-semibold">
-                          {batchData.processorInfo?.processingDetails.grading ||
-                            "Pending grading"}
-                        </span>
-                      </div>
+                      
                     </>
                   )}
                 </div>
@@ -805,7 +809,6 @@ function BatchDetailsPage() {
               <div className="flex-1 space-y-6">
                 <h3 className="font-semibold text-gray-900 mb-2">Timeline</h3>
                 <div className="flex flex-col gap-4 text-sm text-gray-700">
-                  {/* Timeline Entries */}
                   {batchData.timeline.map((item, index) => (
                     <div
                       key={index}

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { useState, useEffect } from "react";
 import {
   Popover,
   PopoverContent,
@@ -13,9 +13,9 @@ import {
   CommandInput,
   CommandList,
   CommandItem,
+  CommandEmpty,
 } from "@/components/ui/command";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
   Form,
   FormControl,
@@ -24,49 +24,174 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Input } from "@/components/ui/input";
-
+import { Check } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "@/hooks/use-toast";
+import useAuth from "@/hooks/use-auth";
+import { API_URL } from "@/lib/routes";
 
 const FormSchema = z.object({
-  weight: z.string().min(2, {
-    message: "Field is required.",
+  totalOutputWeight: z.string().min(1, {
+    message: "Total weight is required.",
   }),
-
-  exporterfacility: z.array(z.string()).min(1, {
-    message: "Select at least one processing facility",
+  exporterFacility: z.string().min(1, {
+    message: "Selecting an exporter facility is required",
   }),
-
-  batches: z
+  batchIds: z
     .array(z.string())
-    .min(1, { message: "Select at least one harvest" }),
-  comments: z.string().min(2, {
-    message: "Field is required.",
-  }),
+    .min(1, { message: "Select at least one batch" }),
+  comments: z.string().optional(),
 });
+
+interface Exporter {
+  id: string;
+  companyName: string;
+  location: string;
+  email: string;
+}
+
+interface Batch {
+  recievedWeight: number;
+  id: string;
+  totalWeight: number;
+  status: string;
+}
+
 interface SubmitLotFormProps {
   handleNext: () => void;
-  setBatchData: (data: any) => void;
+  setLotData: (data: any) => void;
 }
+
 export function SubmitLotForm({
   handleNext,
-  setBatchData,
-}: SubmitLotFormProps) {
+  setLotData,
+}: SubmitLotFormProps): JSX.Element {
+  const [exporters, setExporters] = useState<Exporter[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { authToken } = useAuth();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      weight: "",
+      totalOutputWeight: "",
+      exporterFacility: "",
+      batchIds: [],
       comments: "",
-      exporterfacility: [],
-
-      batches: [],
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-    setBatchData(data);
+  const selectedBatchIds = form.watch("batchIds");
+
+  // Auto-calculate total weight based on selected batches
+  useEffect(() => {
+    if (selectedBatchIds.length > 0) {
+      const totalWeight = batches
+        .filter((batch) => selectedBatchIds.includes(batch.id))
+        .reduce((sum, batch) => sum + (batch.recievedWeight || 0), 0);
+      form.setValue("totalOutputWeight", totalWeight.toString(), {
+        shouldValidate: true,
+      });
+    } else {
+      form.setValue("totalOutputWeight", "", { shouldValidate: true });
+    }
+  }, [selectedBatchIds, batches, form]);
+
+  // Fetch exporters and processed batches
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      setIsLoading(true);
+      try {
+        // Fetch exporters (users with role 'exporter')
+        const exportersResponse = await fetch(`${API_URL}user/role/exporter`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        if (!exportersResponse.ok) throw new Error("Failed to fetch exporters");
+        const exportersData = await exportersResponse.json();
+        const formattedExporters = exportersData.users.map((user: any) => ({
+          id: user.id,
+          companyName: user.companyName || "Unknown Company",
+          location: user.location || "Unknown Location",
+          email: user.email,
+        }));
+        setExporters(formattedExporters);
+
+        // Fetch processed batches for the processor
+        const batchesResponse = await fetch(
+          `${API_URL}batches/processor/batch`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        if (!batchesResponse.ok) throw new Error("Failed to fetch batches");
+        const batchesData = await batchesResponse.json();
+        // Filter for processed batches only
+        const processedBatches = (batchesData || []).filter(
+          (batch: Batch) => batch.status === "Processed"
+        );
+        setBatches(processedBatches);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load data. Please refresh and try again.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [authToken]);
+
+  function onSubmit(data: z.infer<typeof FormSchema>): void {
+    const selectedBatches = batches.filter((b) => data.batchIds.includes(b.id));
+    const totalWeight = selectedBatches.reduce(
+      (sum, b) => sum + (b.recievedWeight || 0),
+      0
+    );
+    setLotData({
+      batches: selectedBatches,
+      exporterFacility: data.exporterFacility,
+      comments: data.comments,
+      totalWeight: totalWeight.toString(),
+    });
+    form.reset();
     handleNext();
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <span>Loading data...</span>
+      </div>
+    );
+  }
+
+  if (batches.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-red-500 mb-2">
+          No processed batches available to create a lot.
+        </p>
+        <Button
+          onClick={() => window.location.reload()}
+          variant="outline"
+          className="mt-4"
+        >
+          Refresh Data
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -77,93 +202,98 @@ export function SubmitLotForm({
       >
         <div className="col-span-2">
           <p className="font-normal text-[#222222] text-sm">Select Batches</p>
-          <div className="flex flex-row gap-4">
-            <FormField
-              control={form.control}
-              name="batches"
-              render={({ field }) => {
-                const selectedRecords: string[] = field.value || [];
-
-                const toggleRecord = (record: string) => {
-                  if (selectedRecords.includes(record)) {
-                    field.onChange(selectedRecords.filter((r) => r !== record));
-                  } else {
-                    field.onChange([...selectedRecords, record]);
-                  }
-                };
-
-                return (
-                  <FormItem className="w-full">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full my-2 shadow-none justify-start"
-                        >
-                          {selectedRecords.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {selectedRecords.map((r) => (
+          <FormField
+            control={form.control}
+            name="batchIds"
+            render={({ field }) => {
+              const selectedBatches: string[] = field.value || [];
+              const toggleBatch = (id: string) => {
+                if (selectedBatches.includes(id)) {
+                  field.onChange(selectedBatches.filter((r) => r !== id));
+                } else {
+                  field.onChange([...selectedBatches, id]);
+                }
+              };
+              return (
+                <FormItem className="w-full">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full my-2 shadow-none justify-start"
+                      >
+                        {selectedBatches.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {selectedBatches.map((id) => {
+                              const batch = batches.find((b) => b.id === id);
+                              return (
                                 <span
-                                  key={r}
+                                  key={id}
                                   className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs"
                                 >
-                                  {r}
+                                  {batch
+                                    ? `${batch.id} (${batch.recievedWeight}kg)`
+                                    : id}
                                 </span>
-                              ))}
-                            </div>
-                          ) : (
-                            "Select batch records"
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-
-                      <PopoverContent className="w-[300px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search records..." />
-                          <CommandList>
-                            {[
-                              "apple",
-                              "banana",
-                              "blueberry",
-                              "grapes",
-                              "pineapple",
-                            ].map((record, index) => (
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          "Select batches"
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search batches..." />
+                        <CommandList>
+                          <CommandEmpty>No batches found</CommandEmpty>
+                          <ScrollArea className="h-72">
+                            {batches.map((batch) => (
                               <CommandItem
-                                key={index}
-                                onSelect={() => toggleRecord(record)}
+                                key={batch.id}
+                                onSelect={() => toggleBatch(batch.id)}
+                                className="flex justify-between items-center"
                               >
-                                {record}
-                                {selectedRecords.includes(record) && (
-                                  <span className="ml-auto text-green-600">
-                                    Selected
-                                  </span>
+                                <div>
+                                  <div className="font-medium">{batch.id}</div>
+                                  <div className="text-xs text-gray-500">
+                                    Weight: {batch.totalWeight}kg
+                                  </div>
+                                </div>
+                                {selectedBatches.includes(batch.id) && (
+                                  <Check className="h-4 w-4 text-green-600" />
                                 )}
                               </CommandItem>
                             ))}
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-          </div>
+                          </ScrollArea>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
         </div>
 
         <FormField
           control={form.control}
-          name="weight"
+          name="totalOutputWeight"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Total Batch weight (kg)
+                Total Lot Weight (kg)
               </FormLabel>
               <FormControl>
-                <Input placeholder="John" {...field} className="py-2.5" />
+                <Input
+                  placeholder="Auto-calculated"
+                  {...field}
+                  className="py-2.5"
+                  readOnly
+                />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -173,79 +303,72 @@ export function SubmitLotForm({
           <p className="font-normal text-[#222222] text-sm">
             Exporter Facility
           </p>
-          <div className="flex flex-row gap-4">
-            <FormField
-              control={form.control}
-              name="exporterfacility"
-              render={({ field }) => {
-                const selectedRecords: string[] = field.value || [];
-
-                const toggleRecord = (record: string) => {
-                  if (selectedRecords.includes(record)) {
-                    field.onChange(selectedRecords.filter((r) => r !== record));
-                  } else {
-                    field.onChange([...selectedRecords, record]);
-                  }
-                };
-
-                return (
-                  <FormItem className="w-full">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full my-2 shadow-none justify-start"
-                        >
-                          {selectedRecords.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {selectedRecords.map((r) => (
-                                <span
-                                  key={r}
-                                  className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs"
-                                >
-                                  {r}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            "Select facility"
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-
-                      <PopoverContent className="w-[300px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search facilities..." />
-                          <CommandList>
-                            {[
-                              "apple",
-                              "banana",
-                              "blueberry",
-                              "grapes",
-                              "pineapple",
-                            ].map((record, index) => (
+          <FormField
+            control={form.control}
+            name="exporterFacility"
+            render={({ field }) => {
+              return (
+                <FormItem className="w-full">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full my-2 shadow-none justify-start"
+                      >
+                        {field.value ? (
+                          <div>
+                            {(() => {
+                              const exporter = exporters.find(
+                                (e) => e.id === field.value
+                              );
+                              return exporter
+                                ? `${exporter.companyName} (${exporter.location})`
+                                : "Select facility";
+                            })()}
+                          </div>
+                        ) : (
+                          "Select exporter facility"
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search exporters..." />
+                        <CommandList>
+                          <CommandEmpty>No exporters found</CommandEmpty>
+                          <ScrollArea className="h-72">
+                            {exporters.map((exporter) => (
                               <CommandItem
-                                key={index}
-                                onSelect={() => toggleRecord(record)}
+                                key={exporter.id}
+                                onSelect={() => field.onChange(exporter.id)}
+                                className="flex justify-between items-center"
                               >
-                                {record}
-                                {selectedRecords.includes(record) && (
-                                  <span className="ml-auto text-green-600">
-                                    Selected
-                                  </span>
+                                <div>
+                                  <div className="font-medium">
+                                    {exporter.companyName}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    Location: {exporter.location}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    Email: {exporter.email}
+                                  </div>
+                                </div>
+                                {field.value === exporter.id && (
+                                  <Check className="h-4 w-4 text-green-600" />
                                 )}
                               </CommandItem>
                             ))}
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-          </div>
+                          </ScrollArea>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
         </div>
 
         <FormField
@@ -257,16 +380,20 @@ export function SubmitLotForm({
                 Comments (Optional)
               </FormLabel>
               <FormControl>
-                <Textarea {...field} className="text-black" />
+                <Textarea
+                  placeholder="Add any additional notes or comments"
+                  {...field}
+                />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className=" col-span-2">
-          <Button className="w-full">Continue</Button>
+        <div className="col-span-2">
+          <Button className="w-full" type="submit">
+            Continue
+          </Button>
         </div>
       </form>
     </Form>

@@ -5,6 +5,7 @@ import {
   FarmerTableFilters,
   FarmerTableRows,
 } from "@/components/ExtensionWorkers/tables/FarmerTable";
+import { ExporterTableRows } from "@/components/ExtensionWorkers/tables/ExporterTable";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -12,14 +13,23 @@ import { LocateFixed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AllUsers } from "@/lib/routes";
 import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ProcessorTableRows } from "@/components/ExtensionWorkers/tables/ProcesssorTable";
 
-type Farmer = {
+type User = {
   _id: string;
   firstName: string;
   lastName: string;
   phone: string;
   email: string;
-  cooperativeMembershipNumber?: string;
+  role: string;
   kyc: {
     nationalIdNumber: string;
     nationalIdPhoto: string;
@@ -33,24 +43,41 @@ type Farmer = {
   };
   blockchainAddress?: string;
   encryptedPrivateKey?: string;
-  role: string;
+  farmerInfo?: {
+    cooperativeMembershipNumber?: string;
+  };
+  processorInfo?: {
+    facilityName?: string;
+    licenseNumber?: string;
+  };
+  exporterInfo?: {
+    companyName?: string;
+    licenseNumber?: string;
+  };
 };
 
 function ApproveKYCPage() {
   const navigate = useNavigate();
-  const [farmers, setFarmers] = useState<Farmer[]>([]);
-  const [filteredFarmers, setFilteredFarmers] = useState<Farmer[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adminInfo, setAdminInfo] = useState({
-    firstName: "Julius",
-    lastName: "Kayongo",
-    location: "Makindye– Sabagabo",
-  });
-  const [totalFarmers, setTotalFarmers] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
   const { authToken } = useAuth();
-  
+  const { profile, loading: profileLoading } = useUserProfile(authToken);
+
+  // Add role filter state
+  const [selectedRole, setSelectedRole] = useState("farmer");
+
+  // Get initials for avatar
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "JK"; // Fallback to default initials
+  };
+
   useEffect(() => {
-    const fetchFarmersData = async () => {
+    const fetchUsersData = async () => {
       try {
         setLoading(true);
         const response = await fetch(AllUsers, {
@@ -66,39 +93,31 @@ function ApproveKYCPage() {
         }
 
         const data = await response.json();
-        const farmerUsers = data.users.filter(
-          (user: Farmer) => user.role === "farmer"
+        setUsers(data.users || []);
+
+        // Initially filter by farmer role
+        const initialFiltered = (data.users || []).filter(
+          (user: User) => user.role === "farmer"
         );
 
-        setFarmers(farmerUsers);
-        setAdminInfo(data)
-        setFilteredFarmers(farmerUsers);
-        setTotalFarmers(farmerUsers.length);
-
-        // try {
-        //   const profileResponse = await fetch("/api/admin/profile");
-        //   if (profileResponse.ok) {
-        //     const profileData = await profileResponse.json();
-        //     if (profileData && profileData.admin) {
-        //       setAdminInfo({
-        //         firstName: profileData.admin.firstName,
-        //         lastName: profileData.admin.lastName,
-        //         location: profileData.admin.location || "Makindye– Sabagabo",
-        //       });
-        //     }
-        //   }
-        // } catch (profileError) {
-        //   console.error("Error fetching admin profile:", profileError);
-        // }
+        setFilteredUsers(initialFiltered);
+        setTotalUsers(initialFiltered.length);
       } catch (error) {
-        console.error("Error fetching farmers data:", error);
+        console.error("Error fetching users data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFarmersData();
-  }, []);
+    fetchUsersData();
+  }, [authToken]);
+
+  // Apply role filter when it changes
+  useEffect(() => {
+    const filteredByRole = users.filter((user) => user.role === selectedRole);
+    setFilteredUsers(filteredByRole);
+    setTotalUsers(filteredByRole.length);
+  }, [selectedRole, users]);
 
   const handleFilter = ({
     search,
@@ -111,43 +130,49 @@ function ApproveKYCPage() {
     startDate: string;
     endDate: string;
   }) => {
-    let results = [...farmers];
+    // First filter by selected role
+    let results = users.filter((user) => user.role === selectedRole);
 
     if (search) {
       const searchLower = search.toLowerCase();
       results = results.filter(
-        (farmer) =>
-          `${farmer.firstName} ${farmer.lastName}`
+        (user) =>
+          `${user.firstName} ${user.lastName}`
             .toLowerCase()
             .includes(searchLower) ||
-          farmer.email.toLowerCase().includes(searchLower) ||
-          farmer.phone.includes(search) ||
-          farmer.kyc.nationalIdNumber.includes(search)
+          user.email.toLowerCase().includes(searchLower) ||
+          user.phone.includes(search) ||
+          user.kyc.nationalIdNumber.includes(search) ||
+          (user.processorInfo?.facilityName &&
+            user.processorInfo.facilityName
+              .toLowerCase()
+              .includes(searchLower)) ||
+          (user.exporterInfo?.companyName &&
+            user.exporterInfo.companyName.toLowerCase().includes(searchLower))
       );
     }
 
-    if (status) {
+    if (status && status !== "all") {
       results = results.filter(
-        (farmer) => farmer.kyc.status.toLowerCase() === status.toLowerCase()
+        (user) => user.kyc.status.toLowerCase() === status.toLowerCase()
       );
     }
 
     if (startDate) {
       const start = new Date(startDate);
       results = results.filter(
-        (farmer) => new Date(farmer.kyc.submittedAt) >= start
+        (user) => new Date(user.kyc.submittedAt) >= start
       );
     }
 
     if (endDate) {
       const end = new Date(endDate);
       end.setHours(23, 59, 59);
-      results = results.filter(
-        (farmer) => new Date(farmer.kyc.submittedAt) <= end
-      );
+      results = results.filter((user) => new Date(user.kyc.submittedAt) <= end);
     }
 
-    setFilteredFarmers(results);
+    setFilteredUsers(results);
+    setTotalUsers(results.length);
   };
 
   const handleStatusUpdate = (
@@ -155,21 +180,67 @@ function ApproveKYCPage() {
     status: string,
     adminNotes: string
   ) => {
-    setFarmers((prevFarmers) =>
-      prevFarmers.map((farmer) =>
-        farmer._id === userId
-          ? { ...farmer, kyc: { ...farmer.kyc, status, adminNotes } }
-          : farmer
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === userId
+          ? { ...user, kyc: { ...user.kyc, status, adminNotes } }
+          : user
       )
     );
 
-    setFilteredFarmers((prevFarmers) =>
-      prevFarmers.map((farmer) =>
-        farmer._id === userId
-          ? { ...farmer, kyc: { ...farmer.kyc, status, adminNotes } }
-          : farmer
+    setFilteredUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === userId
+          ? { ...user, kyc: { ...user.kyc, status, adminNotes } }
+          : user
       )
     );
+  };
+
+  // Render user table based on selected role
+  const renderUserTable = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-8">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading data...</p>
+        </div>
+      );
+    }
+
+    if (filteredUsers.length === 0) {
+      return (
+        <div className="text-center py-8 text-gray-500">
+          No {selectedRole}s found matching your filters
+        </div>
+      );
+    }
+
+    switch (selectedRole) {
+      case "farmer":
+        return (
+          <FarmerTableRows
+            farmers={filteredUsers as any}
+            onStatusUpdate={handleStatusUpdate}
+          />
+        );
+      case "processor":
+        return (
+          <ProcessorTableRows
+            processors={filteredUsers as any}
+            onStatusUpdate={handleStatusUpdate}
+          />
+        );
+      case "exporter":
+        return (
+          <ExporterTableRows
+            exporters={filteredUsers as any}
+            onStatusUpdate={handleStatusUpdate}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -184,40 +255,63 @@ function ApproveKYCPage() {
         {/* Greeting & Location */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback>{`${adminInfo.firstName.charAt(0)}${adminInfo.lastName.charAt(0)}`}</AvatarFallback>
+            <Avatar className="w-12 h-12">
+              <AvatarFallback className="bg-gray-400 text-white font-bold">
+                {getInitials()}
+              </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5]">Greetings,</span>
               <br />
-              <span className="font-semibold text-xl text-white">{`${adminInfo.firstName} ${adminInfo.lastName}`}</span>
+              <span className="font-semibold text-xl text-white">
+                {profileLoading
+                  ? "Loading..."
+                  : profile && profile.firstName
+                    ? `${profile.firstName} ${profile.lastName}`
+                    : "Julius Kayongo"}
+              </span>
             </div>
           </div>
           <div>
             <Button
-              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
+              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2 text-white hover:bg-[#d9a34d]"
               onClick={() => navigate("/add-farm")}
             >
-              <LocateFixed />
-              <span>{adminInfo.location}</span>
+              <LocateFixed size={18} />
+              <span>{profile?.location || "Makindye– Sabagabo"}</span>
             </Button>
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-12 bg-[#112D3E] py-6 text-white">
-          <h2 className="text-lg font-semibold">Farmers ({totalFarmers})</h2>
+        {/* Role Filter */}
+        <div className="flex justify-end items-center mt-8">
+          <Select value={selectedRole} onValueChange={setSelectedRole}>
+            <SelectTrigger className="w-48 bg-white text-gray-800">
+              <SelectValue placeholder="Select Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="farmer">Farmers</SelectItem>
+              <SelectItem value="processor">Processors</SelectItem>
+              <SelectItem value="exporter">Exporters</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex justify-between items-center mt-4 bg-[#112D3E] py-6 text-white px-4 rounded-t-md">
+          <h2 className="text-lg font-semibold">
+            {selectedRole === "farmer"
+              ? "Farmers"
+              : selectedRole === "processor"
+                ? "Processors"
+                : "Exporters"}
+            ({totalUsers})
+          </h2>
+
           <FarmerTableFilters onFilter={handleFilter} />
         </div>
 
-        <div className=" border-blue-400 border-t-0 rounded-b-md bg-white px-4 pb-4 pt-2 rounded-t-md border border-b-0">
-          {loading ? (
-            <div className="text-center py-8">Loading farmers data...</div>
-          ) : (
-            <FarmerTableRows
-              farmers={filteredFarmers}
-              onStatusUpdate={handleStatusUpdate}
-            />
-          )}
+        <div className="border-blue-400 border-t-0 rounded-b-md bg-white px-4 pb-4 pt-2 border border-b-0">
+          {renderUserTable()}
         </div>
       </section>
       <section className="fixed bottom-0 w-full">
