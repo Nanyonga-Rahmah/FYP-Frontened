@@ -85,10 +85,11 @@ function ExporterDashboardPage() {
       to: "/view-consignment",
     },
     {
-      type: "normal",
+      type: "link",
       name: "Reports",
       description: "Download summary reports",
       imageUrl: "/images/inspect.png",
+      to: "/view-reports",
     },
     {
       type: "normal",
