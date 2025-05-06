@@ -152,7 +152,6 @@ export function AddHarvestForm() {
         throw new Error(errData.error || "Failed to save harvest");
       }
 
-      const result = await response.json();
       toast({
         variant: "success",
         title: "Success",
