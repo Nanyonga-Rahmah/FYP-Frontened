@@ -18,7 +18,7 @@ export default function ApproveFarmerModal({ isOpen, onClose, onApprove }: Props
   const handleSubmit = () => {
     if (!notes.trim()) return;
     onApprove(notes.trim());
-    setNotes(""); // clear after submit
+    setNotes(""); 
   };
 
   return (

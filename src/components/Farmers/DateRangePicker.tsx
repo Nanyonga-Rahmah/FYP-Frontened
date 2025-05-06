@@ -1,8 +1,8 @@
 import { Input } from "../ui/input";
 
 type DateRange = {
-  start: string | undefined;
-  end: string | undefined;
+  start: Date | null;
+  end: Date | null;
 };
 
 interface DateRangePickerProps {
@@ -15,13 +15,19 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
     <div className="flex gap-2">
       <Input
         type="date"
-        value={value?.start || ""}
-        onChange={(e) => onChange({ ...value, start: e.target.value })}
+        value={value?.start ? value.start.toISOString().substring(0, 10) : ""}
+        onChange={(e) => {
+          const date = e.target.value ? new Date(e.target.value) : null;
+          onChange({ ...value, start: date });
+        }}
       />
       <Input
         type="date"
-        value={value?.end || ""}
-        onChange={(e) => onChange({ ...value, end: e.target.value })}
+        value={value?.end ? value.end.toISOString().substring(0, 10) : ""}
+        onChange={(e) => {
+          const date = e.target.value ? new Date(e.target.value) : null;
+          onChange({ ...value, end: date });
+        }}
       />
     </div>
   );

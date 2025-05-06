@@ -18,12 +18,12 @@ import useAuth from "@/hooks/use-auth";
 import { API_URL } from "@/lib/routes";
 
 const FormSchema = z.object({
-  date: z.string().min(1, { message: "Date is required." }),
-  numberofbags: z.string().min(1, {
-    message: "Number of bags is required.",
+  dateReceived: z.string().min(1, { message: "Date received is required." }),
+  receivedBags: z.string().min(1, {
+    message: "Number of bags received is required.",
   }),
-  comments: z.string().min(2, {
-    message: "Comments are required.",
+  receiptNotes: z.string().min(2, {
+    message: "Receipt notes are required.",
   }),
 });
 
@@ -39,9 +39,9 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      date: "",
-      comments: "",
-      numberofbags: "",
+      dateReceived: "",
+      receiptNotes: "",
+      receivedBags: "",
     },
   });
 
@@ -50,44 +50,41 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
       setIsSubmitting(true);
 
       const payload = {
-        batchId: batchId,
-        receivedBags: parseInt(data.numberofbags),
-        dateReceived: data.date,
-        receiptNotes: data.comments,
+        batchId,
+        receivedBags: parseInt(data.receivedBags),
+        dateReceived: data.dateReceived,
+        receiptNotes: data.receiptNotes,
       };
 
-      const response = await fetch(
-        `${API_URL}batches/processor/mark-received`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${API_URL}batches/processor/recieve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to mark batch as delivered");
+        throw new Error(result.message || "Failed to mark batch as received");
       }
 
       toast({
         title: "Success",
-        description: "Batch has been marked as delivered successfully.",
+        description: "Batch has been marked as received successfully.",
       });
 
       window.location.reload();
     } catch (error) {
-      console.error("Error marking batch as delivered:", error);
+      console.error("Error marking batch as received:", error);
       toast({
         title: "Error",
         description:
           error instanceof Error
             ? error.message
-            : "Failed to mark batch as delivered",
+            : "Failed to mark batch as received",
         variant: "destructive",
       });
     } finally {
@@ -103,7 +100,7 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
       >
         <FormField
           control={form.control}
-          name="numberofbags"
+          name="receivedBags"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
               <FormLabel className="font-normal text-[#222222] text-sm">
@@ -119,7 +116,7 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
 
         <FormField
           control={form.control}
-          name="date"
+          name="dateReceived"
           render={({ field }) => (
             <FormItem className="col-span-2">
               <FormLabel className="font-normal text-[#222222] text-sm">
@@ -135,11 +132,11 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
 
         <FormField
           control={form.control}
-          name="comments"
+          name="receiptNotes"
           render={({ field }) => (
             <FormItem className="col-span-2 text-left">
               <FormLabel className="font-normal text-[#222222] text-sm">
-                Notes*
+                Receipt Notes*
               </FormLabel>
               <FormControl>
                 <Textarea {...field} />
@@ -158,7 +155,7 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Processing..." : "Mark Delivered"}
+            {isSubmitting ? "Processing..." : "Mark as Received"}
           </Button>
         </div>
       </form>

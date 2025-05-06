@@ -1,56 +1,120 @@
-import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Input } from "@/components/ui/input";
-import { DateRangePicker } from '@/components/Farmers/DateRangePicker'; 
-
+import React, { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DateRangePicker } from "@/components/Farmers/DateRangePicker";
+import useAuth from "@/hooks/use-auth";
+import { API_URL } from "@/lib/routes";
+import { toast } from "@/components/ui/use-toast";
 
 const FormSchema = z.object({
   processingMethod: z.string().min(1, "Processing method is required."),
   processingPeriod: z.object({
-    start: z.string().min(1, "Start date is required."),
-    end: z.string().min(1, "End date is required."),
+    start: z.date({ required_error: "Start date is required." }),
+    end: z.date({ required_error: "End date is required." }),
   }),
-  inputBags: z.number().min(1, "Input bags must be a positive number."),
-  outputWeight: z.number().min(1, "Output weight must be a positive number."),
+  inputBags: z
+    .number({ invalid_type_error: "Enter a valid number." })
+    .min(1, "Input bags must be a positive number."),
+  outputWeight: z
+    .number({ invalid_type_error: "Enter a valid number." })
+    .min(1, "Output weight must be a positive number."),
   gradingLevel: z.string().optional(),
   notes: z.string().optional(),
   images: z.array(z.instanceof(File)).min(1, "At least one image is required."),
 });
 
-export const ProcessingForm = () => {
-  const { control, handleSubmit, setValue } = useForm<{
-    processingMethod: string;
-    processingPeriod: { start: string; end: string };
-    inputBags: number;
-    outputWeight: number;
-    gradingLevel: string;
-    notes: string;
-    images: File[];
-  }>({
+const processingMethods = [
+  { value: "washed", label: "Washed (Wet) Process" },
+  { value: "natural", label: "Natural (Dry) Process" },
+  { value: "honey", label: "Honey Process" },
+  { value: "pulped_natural", label: "Pulped Natural Process" },
+];
+
+type FormData = z.infer<typeof FormSchema>;
+
+interface ProcessingFormProps {
+  batchId: string;
+}
+
+export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(FormSchema),
     defaultValues: {
-      processingMethod: '',
-      processingPeriod: { start: '', end: '' },
+      processingMethod: "",
+      processingPeriod: { start: new Date(), end: new Date() },
       inputBags: 0,
       outputWeight: 0,
-      gradingLevel: '',
-      notes: '',
+      gradingLevel: "",
+      notes: "",
       images: [],
     },
   });
 
   const [images, setImages] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { authToken } = useAuth();
 
-  const onSubmit = (data: z.infer<typeof FormSchema>)=> {
-    const formData = new FormData();
-    formData.append('data', JSON.stringify(data));
+  const onSubmit = async (formData: FormData) => {
+    setLoading(true);
+
+    const dataToSend = {
+      batchId,
+      processingMethod: formData.processingMethod,
+      processingPeriod: {
+        start: formData.processingPeriod.start.toISOString(),
+        end: formData.processingPeriod.end.toISOString(),
+      },
+      gradingLevel: formData.gradingLevel,
+      outputWeight: formData.outputWeight,
+      notes: formData.notes,
+      inputBags: formData.inputBags,
+    };
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("data", JSON.stringify(dataToSend));
     images.forEach((image) => {
-      formData.append('images', image);
+      formDataToSend.append("documents", image);
     });
 
-    // Submit form logic here (e.g., sending formData to an API)
-    console.log("Form data", formData);
+    try {
+      const response = await fetch(`${API_URL}batches/processor/process`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formDataToSend,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to process batch");
+      }
+
+      const result = await response.json();
+
+      toast({
+        title: "Success",
+        description: "Batch has been marked as processed successfully.",
+      });
+
+      console.log("Batch processed successfully:", result);
+    } catch (error) {
+      console.error("Error processing batch:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process the batch. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +122,7 @@ export const ProcessingForm = () => {
     if (files) {
       const fileArray = Array.from(files);
       setImages(fileArray);
-      setValue('images', fileArray);
+      setValue("images", fileArray);
     }
   };
 
@@ -71,12 +135,20 @@ export const ProcessingForm = () => {
           name="processingMethod"
           render={({ field }) => (
             <select {...field} className="w-full mt-2 border p-2">
-              <option value="">Select processing method</option>
-              <option value="method1">Method 1</option>
-              <option value="method2">Method 2</option>
+              <option value="">Select a processing method</option>
+              {processingMethods.map((method) => (
+                <option key={method.value} value={method.value}>
+                  {method.label}
+                </option>
+              ))}
             </select>
           )}
         />
+        {errors.processingMethod && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.processingMethod.message}
+          </p>
+        )}
       </div>
 
       <div>
@@ -85,12 +157,15 @@ export const ProcessingForm = () => {
           control={control}
           name="processingPeriod"
           render={({ field }) => (
-            <DateRangePicker
-              value={field.value}
-              onChange={(dateRange) => field.onChange(dateRange)}
-            />
+            <DateRangePicker value={field.value} onChange={field.onChange} />
           )}
         />
+
+        {(errors.processingPeriod?.start || errors.processingPeriod?.end) && (
+          <p className="text-red-500 text-sm mt-1">
+            Start and End dates are required
+          </p>
+        )}
       </div>
 
       <div>
@@ -100,13 +175,20 @@ export const ProcessingForm = () => {
           name="inputBags"
           render={({ field }) => (
             <Input
-              {...field}
               type="number"
+              value={field.value}
+              onChange={(e) => field.onChange(Number(e.target.value))}
               className="w-full mt-2 p-2"
               placeholder="Enter number of bags"
             />
           )}
         />
+
+        {errors.inputBags && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.inputBags.message}
+          </p>
+        )}
       </div>
 
       <div>
@@ -116,13 +198,20 @@ export const ProcessingForm = () => {
           name="outputWeight"
           render={({ field }) => (
             <Input
-              {...field}
               type="number"
+              value={field.value}
+              onChange={(e) => field.onChange(Number(e.target.value))}
               className="w-full mt-2 p-2"
               placeholder="Enter output weight"
             />
           )}
         />
+
+        {errors.outputWeight && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.outputWeight.message}
+          </p>
+        )}
       </div>
 
       <div>
@@ -164,11 +253,18 @@ export const ProcessingForm = () => {
           onChange={handleFileChange}
           className="w-full mt-2"
         />
+        {errors.images && (
+          <p className="text-red-500 text-sm mt-1">{errors.images.message}</p>
+        )}
       </div>
 
       <div className="flex justify-end mt-4">
-        <Button type="submit" className="bg-blue-500 text-white">
-          Save as Processed
+        <Button
+          type="submit"
+          className="bg-blue-500 text-white"
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Save as Processed"}
         </Button>
       </div>
     </form>

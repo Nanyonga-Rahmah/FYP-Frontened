@@ -15,7 +15,7 @@ import {
 import { ImageIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { API_URL } from "@/lib/routes";
 
 const KycSchema = z.object({
@@ -24,8 +24,7 @@ const KycSchema = z.object({
   }),
   passportSizePhoto: z
     .array(z.instanceof(File))
-    .min(2, { message: "At least one passport photo is required" }),
-
+    .min(1, { message: "At least one passport photo is required" }),
 });
 
 type KycFormData = z.infer<typeof KycSchema>;
@@ -56,10 +55,10 @@ export default function KYCForms({
 }: KYCProps): JSX.Element {
   const [preview, setPreview] = useState<{
     nationalIdPhoto: string | null;
-    passportSizePhoto: string | null;
+    passportSizePhoto: string[];
   }>({
     nationalIdPhoto: null,
-    passportSizePhoto: null,
+    passportSizePhoto: [],
   });
 
   const [submitting, setIsSubmitting] = useState<boolean>(false);
@@ -69,7 +68,7 @@ export default function KYCForms({
     resolver: zodResolver(KycSchema),
     defaultValues: {
       nationalIdPhoto: undefined,
-      passportSizePhoto: undefined,
+      passportSizePhoto: [],
     },
   });
 
@@ -77,15 +76,26 @@ export default function KYCForms({
     event: React.ChangeEvent<HTMLInputElement>,
     fieldName: keyof KycFormData
   ): void {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    form.setValue(fieldName, file);
+    const fileArray = Array.from(files);
 
-    setPreview((prev) => ({
-      ...prev,
-      [fieldName]: URL.createObjectURL(file),
-    }));
+    if (fieldName === "passportSizePhoto") {
+      form.setValue("passportSizePhoto", fileArray, { shouldValidate: true });
+
+      setPreview((prev) => ({
+        ...prev,
+        passportSizePhoto: fileArray.map((file) => URL.createObjectURL(file)),
+      }));
+    } else if (fieldName === "nationalIdPhoto") {
+      form.setValue("nationalIdPhoto", fileArray[0], { shouldValidate: true });
+
+      setPreview((prev) => ({
+        ...prev,
+        nationalIdPhoto: URL.createObjectURL(fileArray[0]),
+      }));
+    }
   }
 
   const onSubmit = async (values: KycFormData): Promise<void> => {
@@ -101,9 +111,6 @@ export default function KYCForms({
     values.passportSizePhoto.forEach((file: File) => {
       formData.append("passportSizePhoto", file);
     });
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ":", pair[1]);
-    }
 
     try {
       setIsSubmitting(true);
@@ -171,15 +178,12 @@ export default function KYCForms({
                     <Input
                       id="national-id-upload"
                       type="file"
-                      name="nationalIdPhoto"
-                      multiple
                       accept="image/*"
                       onChange={(e) => handleImageChange(e, "nationalIdPhoto")}
                       className="hidden"
                     />
                   </div>
                 </FormControl>
-
                 <FormMessage />
                 {preview.nationalIdPhoto && (
                   <img
@@ -199,7 +203,7 @@ export default function KYCForms({
             render={() => (
               <FormItem>
                 <FormLabel className="text-[#222222]">
-                  Passport-size Photo
+                  Passport-size Photo(s)
                 </FormLabel>
                 <FormControl>
                   <div className="rounded-[6px] border border-dashed h-28 bg-[#C8CFDE] flex justify-center items-center">
@@ -216,7 +220,7 @@ export default function KYCForms({
                       id="passport-upload"
                       type="file"
                       accept="image/*"
-                      name="passportSizePhoto"
+                      multiple
                       onChange={(e) =>
                         handleImageChange(e, "passportSizePhoto")
                       }
@@ -225,13 +229,16 @@ export default function KYCForms({
                   </div>
                 </FormControl>
                 <FormMessage />
-                {preview.passportSizePhoto && (
-                  <img
-                    src={preview.passportSizePhoto}
-                    alt="Passport"
-                    className="w-20 h-20 mt-2 object-cover rounded"
-                  />
-                )}
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {preview.passportSizePhoto.map((url, idx) => (
+                    <img
+                      key={idx}
+                      src={url}
+                      alt={`Passport ${idx + 1}`}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  ))}
+                </div>
               </FormItem>
             )}
           />

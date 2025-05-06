@@ -15,8 +15,7 @@ const SignUpSchema = z.object({
   password: z.string(),
   nationalIdNumber: z.string().optional(),
   cooperativeMembershipNumber: z.string().optional(),
-  cooperativeLocation: z.string().optional(), // Added the missing field
-  // Optional fields that might be needed based on KYCForms
+  cooperativeLocation: z.string().optional(),
   companyName: z.string().optional(),
   facilityName: z.string().optional(),
   licenseNumber: z.string().optional(),
