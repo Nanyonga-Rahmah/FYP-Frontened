@@ -160,17 +160,6 @@ const Section = ({
   </section>
 );
 
-const InfoGrid = ({ data }: { data: Record<string, string> }) => (
-  <div className="grid grid-cols-2 gap-y-1 mb-2">
-    {Object.entries(data).map(([label, value], i) => (
-      <React.Fragment key={i}>
-        <p>{label}</p>
-        <p className="font-medium">{value}</p>
-      </React.Fragment>
-    ))}
-  </div>
-);
-
 const FlexRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex justify-between my-1">
     <span className="font-semibold">{label}</span>

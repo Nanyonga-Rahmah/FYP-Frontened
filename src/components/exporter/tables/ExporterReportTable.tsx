@@ -1,7 +1,4 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-// import ViewReportModal from "../modals/ViewReportModal";
 
 interface Report {
   id: string;
@@ -16,25 +13,8 @@ interface Props {
 }
 
 function ExporterReportsTable({ reports }: Props) {
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [isViewOpen, setIsViewOpen] = useState(false);
-
-  const handleView = (report: Report) => {
-    setSelectedReport(report);
-    setIsViewOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsViewOpen(false);
-    setSelectedReport(null);
-  };
-
   return (
     <div className="w-full rounded-md overflow-hidden border border-gray-200">
-      {/* {selectedReport && isViewOpen && (
-        <ViewReportModal report={selectedReport} onClose={handleClose} />
-      )} */}
-
       <table className="w-full text-sm bg-white">
         <thead className="bg-[#F9FAFB] text-[#5C6474] border-b border-gray-200">
           <tr>
@@ -82,7 +62,7 @@ function ExporterReportsTable({ reports }: Props) {
                   >
                     <div
                       className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                      onClick={() => handleView(report)}
+                      onClick={() => console.log("View report:", report)}
                     >
                       View
                     </div>
@@ -96,7 +76,6 @@ function ExporterReportsTable({ reports }: Props) {
           ))}
         </tbody>
       </table>
-      
     </div>
   );
 }
