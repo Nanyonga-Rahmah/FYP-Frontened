@@ -15,6 +15,7 @@ import { SubmitLot } from "@/components/Processor/SubmitLot";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 import { API_URL } from "@/lib/routes";
 
 interface Lot {
@@ -39,10 +40,15 @@ function LotHistoryPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authToken } = useAuth();
-  const [user] = useState({
-    firstName: "Mary",
-    lastName: "Nantongo",
-  });
+  const { profile } = useUserProfile(authToken);
+
+  // Get initials for avatar
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "MN"; // Fallback to default initials
+  };
 
   useEffect(() => {
     const fetchLots = async () => {
@@ -75,24 +81,7 @@ function LotHistoryPage() {
       }
     };
 
-    // Fetch user profile if you have an endpoint
-    const fetchUserProfile = async () => {
-      try {
-        // Implement your actual API call here
-        // const response = await fetch(`${API_URL}user/profile`, {
-        //   headers: {
-        //     Authorization: `Bearer ${authToken}`,
-        //   },
-        // });
-        // const data = await response.json();
-        // setUser(data);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-
     fetchLots();
-    fetchUserProfile();
   }, [authToken, toast]);
 
   // Filter lots based on search term
@@ -144,16 +133,17 @@ function LotHistoryPage() {
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12">
-              <AvatarFallback className="text-xl">
-                {user.firstName.charAt(0)}
-                {user.lastName.charAt(0)}
+              <AvatarFallback className="text-xl bg-gray-400 text-white font-bold">
+                {getInitials()}
               </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5] text-sm">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                {user.firstName} {user.lastName}
+                {profile
+                  ? `${profile.firstName} ${profile.lastName}`
+                  : "Mary Nantongo"}
               </span>
             </div>
           </div>
@@ -185,7 +175,13 @@ function LotHistoryPage() {
                 >
                   <CalendarDays className="h-4 w-4" />
                   {date?.from && date?.to
-                    ? `${date.from.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${date.to.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+                    ? `${date.from.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })} - ${date.to.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}`
                     : "Filter by date"}
                 </Button>
               </PopoverTrigger>
@@ -228,12 +224,14 @@ function LotHistoryPage() {
                     </h2>
                     <p className="text-sm text-gray-600">{lot.batches}</p>
                     <div className="flex items-center gap-1 text-sm text-gray-600 mt-2">
-                      <CalendarDays className="h-4 w-4" />
+                      <CalendarDays className="h-41 w-4" />
                       <span>Submitted: {lot.date}</span>
                     </div>
                   </div>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[lot.status]}`}
+                    className={`text-xs px-2 py-1 rounded-full font-medium ${
+                      statusColors[lot.status]
+                    }`}
                   >
                     {lot.status}
                   </span>
@@ -258,4 +256,5 @@ function LotHistoryPage() {
     </section>
   );
 }
+
 export default LotHistoryPage;

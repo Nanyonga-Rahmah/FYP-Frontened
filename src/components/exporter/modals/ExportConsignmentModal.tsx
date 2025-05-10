@@ -26,11 +26,13 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 import { API_URL } from "@/lib/routes";
 import { useToast } from "@/components/ui/use-toast";
 
 interface Lot {
-  id: string;
+  _id: string;
+  lotId:String;
   status: string;
   type: string;
 }
@@ -57,10 +59,13 @@ export function ExportConsignmentModal({
   const [shippingDetails, setShippingDetails] = useState<string>("");
   const [qualityNotes, setQualityNotes] = useState<string>("");
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
-
+  const [selectedLotWeight, setSelectedLotWeight] = useState<number | null>(
+    null
+  ); 
   const [lots, setLots] = useState<Lot[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { authToken } = useAuth();
+  const { profile } = useUserProfile(authToken);
   const { toast } = useToast();
 
   const countries = [
@@ -102,11 +107,62 @@ export function ExportConsignmentModal({
     Spain: ["Barcelona", "Valencia", "Bilbao"],
   };
 
+  // Load form data from localStorage when modal opens
   useEffect(() => {
     if (open) {
+      const savedData = localStorage.getItem("exportConsignmentForm");
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setSelectedLot(parsedData.selectedLot || "");
+        setDestinationCountry(parsedData.destinationCountry || "");
+        setDestinationPort(parsedData.destinationPort || "");
+        setPermitNumber(parsedData.permitNumber || "");
+        setProductType(parsedData.productType || "");
+        setHsCode(parsedData.hsCode || "");
+        setTradeName(parsedData.tradeName || "");
+        setExportDate(
+          parsedData.exportDate ? new Date(parsedData.exportDate) : undefined
+        );
+        setExportVolume(parsedData.exportVolume || "");
+        setShippingMethod(parsedData.shippingMethod || "");
+        setShippingDetails(parsedData.shippingDetails || "");
+        setQualityNotes(parsedData.qualityNotes || "");
+      }
       fetchLots();
     }
   }, [open, authToken]);
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    const formData = {
+      selectedLot,
+      destinationCountry,
+      destinationPort,
+      permitNumber,
+      productType,
+      hsCode,
+      tradeName,
+      exportDate: exportDate ? exportDate.toISOString() : null,
+      exportVolume,
+      shippingMethod,
+      shippingDetails,
+      qualityNotes,
+    };
+    localStorage.setItem("exportConsignmentForm", JSON.stringify(formData));
+  }, [
+    selectedLot,
+    destinationCountry,
+    destinationPort,
+    permitNumber,
+    productType,
+    hsCode,
+    tradeName,
+    exportDate,
+    exportVolume,
+    shippingMethod,
+    shippingDetails,
+    qualityNotes,
+  ]);
 
   const fetchLots = async () => {
     try {
@@ -141,7 +197,18 @@ export function ExportConsignmentModal({
       setLoading(false);
     }
   };
+const handleLotChange = (lotId: string) => {
+  setSelectedLot(lotId);
+  const selectedLotData = lots.find((lot) => lot._id === lotId);
 
+  if (selectedLotData) {
+    const weight = parseInt(
+      selectedLotData.type.split("(")[1].split("kg")[0].trim()
+    );
+    setSelectedLotWeight(weight);
+    setExportVolume(weight.toString()); 
+  }
+};
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setCertificateFile(e.target.files[0]);
@@ -163,7 +230,7 @@ export function ExportConsignmentModal({
       lotIds: [selectedLot],
       destinationCountry,
       destinationPort,
-      permitNumber,
+      permitNumber: profile?.licenseNumber,
       productType,
       hsCode,
       tradeName,
@@ -173,7 +240,8 @@ export function ExportConsignmentModal({
       shippingDetails,
       qualityNotes,
       certificateFileName: certificateFile?.name || "",
-      certificateFile: certificateFile,
+      certificateFile,
+      exporterName: profile?.companyName || "",
     };
 
     onContinue(formData);
@@ -189,12 +257,24 @@ export function ExportConsignmentModal({
         </DialogHeader>
 
         <div className="flex flex-col gap-4 mt-4">
+          {/* Exporter Name */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
+              Exporter Name
+            </label>
+            <Input
+              value={profile?.companyName || "Loading..."}
+              disabled
+              className="text-black"
+            />
+          </div>
+
           {/* Select Lots */}
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-700">
               Select lot
             </label>
-            <Select onValueChange={setSelectedLot} value={selectedLot}>
+            <Select onValueChange={handleLotChange} value={selectedLot}>
               <SelectTrigger>
                 <SelectValue
                   placeholder={
@@ -209,8 +289,8 @@ export function ExportConsignmentModal({
                   </SelectItem>
                 ) : (
                   lots.map((lot) => (
-                    <SelectItem key={lot.id} value={lot.id}>
-                      {lot.id} - {lot.type}
+                    <SelectItem key={lot._id} value={lot._id}>
+                      {lot.lotId} - {lot.type}
                     </SelectItem>
                   ))
                 )}
@@ -270,7 +350,7 @@ export function ExportConsignmentModal({
               UCDA Export permit number
             </label>
             <Input
-              value={permitNumber}
+              value={profile?.licenseNumber || "Loading..."}
               onChange={(e) => setPermitNumber(e.target.value)}
               placeholder="Enter permit number"
             />
@@ -346,8 +426,9 @@ export function ExportConsignmentModal({
                 Export volume (kg)
               </label>
               <Input
-                value={exportVolume}
+                value={exportVolume||selectedLotWeight?.toString() || ""}
                 onChange={(e) => setExportVolume(e.target.value)}
+                disabled
                 placeholder="Enter weight"
                 type="number"
               />

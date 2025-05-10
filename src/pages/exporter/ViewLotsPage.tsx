@@ -53,7 +53,7 @@ function ViewLotsPage() {
 
       const mappedLots: Lot[] = lotsArray.map((lot: any) => ({
         id: lot.lotId || lot.id,
-        type: `Mixed Batch (${lot.totalOutputWeight || "40"} kg)`,
+        type: `${lot.type || "Mixed Batch (40kg)"} `,
         processor:
           lot.processorName ||
           lot.processor ||

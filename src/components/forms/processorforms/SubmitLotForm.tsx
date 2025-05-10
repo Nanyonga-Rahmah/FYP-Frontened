@@ -159,9 +159,13 @@ export function SubmitLotForm({
       (sum, b) => sum + (b.recievedWeight || 0),
       0
     );
+    const selectedExporter = exporters.find(
+      (e) => e.id === data.exporterFacility
+    );
     setLotData({
+      exporterId: data.exporterFacility,
+      exporterFacility: selectedExporter ? selectedExporter.companyName : "",
       batches: selectedBatches,
-      exporterFacility: data.exporterFacility,
       comments: data.comments,
       totalWeight: totalWeight.toString(),
     });

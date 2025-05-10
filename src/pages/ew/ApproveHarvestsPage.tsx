@@ -5,6 +5,8 @@ import { AllHarvests } from "@/lib/routes";
 import Header from "@/components/globals/ew/Header";
 import Footer from "@/components/globals/Footer";
 import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Harvest {
   _id: string;
@@ -23,7 +25,6 @@ interface Harvest {
   createdAt: string;
 }
 
-
 function ApproveHarvestsPage() {
   const [harvests, setHarvests] = useState<Harvest[]>([]);
   const [filteredHarvests, setFilteredHarvests] = useState<Harvest[]>([]);
@@ -36,6 +37,15 @@ function ApproveHarvestsPage() {
     endDate: "",
   });
   const { authToken } = useAuth();
+  const { profile } = useUserProfile(authToken);
+
+  // Get initials for avatar
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "JK"; 
+  };
 
   useEffect(() => {
     const fetchHarvests = async () => {
@@ -85,7 +95,8 @@ function ApproveHarvestsPage() {
         filtered = filtered.filter(
           (harvest) =>
             new Date(harvest.createdAt) >= new Date(filters.startDate) &&
-            new Date(harvest.createdAt) <= new Date(filters.endDate)        );
+            new Date(harvest.createdAt) <= new Date(filters.endDate)
+        );
       }
 
       setFilteredHarvests(filtered);
@@ -138,7 +149,7 @@ function ApproveHarvestsPage() {
 
   const handleReview = (harvestId: string) => {
     console.log(`Review harvest ${harvestId}`);
-  };
+};
 
   return (
     <section
@@ -151,16 +162,23 @@ function ApproveHarvestsPage() {
       <section className="px-20 py-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <Avatar className="w-12 h-12">
+              <AvatarFallback className="bg-gray-400 text-white font-bold">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
             <div>
               <span className="text-[#C0C9DDE5]">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                Julius Kayongo
+                {profile
+                  ? `${profile.firstName} ${profile.lastName}`
+                  : "Julius Kayongo"}
               </span>
             </div>
           </div>
           <Button className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2">
-            <span>Makindye– Sabagabo</span>
+            <span>{profile?.location || "Makindye–Sabagabo"}</span>
           </Button>
         </div>
 
@@ -197,4 +215,5 @@ function ApproveHarvestsPage() {
     </section>
   );
 }
+
 export default ApproveHarvestsPage;

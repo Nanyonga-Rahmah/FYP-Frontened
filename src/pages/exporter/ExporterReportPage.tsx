@@ -12,7 +12,7 @@ import GenerateReportDropdown from "@/components/exporter/dropdowns/GenerateRepo
 import GenerateReportModal from "@/components/exporter/modals/GenerateReportModal";
 import GenerateModalSuccess from "@/components/exporter/modals/GenerateReportSuccess";
 import html2pdf from "html2pdf.js";
-import DeforestationAssessmentReport from "@/components/exporter/reports/DeforestationAssessmentReport"; // Add others as needed
+import DeforestationAssessmentReport from "@/components/exporter/reports/DeforestationAssessmentReport";
 import { v4 as uuidv4 } from "uuid";
 
 interface Report {

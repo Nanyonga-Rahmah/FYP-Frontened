@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import FarmTable from "@/components/ExtensionWorkers/tables/FarmTable";
 import { FarmAdmin } from "@/lib/routes";
 import useAuth from "@/hooks/use-auth";
+import useUserProfile from "@/hooks/use-profile";
 
 interface Farm {
   _id?: string;
@@ -36,6 +37,15 @@ function ApproveFarmPage() {
     endDate: "",
   });
   const { authToken } = useAuth();
+  const { profile } = useUserProfile(authToken);
+
+  // Get initials for avatar
+  const getInitials = (): string => {
+    if (profile && profile.firstName && profile.lastName) {
+      return `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`;
+    }
+    return "JK"; // Fallback to default initials
+  };
 
   useEffect(() => {
     const fetchFarms = async () => {
@@ -60,7 +70,7 @@ function ApproveFarmPage() {
       }
     };
     fetchFarms();
-  }, []);
+  }, [authToken]);
 
   const handleFilterChange = useCallback(
     (newFilters: typeof filters) => {
@@ -109,14 +119,18 @@ function ApproveFarmPage() {
       <section className="px-20 py-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback>MN</AvatarFallback>
+            <Avatar className="w-12 h-12">
+              <AvatarFallback className="bg-gray-400 text-white font-bold">
+                {getInitials()}
+              </AvatarFallback>
             </Avatar>
             <div>
               <span className="text-[#C0C9DDE5]">Greetings,</span>
               <br />
               <span className="font-semibold text-xl text-white">
-                Julius Kayongo
+                {profile
+                  ? `${profile.firstName} ${profile.lastName}`
+                  : "Julius Kayongo"}
               </span>
             </div>
           </div>
@@ -125,8 +139,8 @@ function ApproveFarmPage() {
               className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2"
               onClick={() => navigate("/add-farm")}
             >
-              {" "}
-              <LocateFixed /> <span>Makindye– Sabagabo</span>{" "}
+              <LocateFixed />
+              <span>{profile?.location || "Makindye–Sabagabo"}</span>
             </Button>
           </div>
         </div>
@@ -157,6 +171,6 @@ function ApproveFarmPage() {
       </section>
     </section>
   );
-
 }
+
 export default ApproveFarmPage;
