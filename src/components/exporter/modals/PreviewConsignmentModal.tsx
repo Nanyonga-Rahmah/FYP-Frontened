@@ -94,26 +94,14 @@ export function PreviewConsignmentModal({
 
       console.log("Submitting payload:", payload);
 
-      let requestBody;
-      let headers: Record<string, string> = {
-        Authorization: `Bearer ${authToken}`,
-      };
-
-      if (consignmentData.certificateFile) {
-        const formData = new FormData();
-        formData.append("data", JSON.stringify(payload));
-        formData.append("certificate", consignmentData.certificateFile);
-        requestBody = formData;
-      } else {
-        requestBody = JSON.stringify(payload);
-        headers["Content-Type"] = "application/json";
-      }
-
+      // Send the payload as JSON
       const response = await fetch(`${API_URL}exporter/create-consignment`, {
         method: "POST",
-        headers,
-        body: requestBody,
-
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json", 
+        },
+        body: JSON.stringify(payload), 
       });
 
       const data = await response.json();
@@ -125,10 +113,8 @@ export function PreviewConsignmentModal({
       console.log("API response:", data);
 
       setCreatedConsignment(data.consignment);
-
       onConfirm();
-
-    setIsSuccessModalOpen(true);
+      setIsSuccessModalOpen(true);
 
       toast({
         title: "Success",
@@ -148,6 +134,7 @@ export function PreviewConsignmentModal({
       setSubmitting(false);
     }
   };
+
 
   return (
     <>

@@ -18,12 +18,13 @@ import { useToast } from "@/components/ui/use-toast";
 export function SubmitLot() {
   const [step, setCurrentStep] = useState(1);
   const [lotData, setLotData] = useState<{
-
-    batches: { _id: string; batchId: string; totalWeight: number }[];
+    exporterId: string;
+    batches: { id:string, _id: string; batchId: string; totalWeight: number }[];
     exporterFacility: string;
     comments: string;
     totalWeight: string;
   }>({
+    exporterId: "",
     batches: [],
     exporterFacility: "",
     comments: "",
@@ -33,7 +34,7 @@ export function SubmitLot() {
   const { toast } = useToast();
   const location = useLocation();
   const { pathname } = location;
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleNextStep = () => {
     setCurrentStep((prevStep) => prevStep + 1);
@@ -44,7 +45,7 @@ export function SubmitLot() {
   };
 
   const handleSubmitLot = async () => {
-    setIsSubmitting(true); 
+    setIsSubmitting(true);
     try {
       const response = await fetch(`${API_URL}lots/submit`, {
         method: "POST",
@@ -53,8 +54,8 @@ export function SubmitLot() {
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-
-          batchIds: lotData.batches.map((b) => b.batchId),
+          exporterId: lotData.exporterId,
+          batchIds: lotData.batches.map((b) => b._id || b.id),
           exporterFacility: lotData.exporterFacility,
           comments: lotData.comments,
           totalOutputWeight: parseFloat(lotData.totalWeight),
@@ -109,7 +110,7 @@ export function SubmitLot() {
         )}
         {step === 2 && (
           <PreviewLot
-            isSubmitting={isSubmitting} 
+            isSubmitting={isSubmitting}
             handlePrevious={handlePreviousStep}
             data={lotData}
             handleSubmit={handleSubmitLot}
