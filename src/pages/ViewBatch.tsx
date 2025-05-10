@@ -244,7 +244,7 @@ function ViewBatchPage() {
                           (window.location.href = `/#/view-batchDetails/${batch._id}`)
                         }
                       >
-                        View Detail
+                        View Details
                       </Button>
                     </div>
                   </div>
