@@ -241,7 +241,7 @@ function ViewBatchPage() {
                         variant={"outline"}
                         className="my-2"
                         onClick={() =>
-                          (window.location.href = `#/view-batchDetails/${batch._id}`)
+                          (window.location.href = `/#/view-batchDetails/${batch._id}`)
                         }
                       >
                         View Details

@@ -289,7 +289,7 @@ function BatchHistory() {
                     </Link>
                   ) : (
                     <Link
-                      to={`/processor/view-batchDetails/${batch.id}`}
+                      to={`/#/processor/view-batchDetails/${batch.id}`}
                       className="w-full"
                     >
                       <Button
