@@ -129,7 +129,9 @@ export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-6">
       <div>
-        <label className="font-semibold">Processing Method</label>
+        <label className=" font-normal text-[#222222] text-sm">
+          Processing Method
+        </label>
         <Controller
           control={control}
           name="processingMethod"
@@ -152,7 +154,9 @@ export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
       </div>
 
       <div>
-        <label className="font-semibold">Processing Period</label>
+        <label className=" font-normal text-[#222222] text-sm">
+          Processing Period
+        </label>
         <Controller
           control={control}
           name="processingPeriod"
@@ -169,7 +173,9 @@ export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
       </div>
 
       <div>
-        <label className="font-semibold">Input Bags</label>
+        <label className=" font-normal text-[#222222] text-sm">
+          Input Bags
+        </label>
         <Controller
           control={control}
           name="inputBags"
@@ -192,7 +198,9 @@ export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
       </div>
 
       <div>
-        <label className="font-semibold">Output Weight (kg)</label>
+        <label className=" font-normal text-[#222222] text-sm">
+          Output Weight (kg)
+        </label>
         <Controller
           control={control}
           name="outputWeight"
@@ -215,7 +223,9 @@ export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
       </div>
 
       <div>
-        <label className="font-semibold">Grading Level</label>
+        <label className=" font-normal text-[#222222] text-sm">
+          Grading Level
+        </label>
         <Controller
           control={control}
           name="gradingLevel"
@@ -230,7 +240,7 @@ export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
       </div>
 
       <div>
-        <label className="font-semibold">Notes</label>
+        <label className=" font-normal text-[#222222] text-sm">Notes</label>
         <Controller
           control={control}
           name="notes"
@@ -245,7 +255,9 @@ export const ProcessingForm: React.FC<ProcessingFormProps> = ({ batchId }) => {
       </div>
 
       <div>
-        <label className="font-semibold">Images of Processed Coffee</label>
+        <label className=" font-normal text-[#222222] text-sm">
+          Images of Processed Coffee
+        </label>
         <input
           type="file"
           multiple

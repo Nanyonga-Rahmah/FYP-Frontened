@@ -13,6 +13,8 @@ const ViewHarvestsPage = lazy(() => import("./pages/ViewHarvets"));
 const ViewBatchPage = lazy(() => import("./pages/ViewBatch"));
 const VerificationPage = lazy(() => import("./pages/VerificationPage"));
 import { AddFarm } from "./components/Farmers/AddFarm";
+import SelectFarm from "./pages/SelectFarm";
+import FarmerBatchDetailsPage from "./pages/ViewFarmerBatchDetails";
 // Extension Worker Pages
 const ExtensionWorkerDashboard = lazy(() => import("./pages/ew/DashboardPage"));
 const ApproveKYCPage = lazy(() => import("./pages/ew/ApproveKYCPage"));
@@ -44,7 +46,9 @@ const ViewLotDetailsPage = lazy(
   () => import("./pages/exporter/ViewLotDetailsPage")
 );
 const ConsignmentPage = lazy(() => import("./pages/exporter/ConsignmentPage"));
-const ExporterReportPage = lazy(() => import("./pages/exporter/ExporterReportPage"));
+const ExporterReportPage = lazy(
+  () => import("./pages/exporter/ExporterReportPage")
+);
 const ViewConsignmentDetailsPage = lazy(
   () => import("./pages/exporter/ConsignmentDetails")
 );
@@ -81,6 +85,11 @@ function App() {
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
             <Route path="/manage-farmers" element={<VerificationPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/select-farm" element={<SelectFarm />} />
+            <Route
+              path="/view-batchDetails/:batchId"
+              element={<FarmerBatchDetailsPage />}
+            />
 
             {/* Extension Worker Routes */}
             <Route
@@ -126,10 +135,7 @@ function App() {
               path="/view-consignment-details/:id"
               element={<ViewConsignmentDetailsPage />}
             />
-                        <Route
-              path="/view-reports"
-              element={<ExporterReportPage />}
-            />
+            <Route path="/view-reports" element={<ExporterReportPage />} />
             <Route
               path="/due-diligence-report/:consignmentId"
               element={<DueDiligenceReport />}

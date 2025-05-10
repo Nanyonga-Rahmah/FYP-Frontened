@@ -11,6 +11,7 @@ export function AddFarm() {
   const [farmGeoData, setFarmGeoData] = useState<{
     polygon: any;
     area: number;
+    location: string;
     perimeter: number;
     coordinates: number[][];
     center: { lat: number; lng: number };
@@ -35,7 +36,7 @@ export function AddFarm() {
 
   return (
     <div
-      className={` min-h-screen flex flex-col bg-white ${currentStep !== 2 && "px-20 py-10"}  ${open && "bg-white"} `}
+      className={` min-h-screen flex flex-col bg-white ${currentStep !== 2 && "lg:px-20 px-5 py-10"}  ${open && "bg-white"} `}
     >
       {currentStep === 2 && (
         <FarmMap currentStep={2} handleNext={handleMapNext} />

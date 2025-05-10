@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { Bell, Search } from "lucide-react";
 import { PopoverDemo } from "./ActionsPopOver";
+import { SheetDemo } from "./MobileNav";
 
 function Header() {
   const navigate = useNavigate();
@@ -35,6 +36,10 @@ function Header() {
   return (
     <header className="flex items-center justify-between border-b py-2.5 px-8 border-[#485165]">
       {/* Logo and App Name */}
+
+      <div className="flex md:hidden ">
+        <SheetDemo />
+      </div>
       <div
         className="flex items-center gap-2 cursor-pointer"
         onClick={handleClick}
@@ -48,7 +53,7 @@ function Header() {
       </div>
 
       {/* Center Section: Navigation Links */}
-      <div className="flex items-center gap-6">
+      <div className="hidden md:flex items-center gap-6  ">
         {!isProcessorPage ? (
           // Normal User Navigation
           <>
@@ -107,8 +112,7 @@ function Header() {
         )}
 
         {/* Always show Avatar */}
-        <PopoverDemo/>
-      
+        <PopoverDemo />
       </div>
     </header>
   );

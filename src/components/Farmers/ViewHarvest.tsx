@@ -137,7 +137,7 @@ export function ViewHarvest({ harvestId }: ViewHarvestProps) {
               <div className=" border-yellow-400 rounded-md p-4 mb-6 bg-yellow-50 text-sm">
                 <div className="grid grid-cols-2 gap-y-2">
                   <p className="text-gray-500">Location</p>
-                  <p>123 Main St, Kampala, Uganda</p>
+                  <p>{displayHarvest?.location}</p>
                   <p className="text-gray-500">Coordinates</p>
                   <p>(0.3424, 32.4543)</p>
                   <p className="text-gray-500">Perimeter</p>

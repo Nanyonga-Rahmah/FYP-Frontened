@@ -29,16 +29,22 @@ interface ViewFarmProps {
 }
 
 export function ViewFarm({ farmId }: ViewFarmProps) {
+
+  
   const [open, setOpen] = useState(false);
   const [farm, setFarm] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 const { authToken } = useAuth();
+
+console.log("------>",`${viewOneFarm}${farmId}`)
+
   const fetchFarmDetails = async () => {
     if (!farmId) return;
 
     setLoading(true);
     setError(null);
+
 
     try {
       const response = await fetch(`${viewOneFarm}${farmId}`, {
@@ -48,6 +54,9 @@ const { authToken } = useAuth();
           Authorization: `Bearer ${authToken}`,
         },
       });
+
+
+      console.log(response)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -179,7 +188,7 @@ const { authToken } = useAuth();
                 <div className="flex items-center justify-between gap-1">
                   <span>Total coffee trees on farm</span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
-                    {farm.status}
+                    {farm.numberofTrees}
                   </span>
                 </div>
 

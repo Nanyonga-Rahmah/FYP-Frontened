@@ -29,9 +29,9 @@ export function PopoverDemo({ farmId, status }: ActionProps) {
       <PopoverContent className="w-44 flex flex-col gap-2 absolute right-2">
         {pathname === "/view-farms" && (
           <>
-            <ViewFarm />
+            <ViewFarm farmId={farmId}/>
             <EditFarm />
-            <span>Transfer Ownership</span>
+            {/* <span>Transfer Ownership</span> */}
             <RemoveFarm />
           </>
         )}

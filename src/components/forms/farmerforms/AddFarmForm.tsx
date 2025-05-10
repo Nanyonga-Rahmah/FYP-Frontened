@@ -28,16 +28,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { FarmCreate } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
-
+import { convertCoordsToCanvasPoints } from "@/lib/constants";
 const FormSchema = z.object({
   farmName: z.string().min(2, {
     message: "Field is required.",
   }),
- 
+
   numberofTrees: z.string(),
   cultivationMethod: z.string(),
   certification: z.string(),
-  documents: z.any(), 
+  documents: z.any(),
   farmSize: z.string().optional(),
   yearOfEstablishment: z.string().min(2, {
     message: "Field is required.",
@@ -48,6 +48,7 @@ interface AddFarmProps {
   handlePrevious: () => void;
   geoData: {
     polygon: any;
+    location: string;
     area: number;
     perimeter: number;
     coordinates: number[][];
@@ -76,7 +77,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       farmName: "",
-   
+
       farmSize: geoData.area.toString(),
       documents: [],
       numberofTrees: "0",
@@ -88,31 +89,14 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
 
   console.log(geoData);
 
-  // const stage = new Konva.Stage({
-  //   container: 'container',
-  //   width: window.innerWidth,
-  //   height: window.innerHeight
-  // });
+  // const toKonvaPoints = (geoCoords: [number, number][]) => {
+  //   return geoCoords.flatMap(([lng, lat]) => [lng * 1000, lat * 1000]);
+  // };
 
-  //   const layer = new Konva.Layer();
-  // stage.add(layer);
-
-  // const polygon = new Konva.Line({
-  //   points: [73, 192, 73, 160, 340, 23, 500, 109, 499, 139, 342, 93],
-  //   fill: '#00D2FF',
-  //   stroke: 'black',
-  //   strokeWidth: 5,
-  //   closed: true
-  // });
-
-  const toKonvaPoints = (geoCoords: [number, number][]) => {
-    return geoCoords.flatMap(([lng, lat]) => [lng * 1000, lat * 1000]);
-  };
-
-  const validCoordinates = geoData.coordinates.filter(
-    (coord): coord is [number, number] => coord.length === 2
-  );
-  const points = toKonvaPoints(validCoordinates);
+  // const validCoordinates = geoData.coordinates.filter(
+  //   (coord): coord is [number, number] => coord.length === 2
+  // );
+  // const points = toKonvaPoints(validCoordinates);
 
   function handleFileChange(files: FileList | null) {
     if (!files) return;
@@ -204,12 +188,16 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid grid-cols-2 gap-2 px-3 py-1.5"
         >
-          <div className="border border-[#DFA32D] px-4 py-2 rounded-[5px] col-span-2 flex gap-4 bg-[#FFF8EA] ">
-            <div className="h-[100px]">
-              <Stage width={200} height={200}>
+          <div className="border border-[#DFA32D] px-4 py-2 rounded-[5px] col-span-2 flex flex-col sm:flex-row sm:gap-4 bg-[#FFF8EA]">
+            <div className="h-[100px] sm:w-[150px] w-full">
+              <Stage width={100} height={200}>
                 <Layer>
                   <Line
-                    points={points}
+                    points={convertCoordsToCanvasPoints(
+                      geoData.coordinates,
+                      100,
+                      100
+                    )}
                     closed
                     fill="#E7B35A"
                     stroke="#A56D00"
@@ -218,28 +206,32 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
               </Stage>
             </div>
 
-            <div className="flex flex-col ">
-              <div className="flex  items-center">
-                <span>Location:</span>
-                <span></span>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:w-full">
+              <div className="flex items-center">
+                <span className="font-semibold">Location:</span>
+                <span className="ml-2">{geoData.location}</span>
               </div>
-              <div className="flex  items-center">
-                <span>Coordinates:</span>[
-                {geoData.coordinates
-                  .map(([lat, lng]) => `${lat.toFixed(2)}, ${lng.toFixed(2)}`)
-                  .join(", ")}
-                ]{" "}
+              <div className="flex items-center">
+                <span className="font-semibold">Coordinates:</span>
+                <span className="ml-2">
+                  [
+                  {geoData.coordinates
+                    .map(([lat, lng]) => `${lat.toFixed(2)}, ${lng.toFixed(2)}`)
+                    .join(", ")}
+                  ]
+                </span>
               </div>
-              <div className="flex  items-center">
-                <span>Perimeter:</span>
-                <span>{geoData.perimeter}</span>
+              <div className="flex items-center">
+                <span className="font-semibold">Perimeter:</span>
+                <span className="ml-2">{geoData.perimeter}</span>
               </div>
-              <div className="flex  items-center">
-                <span>Area:</span>
-                <span>{geoData.area}</span>
+              <div className="flex items-center">
+                <span className="font-semibold">Area:</span>
+                <span className="ml-2">{geoData.area}</span>
               </div>
             </div>
           </div>
+
           <FormField
             control={form.control}
             name="farmName"
@@ -265,7 +257,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
             control={form.control}
             name="numberofTrees"
             render={({ field }) => (
-              <FormItem className="col-span-1 text-left">
+              <FormItem className="lg:col-span-1 col-span-2 text-left">
                 <FormLabel className="font-normal text-[#222222] text-sm">
                   Total coffee trees on farm
                 </FormLabel>
@@ -287,7 +279,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
             control={form.control}
             name="yearOfEstablishment"
             render={({ field }) => (
-              <FormItem className="col-span-1 text-left">
+              <FormItem className="lg:col-span-1 col-span-2 text-left">
                 <FormLabel className="font-normal text-[#222222] text-sm">
                   Year farm started
                 </FormLabel>

@@ -11,46 +11,11 @@ import { Layer, Line, Stage } from "react-konva";
 import { checkBadgeStatus } from "./ViewHarvets";
 import useAuth from "@/hooks/use-auth";
 import useUserProfile from "@/hooks/use-profile";
+import { convertCoordsToCanvasPoints, Farm } from "@/lib/constants";
 
-interface Farmer {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
 
-interface Document {
-  _id: string;
-  name: string;
-  url: string;
-  mimetype?: string;
-}
 
-interface Farm {
-  _id: string;
-  farmerId: Farmer;
-  numberofTrees: number;
-  farmName: string;
-  location: string;
-  latitude?: number;
-  longitude?: number;
-  farmSize: number;
-  polygon: {
-    type: "Polygon";
-    coordinates: number[][][];
-  };
-  area: number;
-  perimeter: number;
-  cultivationMethods: string[];
-  certifications?: string[];
-  documents: Document[];
-  yearEstablished?: string;
-  isDeleted: boolean;
-  status: "pending" | "approved" | "rejected";
-  adminNotes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+
 
 export const getRandomColor = () => {
   const colors = ["#E7B35A", "#EE443F", "#0C5FA0"];
@@ -95,26 +60,7 @@ function ViewFarmsPage() {
 
   console.log("--->", farms);
 
-  const convertCoordsToCanvasPoints = (
-    coords: number[][],
-    width: number,
-    height: number
-  ): number[] => {
-    // Get bounds
-    const lats = coords.map((c) => c[1]);
-    const lngs = coords.map((c) => c[0]);
-
-    const minLat = Math.min(...lats);
-    const maxLat = Math.max(...lats);
-    const minLng = Math.min(...lngs);
-    const maxLng = Math.max(...lngs);
-
-    return coords.flatMap(([lng, lat]) => {
-      const x = ((lng - minLng) / (maxLng - minLng)) * width;
-      const y = height - ((lat - minLat) / (maxLat - minLat)) * height;
-      return [x, y];
-    });
-  };
+  
 
   const getInitials = (): string => {
     if (profile && profile.firstName && profile.lastName) {

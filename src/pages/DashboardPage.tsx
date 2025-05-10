@@ -3,11 +3,12 @@ import Footer from "@/components/globals/Footer";
 import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LocateFixed, Loader2 } from "lucide-react";
+import { LocateFixed, Loader2, Info, FileWarning } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/use-auth";
 import useUserProfile from "@/hooks/use-profile";
 import { getInitials } from "@/lib/constants";
+import useFarmData from "@/hooks/FarmHook";
 
 const actions = [
   {
@@ -54,13 +55,14 @@ const actions = [
   },
 ];
 
-
 function DashboardPage() {
   const navigate = useNavigate();
   const { authToken } = useAuth();
   const { profile, loading: isLoading } = useUserProfile(authToken);
+  const farmId = localStorage.getItem("FarmId") || "";
+  const { farm } = useFarmData(farmId);
 
- 
+  console.log(farm);
 
   return (
     <section
@@ -71,8 +73,8 @@ function DashboardPage() {
     >
       {" "}
       <Header />
-      <section className="px-20 py-10">
-        <div className="flex items-center justify-between ">
+      <section className="lg:px-20 px-3 py-10">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between ">
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12">
               {isLoading ? (
@@ -104,7 +106,7 @@ function DashboardPage() {
 
           <div>
             <Button
-              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2 text-white"
+              className="bg-[#E7B35A] flex items-center gap-1 rounded-md px-2 w-full text-white"
               onClick={() => {
                 navigate("/add-farm");
               }}
@@ -114,29 +116,60 @@ function DashboardPage() {
             </Button>
           </div>
         </div>
+        {farm?.status === "pending" && (
+          <div className="flex items-center gap-1 bg-[#FFF8EA] border rounded-md py-2 text-sm  lg:w-[70%] font-medium px-3 mt-10 text-[#A56D00] border-dashed border-[#E7B35A]">
+            <Info />
+            <span>
+              Your farm submission is being reviewed. This may take up to 1-2
+              days. You will be notified once the process is complete.
+            </span>
+          </div>
+        )}
 
-        <section className="mt-16">
+        {farm?.status === "rejected" && (
+          <div className="flex items-center gap-1 bg-[#FFF8F6] border rounded-md py-2 text-sm lg:w-[70%] font-medium px-3 mt-10 text-[#D32527] border-dashed border-[#EE443F]">
+            <FileWarning />
+            <span>
+              Your farm submission was rejected. Please review the submission
+              details and try again.
+            </span>
+          </div>
+        )}
+
+        <section className="mt-16 lg:mt-16">
           <span className="font-semibold text-xl text-white ">
             Quick Actions
           </span>
 
-          <div className="grid lg:grid-cols-3 gap-5 mt-5 mb-10">
-            {actions.map((action, index) => (
-              <div
-                key={index}
-                className="bg-white flex flex-col items-center rounded-[10px] max-w-[370px] max-h-[237px] justify-center py-3 shadow-sm"
-              >
-                <div className="object-cover h-20 w-20 flex justify-center items-center">
-                  <img src={action.imageUrl} alt={action.description} />
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5 mt-5 mb-10">
+            {actions.map((action, index) => {
+              const isDisabled =
+                (farm?.status === "pending" || farm?.status === "rejected") &&
+                action.description !== "Review your farm location and data" &&
+                action.name !== "Help Center";
+
+              return (
+                <div
+                  key={index}
+                  aria-disabled={isDisabled}
+                  className={`bg-white flex flex-col items-center px-3 text-center rounded-[5px] lg:rounded-[10px] lg:max-w-[370px] max-h-[237px] justify-center py-3 shadow-sm ${
+                    isDisabled
+                      ? "pointer-events-none text-opacity-50 opacity-40"
+                      : ""
+                  }`}
+                >
+                  <div className="object-cover h-20 w-20 flex justify-center items-center">
+                    <img src={action.imageUrl} alt={action.description} />
+                  </div>
+                  <span className="font-semibold text-xl text-[#222222]">
+                    {action.name}
+                  </span>
+                  <span className="font-normal tetx-sm text-[#5C6474]">
+                    {action.description}
+                  </span>
                 </div>
-                <span className="font-semibold text-xl text-[#222222]">
-                  {action.name}
-                </span>
-                <span className="font-normal tetx-sm text-[#5C6474]">
-                  {action.description}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </section>

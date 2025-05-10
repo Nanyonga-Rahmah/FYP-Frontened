@@ -38,3 +38,65 @@ export const cooperatives = [
     }
     return "MN";
   };
+
+  export const convertCoordsToCanvasPoints = (
+      coords: number[][],
+      width: number,
+      height: number
+    ): number[] => {
+      // Get bounds
+      const lats = coords.map((c) => c[1]);
+      const lngs = coords.map((c) => c[0]);
+  
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+  
+      return coords.flatMap(([lng, lat]) => {
+        const x = ((lng - minLng) / (maxLng - minLng)) * width;
+        const y = height - ((lat - minLat) / (maxLat - minLat)) * height;
+        return [x, y];
+      });
+    };
+
+    export interface Farmer {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    }
+    
+    interface Document {
+      _id: string;
+      name: string;
+      url: string;
+      mimetype?: string;
+    }
+
+    export interface Farm {
+      _id: string;
+      farmerId: Farmer;
+      numberofTrees: number;
+      farmName: string;
+      location: string;
+      latitude?: number;
+      longitude?: number;
+      farmSize: number;
+      polygon: {
+        type: "Polygon";
+        coordinates: number[][][];
+      };
+      area: number;
+      perimeter: number;
+      cultivationMethods: string[];
+      certifications?: string[];
+      documents: Document[];
+      yearEstablished?: string;
+      isDeleted: boolean;
+      status: "pending" | "approved" | "rejected";
+      adminNotes?: string;
+      createdAt: string;
+      updatedAt: string;
+    }
+    

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Login } from "@/lib/routes";
+import { AllFarms, Login } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
 import useAuth from "@/hooks/use-auth";
 
@@ -73,7 +73,25 @@ export function LoginForm() {
           description: `Successfully logged in`,
         });
 
-        // Redirect based on user role
+        const farmsResponse = await fetch(AllFarms, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${result.token}`,
+          },
+        });
+
+        if (!farmsResponse.ok) {
+          throw new Error("Failed to load farms");
+        }
+
+        const farms = await farmsResponse.json();
+
+        if (farms.length > 1) {
+          navigate("/select-farm");
+          return;
+        }
+
         const role = result.user.role;
         let dashboardPath = "/dashboard";
 
