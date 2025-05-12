@@ -16,7 +16,7 @@ import {
 
 const containerStyle = {
   width: "100%",
-  height: "600px",
+  height: "90vh",
   "@media (maxwidth: 1200px)": {
     height: "700px",
   },
@@ -49,6 +49,11 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
   const [polygonPath, setPolygonPath] = useState<
     google.maps.LatLngLiteral[] | null
   >(null);
+
+  const [polygonData, setPolygonData] = useState<
+    google.maps.LatLngLiteral[] | null
+  >(null);
+
   const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>({
     lat: 0,
     lng: 0,
@@ -95,8 +100,7 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
       (position) => {
         const { latitude, longitude } = position.coords;
         const newPoint = { lat: latitude, lng: longitude };
-
-        if (positions.length > 0) {
+        if (google?.maps?.geometry?.spherical && positions.length > 0) {
           const lastPoint = positions[positions.length - 1];
           const distance =
             google.maps.geometry.spherical.computeDistanceBetween(
@@ -105,6 +109,16 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
             );
           if (distance < 2) return; // Ignore if less than 2 meters
         }
+
+        // if (positions.length > 0) {
+        //   const lastPoint = positions[positions.length - 1];
+        //   const distance =
+        //     google.maps.geometry?.spherical?.computeDistanceBetween(
+        //       new google.maps.LatLng(lastPoint.lat, lastPoint.lng),
+        //       new google.maps.LatLng(newPoint.lat, newPoint.lng)
+        //     );
+        //   if (distance < 2) return; // Ignore if less than 2 meters
+        // }
 
         setPositions((prev) => [...prev, newPoint]);
         setMapCenter(newPoint);
@@ -122,15 +136,27 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
   useEffect(() => {
     if (polygonPath && polygonPath.length >= 3) {
       const closedPath = [...polygonPath, polygonPath[0]];
-      const areaSqm = google.maps.geometry.spherical.computeArea(closedPath);
-      const perimeterM =
-        google.maps.geometry.spherical.computeLength(closedPath);
-      setArea(areaSqm);
-      setPerimeter(perimeterM);
-    } else {
-      setArea(null);
-      setPerimeter(null);
+
+      if (google?.maps?.geometry?.spherical) {
+        const areaSqm = google.maps.geometry.spherical.computeArea(closedPath);
+        const perimeterM =
+          google.maps.geometry.spherical.computeLength(closedPath);
+        setArea(areaSqm);
+        setPerimeter(perimeterM);
+      } else {
+        setArea(null);
+        setPerimeter(null);
+      }
     }
+    //   const areaSqm = google.maps.geometry?.spherical?.computeArea(closedPath);
+    //   const perimeterM =
+    //     google.maps.geometry?.spherical?.computeLength(closedPath);
+    //   setArea(areaSqm);
+    //   setPerimeter(perimeterM);
+    // } else {
+    //   setArea(null);
+    //   setPerimeter(null);
+    // }
   }, [polygonPath]);
 
   const getAreaDisplay = (areaSqm: number, unit: "sqm" | "ha" | "ac") => {
@@ -149,11 +175,19 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
       alert("Minimum 3 points required to create a polygon");
       return;
     }
+    const closedPolygon = [...positions, positions[0]];
+    setPolygonData(closedPolygon);
 
-    const polygonData = positions;
-    localStorage.setItem("savedPolygon", JSON.stringify(polygonData));
+    console.log("Closed Polygon:", closedPolygon);
+    console.log("Positions:", positions);
+    console.log("Location Name:", locationName);
+    console.log("Map Center:", mapCenter);
+    console.log("Area:", area);
+    console.log("Perimeter:", perimeter);
 
-    setPolygonPath(positions);
+    localStorage.setItem("savedPolygon", JSON.stringify(closedPolygon));
+
+    setPolygonPath(closedPolygon);
     setIsCollecting(false);
   };
 
@@ -271,7 +305,7 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
 
       {/* Measurement Panel */}
       {polygonPath && (
-        <div className="absolute top-40 left-5 bg-white p-4 rounded-xl shadow-lg w-64">
+        <div className="absolute top-40 left-5 bg-white text-black/80 p-4 rounded-xl shadow-lg w-64">
           <h3 className="text-lg font-bold mb-3">Farm Measurements</h3>
           <div className="space-y-2 mb-4">
             <p className="text-sm">
@@ -316,11 +350,17 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
               onClick={() => {
                 if (!polygonPath) return;
 
-                const coordinates = polygonPath.map((point) => [
-                  point.lng,
-                  point.lat,
-                ]);
+                const coordinates =
+                  polygonData?.map((point) => [point.lng, point.lat]) || [];
                 const center = mapCenter;
+
+                console.log("Polygon Path:", polygonPath);
+                console.log("Polygon Data:", polygonData);
+                console.log("Coordinates:", coordinates);
+                console.log("Location Name:", locationName);
+                console.log("Center:", center);
+                console.log("Area:", area);
+                console.log("Perimeter:", perimeter);
 
                 handleNext({
                   polygon: {
@@ -330,7 +370,7 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
                   location: locationName,
                   area: area || 0,
                   perimeter: perimeter || 0,
-                  coordinates,
+                  coordinates: coordinates,
                   center,
                 });
               }}

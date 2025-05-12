@@ -30,7 +30,10 @@ export function PopoverDemo() {
     <Popover>
       <PopoverTrigger asChild className="cursor-pointer relative">
         <Avatar className="h-7 w-7 text-sm">
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarFallback className="bg-gray-400 text-white font-bold capitalize">
+            {" "}
+            {getInitials(profile)}
+          </AvatarFallback>
         </Avatar>
       </PopoverTrigger>
 
@@ -47,7 +50,7 @@ export function PopoverDemo() {
               </Avatar>
 
               <div className="flex flex-col text-[13px]">
-                <span className="capitalize">
+                <span className="capitalize text-white ">
                   {profile && profile.firstName + " " + profile.lastName}
                 </span>
                 <span className="capitalize">{profile && profile.role}</span>

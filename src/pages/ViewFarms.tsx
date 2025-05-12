@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LocateFixed, MapPin, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { AllFarms, FarmerFarms } from "@/lib/routes";
+import {  FarmerFarms } from "@/lib/routes";
 import { Layer, Line, Stage } from "react-konva";
 import { checkBadgeStatus } from "./ViewHarvets";
 import useAuth from "@/hooks/use-auth";
@@ -77,8 +77,8 @@ function ViewFarmsPage() {
       }}
     >
       <Header />
-      <section className="px-20 py-10">
-        <div className="flex items-center justify-between ">
+      <section className="lg:px-[5vw] px-[4vw] py-10">
+        <div className="flex  lg:pt-[5vh] items-center justify-between ">
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12">
               {profileLoading ? (
@@ -119,7 +119,7 @@ function ViewFarmsPage() {
           </div>
         </div>
 
-        <section className="mt-16">
+        <section className="mt-16 lg:mt-[20vh]">
           <span className="font-semibold text-xl text-white">My Farms</span>
 
           {loading && (
@@ -130,12 +130,12 @@ function ViewFarmsPage() {
           )}
 
           {!loading && !error && (
-            <div className="grid lg:grid-cols-3 gap-5 mt-5 mb-10">
+            <div className="grid lg:grid-cols-3 gap-5 lg:gap-10 mt-5 mb-10">
               {farms.length > 0 ? (
                 farms.map((farm, index) => (
                   <div
                     key={index}
-                    className="bg-white flex flex-col max-w-[370px] max-h-[237px] rounded-[10px] py-2 px-3 shadow-sm"
+                    className="bg-white flex flex-col lg:max-w-[40vw] max-h-[30vh] rounded-[10px] py-2 px-3 shadow-sm"
                   >
                     <div
                       className={`flex items-center ml-auto capitalize px-2 py-1 rounded-full w-min ${checkBadgeStatus(farm.status)}`}

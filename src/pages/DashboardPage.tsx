@@ -73,8 +73,8 @@ function DashboardPage() {
     >
       {" "}
       <Header />
-      <section className="lg:px-20 px-3 py-10">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between ">
+      <section className="lg:px-[5vw] px-[4vw] py-10">
+        <div className="flex flex-col lg:pt-[5vh] gap-5 lg:flex-row lg:items-center lg:justify-between ">
           <div className="flex items-center gap-3">
             <Avatar className="w-12 h-12">
               {isLoading ? (
@@ -89,6 +89,7 @@ function DashboardPage() {
             </Avatar>
             <div className="flex">
               <div>
+                nserevw101@gmail.com
                 <span className="text-[#C0C9DDE5]">Greetings,</span>
                 <br />
                 <span className="font-semibold text-xl text-white">
@@ -121,7 +122,8 @@ function DashboardPage() {
             <Info />
             <span>
               Your farm submission is being reviewed. This may take up to 1-2
-              days. You will be notified once the process is complete.
+              days. You will be notified once the process is
+              complnserevw101@gmail.comete.
             </span>
           </div>
         )}
@@ -136,7 +138,7 @@ function DashboardPage() {
           </div>
         )}
 
-        <section className="mt-16 lg:mt-16">
+        <section className="mt-16 lg:mt-[20vh]">
           <span className="font-semibold text-xl text-white ">
             Quick Actions
           </span>
@@ -152,7 +154,7 @@ function DashboardPage() {
                 <div
                   key={index}
                   aria-disabled={isDisabled}
-                  className={`bg-white flex flex-col items-center px-3 text-center rounded-[5px] lg:rounded-[10px] lg:max-w-[370px] max-h-[237px] justify-center py-3 shadow-sm ${
+                  className={`bg-white flex flex-col items-center px-3 text-center rounded-[5px] lg:rounded-[10px] lg:max-w-[40vw] max-h-[30vh] justify-center py-3 shadow-sm ${
                     isDisabled
                       ? "pointer-events-none text-opacity-50 opacity-40"
                       : ""

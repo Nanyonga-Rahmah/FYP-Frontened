@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { AllFarms, Login } from "@/lib/routes";
+import {  FarmerFarms, Login } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
 import useAuth from "@/hooks/use-auth";
 
@@ -73,7 +73,7 @@ export function LoginForm() {
           description: `Successfully logged in`,
         });
 
-        const farmsResponse = await fetch(AllFarms, {
+        const farmsResponse = await fetch(FarmerFarms, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

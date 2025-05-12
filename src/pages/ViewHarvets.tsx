@@ -119,7 +119,7 @@ function ViewHarvestsPage() {
       }}
     >
       <Header />
-      <section className="px-4 md:px-10 lg:px-20 py-10 flex-grow">
+      <section className="lg:px-[5vw] px-[4vw] py-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 mb-4 md:mb-0">
             <Avatar className="w-12 h-12">
@@ -149,7 +149,7 @@ function ViewHarvestsPage() {
           </div>
         </div>
 
-        <section className="mt-16">
+        <section className="mt-16 lg:mt-[15vh]">
           <div className="flex items-center justify-between mb-5">
             <span className="font-semibold text-xl text-white">
               Harvest records

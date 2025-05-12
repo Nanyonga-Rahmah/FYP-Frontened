@@ -36,12 +36,11 @@ export function AddFarm() {
 
   return (
     <div
-      className={` min-h-screen flex flex-col bg-white ${currentStep !== 2 && "lg:px-20 px-5 py-10"}  ${open && "bg-white"} `}
+      className={` min-h-screen flex flex-col bg-white ${currentStep !== 2 && "lg:px-20 px-5 py-10 lg:py-[10vh]"}  ${open && "bg-white"} `}
     >
       {currentStep === 2 && (
         <FarmMap currentStep={2} handleNext={handleMapNext} />
       )}
-
       {currentStep !== 2 && (
         <div className="flex   justify-end">
           <X
@@ -52,6 +51,7 @@ export function AddFarm() {
           />
         </div>
       )}
+      ..
       {currentStep !== 2 && (
         <div className="flex items-center justify-center my-10">
           <div className="flex flex-col items-center justify-center border border-[#F0F0F0] xl:w-[560px] rounded-lg px-6 py-2 ">
@@ -59,19 +59,16 @@ export function AddFarm() {
               <h3 className="text-center text-[#222222] font-bold text-xl">
                 Register your farm
               </h3>
-
               {currentStep === 1 && (
                 <p className="text-center text-[#838383] text-xs">
                   Step 1/3 - Start
                 </p>
               )}
-
               {currentStep === 3 && (
                 <p className="text-center text-[#838383] text-xs">
                   Step 3/3 - Farm details
                 </p>
               )}
-
               <div className="flex justify-center gap-2 w-full">
                 {[1, 2, 3].map((step) => (
                   <div
@@ -82,11 +79,10 @@ export function AddFarm() {
                   />
                 ))}
               </div>
-
+              .
               {currentStep === 1 && (
                 <RegisterFarm handlenext={handleNext} onclose={handleClose} />
               )}
-
               {currentStep === 3 && farmGeoData && (
                 <AddFarmForm
                   handlePrevious={handlePrevious}

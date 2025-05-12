@@ -4,8 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogFooter,
-  DialogHeader,
- 
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FileText } from "lucide-react";
@@ -29,22 +27,19 @@ interface ViewFarmProps {
 }
 
 export function ViewFarm({ farmId }: ViewFarmProps) {
-
-  
   const [open, setOpen] = useState(false);
   const [farm, setFarm] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-const { authToken } = useAuth();
+  const { authToken } = useAuth();
 
-console.log("------>",`${viewOneFarm}${farmId}`)
+  console.log("------>", `${viewOneFarm}${farmId}`);
 
   const fetchFarmDetails = async () => {
     if (!farmId) return;
 
     setLoading(true);
     setError(null);
-
 
     try {
       const response = await fetch(`${viewOneFarm}${farmId}`, {
@@ -55,8 +50,7 @@ console.log("------>",`${viewOneFarm}${farmId}`)
         },
       });
 
-
-      console.log(response)
+      console.log(response);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -115,18 +109,19 @@ console.log("------>",`${viewOneFarm}${farmId}`)
           View
         </span>
       </DialogTrigger>
-      <DialogContent className=" w-[900px]">
+      <DialogContent className="w-[40vw]">
         {loading ? (
           <div className="py-8 text-center">Loading farm details...</div>
         ) : error ? (
           <div className="py-8 text-center text-red-500">Error: {error}</div>
         ) : farm ? (
           <>
-            <DialogHeader></DialogHeader>
 
-            <ScrollArea className="h-[500px] overflow-y-auto">
+            <h3 className="text-black font-bold text-center text-xl">Farm Details</h3>
+
+            <ScrollArea className="h-[600px] overflow-y-auto">
               <div className="flex flex-col gap-2">
-                <div className="border border-[#DFA32D] mt-10 px-4 py-2 rounded-[5px] col-span-2 flex gap-4 bg-[#FFF8EA] ">
+                <div className="border border-[#DFA32D] px-4 py-2 rounded-[5px] col-span-2 flex gap-10 bg-[#FFF8EA] ">
                   <div className="h-[100px]">
                     <Stage width={100} height={100}>
                       <Layer>
@@ -144,13 +139,13 @@ console.log("------>",`${viewOneFarm}${farmId}`)
                     </Stage>
                   </div>
 
-                  <div className="flex flex-col ">
-                    <div className="flex  items-center">
-                      <span>Location:</span>
+                  <div className="flex flex-col text-black ">
+                    <div className="flex  items-center ">
+                      <span className="text-[#202020]"> Location:</span>
                       <span>{farm.location}</span>
                     </div>
                     <div className="flex  items-center">
-                      <span>Coordinates:</span>[
+                      <span className="text-[#202020]"> Coordinates:</span>[
                       {farm.polygon.coordinates[0]
                         .map(
                           ([lat, lng]: [number, number]) =>
@@ -160,18 +155,18 @@ console.log("------>",`${viewOneFarm}${farmId}`)
                       ]{" "}
                     </div>
                     <div className="flex  items-center">
-                      <span>Perimeter:</span>
+                      <span className="text-[#202020]"> Perimeter:</span>
                       <span>{farm.perimeter}</span>
                     </div>
                     <div className="flex  items-center">
-                      <span>Area:</span>
+                      <span className="text-[#202020]"> Area:</span>
                       <span>{farm.area}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-1">
-                  <span>{farm.farmName}</span>
+                <div className="flex items-center justify-between gap-1 space-y-2">
+                  <span className="text-[#202020]"> {farm.farmName}</span>
                   <div
                     className={`flex items-center ml-auto capitalize px-2 py-1 rounded-full w-min ${checkBadgeStatus(farm.status)}`}
                   >
@@ -179,42 +174,64 @@ console.log("------>",`${viewOneFarm}${farmId}`)
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-1">
-                  <span>Year farm started</span>
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]"> Year farm started</span>
                   <span className="text-[#202020]">
                     {new Date(farm.yearEstablished).getFullYear()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-1">
-                  <span>Total coffee trees on farm</span>
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]">
+                    {" "}
+                    Total coffee trees on farm
+                  </span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
                     {farm.numberofTrees}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-1">
-                  <span>Cultivation methods</span>
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]"> Cultivation methods</span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
                     {farm.cultivationMethods?.join(", ") || "None specified"}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-1">
-                  <span>Certifications</span>
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]"> Certifications</span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
                     <p>{farm.certifications?.join(", ") || "None"}</p>
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-1">
-                  <span>Date added</span>
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]"> Date added</span>
+                  <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
+                    {formatDate(farm.createdAt)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]"> Defforestation status</span>
+                  <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
+                    {formatDate(farm.createdAt)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]"> Defforestation Risk Level added</span>
+                  <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
+                    {formatDate(farm.createdAt)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-1  space-y-2">
+                  <span className="text-[#202020]"> Risk Factor</span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
                     {formatDate(farm.createdAt)}
                   </span>
                 </div>
 
                 {farm.status === "rejected" && (
-                  <div className="flex items-center justify-between gap-1">
-                    <span>Reason</span>
+                  <div className="flex items-center justify-between gap-1  space-y-2">
+                    <span className="text-[#202020]"> Reason</span>
                     <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
                       {farm.adminNotes}
                     </span>
@@ -240,12 +257,12 @@ console.log("------>",`${viewOneFarm}${farmId}`)
                       {farm.documents.map(
                         (document: Document, index: number) => (
                           <div
-                            className="border rounded-xl flex flex-col items-center p-3 gap-1"
+                            className="border w-full  rounded-[8px] flex  py-2 px-1  gap-1 border-[#D9D9D9]"
                             key={index}
                           >
                             <FileText
                               size={30}
-                              className="transform rotate-180"
+                              className="transform rotate-180 text-black"
                             />
                             <span className="text-[#5C6474] text-xs max-w-[80px] truncate">
                               {document.name}
@@ -264,6 +281,25 @@ console.log("------>",`${viewOneFarm}${farmId}`)
                     </div>
                   </div>
                 )}
+
+                <div>
+                  <h3 className="text-sm font-medium text-black mb-1">
+                    Audit Logs
+                  </h3>
+                  <div className="text-sm border-l-4 pl-3 border-blue-500 space-y-2">
+                    {farm.auditLogs?.map((log: any, index: any) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center"
+                      >
+                        <p className="text-black">
+                          <span className="text-blue-500">●</span> {log.text}
+                        </p>
+                        <p className="text-gray-500 text-xs">{log.date}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </ScrollArea>
 

@@ -29,8 +29,12 @@ import { useState } from "react";
 import { FarmCreate } from "@/lib/routes";
 import { toast } from "@/hooks/use-toast";
 import { convertCoordsToCanvasPoints } from "@/lib/constants";
+import useAuth from "@/hooks/use-auth";
 const FormSchema = z.object({
   farmName: z.string().min(2, {
+    message: "Field is required.",
+  }),
+  location: z.string().min(2, {
     message: "Field is required.",
   }),
 
@@ -60,7 +64,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const { authToken } = useAuth();
   const [cultivationMethods] = useState([
     "Organic",
     "Convetional",
@@ -77,6 +81,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       farmName: "",
+      location: geoData.location,
 
       farmSize: geoData.area.toString(),
       documents: [],
@@ -87,7 +92,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
     },
   });
 
-  console.log(geoData);
+  console.log("--->",geoData);
 
   // const toKonvaPoints = (geoCoords: [number, number][]) => {
   //   return geoCoords.flatMap(([lng, lat]) => [lng * 1000, lat * 1000]);
@@ -124,6 +129,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
       formData.append("cultivationMethods", data.cultivationMethod);
       formData.append("certifications", data.certification);
       formData.append("yearEstablished", data.yearOfEstablishment);
+      formData.append("location", geoData.location);
 
       // Add geo data
       formData.append("latitude", geoData.center.lat.toString());
@@ -146,7 +152,9 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
       const response = await fetch(FarmCreate, {
         method: "POST",
         body: formData,
-        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       const result = await response.json();
@@ -206,7 +214,7 @@ export function AddFarmForm({ handlePrevious, geoData }: AddFarmProps) {
               </Stage>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:w-full">
+            <div className="flex flex-col sm:flex-row text-black sm:flex-wrap gap-2 sm:w-full">
               <div className="flex items-center">
                 <span className="font-semibold">Location:</span>
                 <span className="ml-2">{geoData.location}</span>

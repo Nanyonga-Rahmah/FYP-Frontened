@@ -15,6 +15,7 @@ import { RemoveHarvest } from "../Farmers/RemoveHarvest";
 interface ActionProps {
   farmId?: string;
   status?: string;
+  harvestId?: string;
 }
 
 export function PopoverDemo({ farmId, status }: ActionProps) {
