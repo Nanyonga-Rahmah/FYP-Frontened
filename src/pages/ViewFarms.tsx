@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LocateFixed, MapPin, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { AllFarms } from "@/lib/routes";
+import { AllFarms, FarmerFarms } from "@/lib/routes";
 import { Layer, Line, Stage } from "react-konva";
 import { checkBadgeStatus } from "./ViewHarvets";
 import useAuth from "@/hooks/use-auth";
@@ -35,7 +35,7 @@ function ViewFarmsPage() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(AllFarms, {
+        const response = await fetch(FarmerFarms, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

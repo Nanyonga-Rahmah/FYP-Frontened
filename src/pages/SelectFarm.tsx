@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/use-auth";
 import useUserProfile from "@/hooks/use-profile";
-import { AllFarms } from "@/lib/routes";
+import { FarmerFarms } from "@/lib/routes";
 import { Farm } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { checkBadgeStatus } from "./ViewHarvets";
@@ -22,7 +22,7 @@ function SelectFarm() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(AllFarms, {
+        const response = await fetch(FarmerFarms, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
