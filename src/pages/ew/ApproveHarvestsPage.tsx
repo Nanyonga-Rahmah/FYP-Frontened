@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import HarvestsTable from "@/components/ExtensionWorkers/tables/HarvestsTable";
 import { AllHarvests } from "@/lib/routes";
-import Header from "@/components/globals/ew/Header";
+import Header from "@/components/globals/Header";
 import Footer from "@/components/globals/Footer";
 import useAuth from "@/hooks/use-auth";
 import useUserProfile from "@/hooks/use-profile";

@@ -1,5 +1,5 @@
 import Footer from "@/components/globals/Footer";
-import Header from "@/components/globals/ew/Header";
+import Header from "@/components/globals/Header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocateFixed } from "lucide-react";
