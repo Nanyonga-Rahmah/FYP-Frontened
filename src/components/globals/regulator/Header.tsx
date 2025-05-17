@@ -19,6 +19,7 @@ function Header() {
         {/* Navigation */}
         <nav className="flex flex-wrap items-center gap-6 text-base sm:text-lg">
           <Link to="/about" className="text-[#0F2A38] hover:font-medium">About</Link>
+          <a href="https://bse2517coffichain.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[#0F2A38] hover:font-medium">Blog</a>
           <Link to="/why-coffichain" className="text-[#0F2A38] hover:font-medium">Why Coffichain</Link>
           <Link to="/coffee-journey" className="text-[#0F2A38] hover:font-medium">Coffee journey</Link>
         </nav>
