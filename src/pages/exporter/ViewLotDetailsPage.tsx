@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "@/components/globals/exporter/Header";
+import Header from "@/components/globals/Header";
 import Footer from "@/components/globals/Footer";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";

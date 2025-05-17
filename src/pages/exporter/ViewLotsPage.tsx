@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Header from "@/components/globals/exporter/Header";
+import Header from "@/components/globals/Header";
 import Footer from "@/components/globals/Footer";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Header from "@/components/globals/exporter/Header";
+import Header from "@/components/globals/Header";
 import Footer from "@/components/globals/Footer";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
