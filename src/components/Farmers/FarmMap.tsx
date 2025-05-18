@@ -205,6 +205,8 @@ const FarmMap = ({ currentStep, handleNext }: MapProps) => {
     setPolygonPath(null);
     setArea(null);
     setPerimeter(null);
+    localStorage.removeItem("savedPolygon");
+
   };
 
   const clearPoints = () => {

@@ -157,7 +157,7 @@ export function SubmitBatch() {
             <span className="cursor-pointer">Submit coffee batch</span>
           )}
         </DialogTrigger>
-        <DialogContent className="">
+        <DialogContent className="md:w-[500px]">
           <DialogHeader>
             <DialogTitle className="text-black text-2xl font-semibold">
               {step === 1 && "Submit coffee batch"}

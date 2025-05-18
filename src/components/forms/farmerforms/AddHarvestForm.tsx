@@ -157,9 +157,9 @@ export function AddHarvestForm() {
         title: "Success",
         description: "Successfully Added Harvest",
       });
-      form.reset(); 
-      setSelectedFiles([]); 
-      
+      form.reset();
+      setSelectedFiles([]);
+
       navigate("/view-harvests");
     } catch (error: any) {
       console.error("Submit error:", error);

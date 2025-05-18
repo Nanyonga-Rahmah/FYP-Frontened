@@ -6,6 +6,7 @@ import RejectFarmModal from "./RejectFarmModal";
 import { Farm } from "../tables/FarmTable";
 import { FarmAdmin } from "@/lib/routes";
 import useAuth from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 interface Props {
   onClose: () => void;
@@ -31,14 +32,29 @@ export default function ViewFarmModal({ onClose, farm }: Props) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to approve farm");
+        toast({
+          variant: "destructive",
+          title: "Failure",
+          description: `Approve Failed`,
+        });
       }
 
-      console.log("✅ Farm approved with notes:", notes);
-      setShowApprovalModal(false);
-      onClose();
+      toast({
+        variant: "success",
+        title: "Successful",
+        description: `✅ Farm approved with notes`,
+      });
+
+      setTimeout(() => {
+        setShowApprovalModal(false);
+        onClose();
+      }, 2000);
     } catch (error) {
-      console.error("Error approving farm:", error);
+      toast({
+        variant: "destructive",
+        title: "Failure",
+        description: "Error approving farm",
+      });
     }
   };
 

@@ -19,7 +19,7 @@ export function AddHarvest() {
           <span>Add Record</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[30vw]">
+      <DialogContent className="w-[30vw] md:w-[600px]">
         <DialogHeader>
           <DialogTitle>Record Harvest</DialogTitle>
         </DialogHeader>
