@@ -89,7 +89,7 @@ function DashboardPage() {
             </Avatar>
             <div className="flex">
               <div>
-                nserevw101@gmail.com
+               
                 <span className="text-[#C0C9DDE5]">Greetings,</span>
                 <br />
                 <span className="font-semibold text-xl text-white">

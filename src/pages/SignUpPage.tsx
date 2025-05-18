@@ -35,7 +35,7 @@ function SignUpPage() {
   return (
     <div className="flex justify-center items-center min-h-screen">
       {currentStep === 1 && (
-        <div className="border rounded-xl flex flex-col xl:w-[560px] w-[98vw] px-5  py-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
+        <div className="border rounded-xl flex flex-col md:w-[500px] w-[98vw] px-5  py-3 gap-2 bg-[#FFFFFF] border-[#F0F0F0]">
           <div className="flex flex-col items-center justify-center">
             <Logo />
             <span className="text-2xl font-bold text-[#222222]">
