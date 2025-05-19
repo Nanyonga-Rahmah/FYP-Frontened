@@ -19,7 +19,7 @@ const actions = [
   },
   {
     name: (
-      <Link to="/approve-farm" className="text-black/80 hover:none">
+      <Link to="/approve-farms" className="text-black/80 hover:none">
         Approval Farm
       </Link>
     ),

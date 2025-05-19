@@ -131,6 +131,11 @@ export default function ViewFarmModal({ onClose, farm }: Props) {
     },
   ];
 
+  const HandleFarmLog = () => {
+    localStorage.setItem("ViewedFarm", JSON.stringify(farm));
+    window.location.href = "/#/ew/view-farm";
+  };
+
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
@@ -181,11 +186,7 @@ export default function ViewFarmModal({ onClose, farm }: Props) {
 
               {/* Optional: corner icon */}
               <button
-                onClick={() => {
-                  // Navigate to view farm map page
-                  // Replace with useNavigate() if using React Router
-                  window.location.href = `/view-farm-map/${farm._id}`;
-                }}
+                onClick={HandleFarmLog}
                 className="p-1 bg-[#FFF8E7]"
                 title="View farm polygon on map"
               >

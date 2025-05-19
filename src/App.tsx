@@ -15,6 +15,7 @@ const VerificationPage = lazy(() => import("./pages/VerificationPage"));
 import { AddFarm } from "./components/Farmers/AddFarm";
 import SelectFarm from "./pages/SelectFarm";
 import FarmerBatchDetailsPage from "./pages/ViewFarmerBatchDetails";
+import ViewEWFarmMap from "./pages/ew/ViewFarmMap";
 // Extension Worker Pages
 const ExtensionWorkerDashboard = lazy(() => import("./pages/ew/DashboardPage"));
 const ApproveKYCPage = lazy(() => import("./pages/ew/ApproveKYCPage"));
@@ -99,6 +100,9 @@ function App() {
             <Route path="/approve-kyc" element={<ApproveKYCPage />} />
             <Route path="/approve-farms" element={<ApproveFarmPage />} />
             <Route path="/approve-harvests" element={<ApproveHarvestsPage />} />
+            <Route path="ew/view-farm" element={<ViewEWFarmMap />} />
+
+            {/* Farmer Routes */}
 
             {/* Processor Routes */}
             <Route
