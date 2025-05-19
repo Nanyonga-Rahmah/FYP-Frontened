@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -109,6 +109,7 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
           View
         </span>
       </DialogTrigger>
+    
       <DialogContent className="w-[40vw]">
         {loading ? (
           <div className="py-8 text-center">Loading farm details...</div>
@@ -116,10 +117,11 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
           <div className="py-8 text-center text-red-500">Error: {error}</div>
         ) : farm ? (
           <>
+            <h3 className="text-black font-bold text-center text-xl">
+              Farm Details
+            </h3>
 
-            <h3 className="text-black font-bold text-center text-xl">Farm Details</h3>
-
-            <ScrollArea className="h-[600px] overflow-y-auto">
+            <ScrollArea className=" overflow-y-auto">
               <div className="flex flex-col gap-2">
                 <div className="border border-[#DFA32D] px-4 py-2 rounded-[5px] col-span-2 flex gap-10 bg-[#FFF8EA] ">
                   <div className="h-[100px]">
@@ -213,19 +215,22 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
                 <div className="flex items-center justify-between gap-1  space-y-2">
                   <span className="text-[#202020]"> Defforestation status</span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
-                    {formatDate(farm.createdAt)}
+                    {farm.deforestationStatus}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1  space-y-2">
-                  <span className="text-[#202020]"> Defforestation Risk Level added</span>
+                  <span className="text-[#202020]">
+                    {" "}
+                    Defforestation Risk Level added
+                  </span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
-                    {formatDate(farm.createdAt)}
+                    {farm.deforestationRisk}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1  space-y-2">
                   <span className="text-[#202020]"> Risk Factor</span>
                   <span className="font-normal text-sm flex items-center gap-1 text-[#202020]">
-                    {formatDate(farm.createdAt)}
+                    {farm.deforestationRisk}
                   </span>
                 </div>
 
@@ -304,15 +309,15 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
             </ScrollArea>
 
             <DialogFooter className="flex justify-between">
-              <Button
+              {/* <Button
                 variant={"outline"}
                 className="border-[#D9D9D9] text-[#222222] px-5"
                 onClick={() => setOpen(false)}
               >
                 Back
-              </Button>
+              </Button> */}
 
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Button
                   variant={"outline"}
                   className="border-[#D9D9D9] text-[#222222] px-5"
@@ -323,13 +328,14 @@ export function ViewFarm({ farmId }: ViewFarmProps) {
                 <Button className="bg-[#EE443F] text-white px-5 ml-2">
                   Delete
                 </Button>
-              </div>
+              </div> */}
             </DialogFooter>
           </>
         ) : (
           <div className="py-8 text-center">No farm data available</div>
         )}
       </DialogContent>
+     
     </Dialog>
   );
 }

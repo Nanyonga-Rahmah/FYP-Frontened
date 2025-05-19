@@ -119,7 +119,7 @@ function ViewFarmsPage() {
           </div>
         </div>
 
-        <section className="mt-16 lg:mt-[20vh]">
+        <section className="mt-16 lg:mt-[12vh]">
           <span className="font-semibold text-xl text-white">My Farms</span>
 
           {loading && (
