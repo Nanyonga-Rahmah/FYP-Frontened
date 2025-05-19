@@ -206,7 +206,7 @@ function ViewFarmersPage(): JSX.Element {
                     key={farmer.id}
                     className="border-t hover:bg-gray-50 transition-colors"
                   >
-                    <td className="py-1 px-4">{farmer.name}</td>
+                    <td className="py-1 px-4 text-gray-500">{farmer.name}</td>
                     <td className="py-1 px-4">
                       <div className="flex flex-col">
                       <span className="text-xs text-gray-500">{farmer.phone}</span>
