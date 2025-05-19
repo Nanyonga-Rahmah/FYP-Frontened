@@ -160,7 +160,7 @@ export function ConfirmDeliveryForm({
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="justify-start text-left font-normal w-full"
+                  className="justify-start text-left text-black font-normal w-full"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
@@ -182,6 +182,7 @@ export function ConfirmDeliveryForm({
             <label className="text-sm font-medium text-gray-700">Notes *</label>
             <Textarea
               placeholder="Write here"
+              className="text-black"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />

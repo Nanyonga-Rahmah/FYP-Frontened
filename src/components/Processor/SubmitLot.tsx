@@ -94,12 +94,12 @@ export function SubmitLot() {
           <span className="cursor-pointer">Submit Lot</span>
         )}
       </DialogTrigger>
-      <DialogContent className="">
+      <DialogContent className="w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-black text-2xl font-semibold">
             {step === 1 ? "Submit Lot" : "Preview Lot"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm text-[#656565]">
             {step === 1
               ? "Ensure you selected the correct batches. This action cannot be undone."
               : "This will be logged and can’t be changed. Confirm all details."}

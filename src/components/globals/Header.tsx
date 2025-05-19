@@ -61,8 +61,8 @@ function Header() {
         {role === "exporter" && (
           <>
             <Link to="/exporter-dashboard" className={getLinkClasses("/exporter-dashboard")}>Home</Link>
-            <Link to="/view-coffeelot" className={getLinkClasses("/view-coffeelot")}>CoffeeLot</Link>
-            <Link to="/consignment" className={getLinkClasses("/consignment")}>Consignment</Link>
+            <Link to="/view-lots" className={getLinkClasses("/view-coffeelot")}>CoffeeLot</Link>
+            <Link to="/view-consignment" className={getLinkClasses("/consignment")}>Consignment</Link>
             <Link to="/support" className={getLinkClasses("/support")}>Support</Link>
           </>
         )}

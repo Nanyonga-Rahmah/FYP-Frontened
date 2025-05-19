@@ -141,7 +141,7 @@ function ExporterDashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <section className="mt-16">
+        <section className="mt-16 md:my-[10vh]">
           <span className="font-semibold text-xl text-white">
             Quick Actions
           </span>

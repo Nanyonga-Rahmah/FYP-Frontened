@@ -279,12 +279,12 @@ function BatchDetailsPage() {
                         Mark Delivered
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="w-[500px]">
                       <DialogHeader>
                         <DialogTitle className="text-black text-2xl font-semibold">
                           Confirm Delivery
                         </DialogTitle>
-                        <DialogDescription>
+                        <DialogDescription className="text-gray-700">
                           Ensure you received this farmer's batch. This action
                           cannot be undone.
                         </DialogDescription>

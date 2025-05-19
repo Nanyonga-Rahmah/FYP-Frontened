@@ -193,7 +193,7 @@ function ViewBatchPage() {
                 batches.map((batch) => (
                   <div
                     key={batch._id}
-                    className="bg-white flex flex-col gap-2 max-w-[370px] max-h-[237px] rounded-[10px] py-1 px-10 shadow-sm"
+                    className="bg-white flex flex-col gap-2 text-black max-w-[370px] max-h-[237px] rounded-[10px] py-1 px-10 shadow-sm"
                   >
                     <div className="flex flex-col py-2.5 ">
                       <div className="flex items-center justify-between">

@@ -454,7 +454,7 @@ export function SubmitBatchForm({
                           className="w-full my-2 shadow-none justify-start"
                         >
                           {field.value ? (
-                            <div>
+                            <div className="text-black">
                               {(() => {
                                 const processor = processors.find(
                                   (p) => p.id === field.value
@@ -521,6 +521,7 @@ export function SubmitBatchForm({
               </FormLabel>
               <FormControl>
                 <Textarea
+                  className="text-black"
                   placeholder="Add any additional notes or comments"
                   {...field}
                 />

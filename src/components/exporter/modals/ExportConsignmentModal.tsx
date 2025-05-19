@@ -264,7 +264,6 @@ const handleLotChange = (lotId: string) => {
             </label>
             <Input
               value={profile?.companyName || "Loading..."}
-              disabled
               className="text-black"
             />
           </div>

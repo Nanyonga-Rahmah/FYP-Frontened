@@ -162,7 +162,7 @@ function ProcessorDashboardPage() {
           </div>
         ))}
       </div>
-      <section className="w-full">
+      <section className="fixed bottom-0 w-full">
         <Footer />
       </section>
     </section>

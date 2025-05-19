@@ -224,7 +224,7 @@ export function SubmitLotForm({
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full my-2 shadow-none justify-start"
+                        className="w-full my-2 shadow-none justify-start text-black"
                       >
                         {selectedBatches.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
@@ -317,10 +317,10 @@ export function SubmitLotForm({
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full my-2 shadow-none justify-start"
+                        className="w-full my-2 shadow-none text-black justify-start"
                       >
                         {field.value ? (
-                          <div>
+                          <div className="text-black">
                             {(() => {
                               const exporter = exporters.find(
                                 (e) => e.id === field.value
@@ -385,6 +385,7 @@ export function SubmitLotForm({
               </FormLabel>
               <FormControl>
                 <Textarea
+                  className="text-black"
                   placeholder="Add any additional notes or comments"
                   {...field}
                 />

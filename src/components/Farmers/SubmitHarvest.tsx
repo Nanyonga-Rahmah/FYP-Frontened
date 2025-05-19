@@ -199,18 +199,18 @@ export function SubmitBatch() {
                 <div className="bg-gray-50 rounded-lg p-4 w-full mb-6">
                   <div className="flex justify-between mb-3">
                     <span className="text-gray-500">Batch ID:</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-black">
                       {batchId || `BCH-${Date.now().toString().slice(-6)}`}
                     </span>
                   </div>
                   <div className="flex justify-between mb-3">
                     <span className="text-gray-500">Total Weight:</span>
-                    <span className="font-medium">{batchData.weight} Bags</span>
+                    <span className="font-medium text-black">{batchData.weight} Bags</span>
                   </div>
                   <div className="flex justify-between mb-3">
                     <span className="text-gray-500">Blockchain Status:</span>
                     <span
-                      className={`font-medium ${
+                      className={`font-medium  text-black ${
                         blockchainStatus === "confirmed"
                           ? "text-green-600"
                           : blockchainStatus === "failed"
@@ -224,7 +224,7 @@ export function SubmitBatch() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Submission Date:</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-black">
                       {new Date().toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "short",

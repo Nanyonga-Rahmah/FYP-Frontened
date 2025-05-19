@@ -13,9 +13,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 import useAuth from "@/hooks/use-auth";
 import { API_URL } from "@/lib/routes";
+import { toast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
   dateReceived: z.string().min(1, { message: "Date received is required." }),
@@ -33,7 +33,6 @@ interface MarkDeliveredFormProps {
 
 export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const { authToken } = useAuth();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -72,6 +71,8 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
       }
 
       toast({
+        variant: "success",
+
         title: "Success",
         description: "Batch has been marked as received successfully.",
       });
@@ -139,14 +140,14 @@ export function MarkDeliveredForm({ batchId }: MarkDeliveredFormProps) {
                 Receipt Notes*
               </FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} className="text-black" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="col-span-2 flex items-center justify-between">
+        <div className="col-span-2 flex items-center text-black justify-between">
           <Button
             type="button"
             variant="outline"
